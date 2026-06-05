@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediUse</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0d0d;color:#fff;font-family:Arial,sans-serif;min-height:100vh}
+#app{max-width:1200px;margin:0 auto;padding:1.5rem}
+h1{font-size:24px;font-weight:700;color:#fff;margin-bottom:.5rem;display:flex;align-items:center;gap:10px}
+.subtitle{font-size:13px;color:#555;margin-bottom:1.5rem}
+.sync-bar{display:flex;align-items:center;gap:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:8px 14px;margin-bottom:1.25rem;font-size:12px;color:#888}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#555;flex-shrink:0;transition:background .3s}
+.sync-dot.ok{background:#4ade80}
+.sync-dot.err{background:#e74c3c}
+.sync-dot.loading{background:#f0c040;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Category tabs */
+.cat-tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.cat-tab{padding:8px 20px;border-radius:8px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s}
+.cat-tab.active.tavi{background:#1a3a5f;border-color:#1e4d7a;color:#4a9eff}
+.cat-tab.active.bos{background:#1a3a1a;border-color:#2d6b2d;color:#4ade80}
+.cat-tab.active.evar{background:#3a1a3a;border-color:#6b2d6b;color:#c084fc}
+.cat-tab:hover:not(.active){border-color:#555;color:#ccc}
+
+/* Add form */
+.add-panel{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:16px;margin-bottom:1.25rem}
+.add-panel h3{font-size:13px;color:#666;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.3px}
+.inp{background:#111;border:1px solid #333;border-radius:8px;padding:8px 12px;color:#fff;font-size:14px;outline:none;width:100%}
+.inp:focus{border-color:#555}
+.inp::placeholder{color:#555}
+.inp-date{color:#fff}
+.sel{background:#111;border:1px solid #333;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;cursor:pointer;width:100%}
+.sel option{background:#1a1a1a;color:#fff}
+.form-actions{display:flex;gap:8px;align-items:center}
+.add-btn{background:#fff;color:#000;border:none;border-radius:8px;padding:9px 20px;font-size:14px;font-weight:600;cursor:pointer}
+.add-btn:hover{background:#ddd}
+.clear-btn{background:transparent;border:1px solid #444;border-radius:8px;padding:9px 14px;font-size:13px;color:#aaa;cursor:pointer}
+.clear-btn:hover{border-color:#666;color:#fff}
+
+/* Toolbar */
+.toolbar{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.search-inp{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:7px 12px;color:#fff;font-size:13px;outline:none;width:260px}
+.search-inp:focus{border-color:#444}
+.search-inp::placeholder{color:#555}
+.sort-row{display:flex;gap:6px}
+.sort-btn{padding:4px 12px;border-radius:6px;border:1px solid #2a2a2a;background:transparent;color:#888;cursor:pointer;font-size:12px;transition:all .15s}
+.sort-btn.active{background:#1a1a1a;color:#4a9eff;border-color:#1e4d7a}
+.sort-btn:hover:not(.active){color:#fff}
+
+/* Stats */
+.stats{display:flex;gap:16px;margin-bottom:.75rem;flex-wrap:wrap}
+.stat{font-size:12px;color:#555}
+.stat span{color:#888;font-weight:500}
+
+/* Records table */
+.records{display:flex;flex-direction:column;gap:6px}
+.record-item{background:#1a1a1a;border:1px solid #222;border-radius:10px;padding:12px 14px;transition:border-color .15s}
+.record-item:hover{border-color:#333}
+.record-top{display:flex;align-items:flex-start;gap:10px}
+.record-main{flex:1;min-width:0}
+.record-date{font-size:11px;color:#4a9eff;margin-bottom:3px}
+.record-patient{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
+.record-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.tag{font-size:11px;padding:2px 8px;border-radius:12px;background:#2a2a2a;color:#aaa}
+.tag.green{background:#1a3a1a;color:#4ade80}
+.tag.blue{background:#1a2a3a;color:#4a9eff}
+.tag.purple{background:#2a1a3a;color:#c084fc}
+.tag.red{background:#3a1a1a;color:#f87171}
+.tag.yellow{background:#2a2a0a;color:#fbbf24}
+.record-notes{font-size:12px;color:#666;margin-top:4px;border-left:2px solid #2a2a2a;padding-left:8px}
+.record-actions{display:flex;gap:5px;flex-shrink:0}
+.icon-btn{background:#2a2a2a;border:1px solid #333;border-radius:6px;padding:6px 8px;color:#aaa;cursor:pointer;font-size:14px;line-height:1;transition:all .15s}
+.icon-btn:hover{background:#3a3a3a;color:#fff}
+.icon-btn.del:hover{background:#3a1a1a;border-color:#7a1e1e;color:#e74c3c}
+.empty{text-align:center;padding:3rem;color:#333;font-size:14px}
+
+/* Edit panel */
+.edit-panel{background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:14px;margin-top:10px}
+.edit-panel .form-grid{margin-bottom:10px}
+.save-btn{background:#fff;color:#000;border:none;border-radius:6px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer}
+.save-btn:hover{background:#ddd}
+.cancel-btn{background:transparent;border:1px solid #444;border-radius:6px;padding:7px 14px;font-size:13px;color:#aaa;cursor:pointer}
+.cancel-btn:hover{border-color:#666;color:#fff}
+
+input[type=date]{color-scheme:dark}
+
+/* Mobile */
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr 1fr}
+  .search-inp{width:100%}
+  .toolbar{flex-direction:column;align-items:stretch}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>🏥 MediUse</h1>
+  <p class="subtitle">Καταγραφή Ιατρικών Επεμβάσεων — Mediterraneo Hospital</p>
+  <div class="sync-bar">
+    <div class="sync-dot loading" id="sync-dot"></div>
+    <span id="sync-label">Σύνδεση...</span>
+  </div>
+  <div class="cat-tabs">
+    <button class="cat-tab tavi active" data-cat="tavi">🫀 TAVI</button>
+    <button class="cat-tab bos" data-cat="boston">⚡ Boston ΗΦΕ</button>
+    <button class="cat-tab evar" data-cat="evar">🩸 EVAR</button>
+  </div>
+  <div id="add-section"></div>
+  <div class="toolbar">
+    <input class="search-inp" id="search-inp" type="text" placeholder="🔍 Αναζήτηση ασθενή, νοσηλεία..." oninput="render()" />
+    <div class="sort-row">
+      <button class="sort-btn active" id="sort-date">📅 Ημερομηνία</button>
+      <button class="sort-btn" id="sort-az">🔤 Α-Ω</button>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="records" id="records"></div>
+</div>
+
+<script>
+const SUPA_URL='https://odtbtugzilxsfqxlpofq.supabase.co';
+const SUPA_KEY='sb_publishable_ch-7C1ihpZRrxEhXFqV1xA_hXPwq61S';
+const ROW_ID=1;
+
+async function supaGet(){
+  const r=await fetch(SUPA_URL+'/rest/v1/mediuse?id=eq.'+ROW_ID+'&select=data',{
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  });
+  const j=await r.json();
+  return j&&j.length>0?j[0].data:null;
+}
+async function supaSet(data){
+  const r=await fetch(SUPA_URL+'/rest/v1/mediuse?id=eq.'+ROW_ID,{
+    method:'PATCH',
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({data:data})
+  });
+  if(!r.ok){
+    await fetch(SUPA_URL+'/rest/v1/mediuse',{
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({id:ROW_ID,data:data})
+    });
+  }
+}
+
+function pad(n){return String(n).padStart(2,'0');}
+function fmtDate(d){if(!d)return '';const[y,m,dd]=d.split('-');return dd+'/'+m+'/'+y;}
+function today(){const n=new Date();return n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate());}
+
+let state={
+  cat:'tavi',
+  sort:'date',
+  tavi:[],boston:[],evar:[],
+  editingId:null
+};
+
+function setSyncStatus(s,m){
+  document.getElementById('sync-dot').className='sync-dot '+s;
+  document.getElementById('sync-label').textContent=m;
+}
+let saveTimeout=null;
+function save(){
+  localStorage.setItem('mediuse_bk',JSON.stringify(state));
+  clearTimeout(saveTimeout);
+  saveTimeout=setTimeout(saveToCloud,1000);
+}
+async function saveToCloud(){
+  setSyncStatus('loading','Αποθήκευση...');
+  try{
+    const s={...state,editingId:null};
+    await supaSet(JSON.stringify(s));
+    setSyncStatus('ok','Συγχρονισμένο ✓');
+  }catch(e){setSyncStatus('err','Σφάλμα αποθήκευσης');}
+}
+async function loadFromCloud(){
+  setSyncStatus('loading','Φόρτωση...');
+  try{
+    const raw=await supaGet();
+    if(raw!==null){
+      let data=raw;
+      try{data=JSON.parse(raw);}catch(e){}
+      if(typeof data==='string'){try{data=JSON.parse(data);}catch(e){data={};}}
+      if(data&&(data.tavi||data.boston||data.evar)){
+        state={...state,...data,editingId:null,cat:'tavi',sort:'date'};
+      }
+      setSyncStatus('ok','Συγχρονισμένο ✓');
+    } else {
+      loadLocal();
+    }
+  }catch(e){loadLocal();}
+  render();
+}
+function loadLocal(){
+  try{
+    const b=localStorage.getItem('mediuse_bk');
+    if(b){const d=JSON.parse(b);state={...state,...d,editingId:null,cat:'tavi',sort:'date'};}
+    setSyncStatus('err','Offline — τοπικά δεδομένα');
+  }catch(e){setSyncStatus('err','Σφάλμα');}
+}
+
+// Category configs
+const CATS={
+  tavi:{
+    label:'TAVI',icon:'🫀',
+    fields:[
+      {id:'date',label:'Ημερομηνία',type:'date',required:true},
+      {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
+      {id:'patient',label:'Ασθενής',type:'text',required:true,placeholder:'Επώνυμο Όνομα'},
+      {id:'invoice_no',label:'Αρ. Τιμολογίου',type:'text'},
+      {id:'invoice_date',label:'Ημερ. Τιμολογίου',type:'date'},
+      {id:'valve',label:'Βαλβίδα',type:'text',placeholder:'π.χ. EVPRO PLUS-29'},
+      {id:'company',label:'Εταιρεία',type:'select',options:['Medtronic','Edwards','Flexmed','Άλλο'],default:'Medtronic'},
+      {id:'notes',label:'Παρατηρήσεις',type:'text'},
+    ]
+  },
+  boston:{
+    label:'Boston ΗΦΕ',icon:'⚡',
+    fields:[
+      {id:'date',label:'Ημερομηνία',type:'date',required:true},
+      {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
+      {id:'patient',label:'Ασθενής',type:'text',required:true,placeholder:'Επώνυμο Όνομα'},
+      {id:'inout',label:'Εντός/Εκτός',type:'select',options:['ΕΝΤΟΣ','ΕΚΤΟΣ']},
+      {id:'therapy',label:'Θεραπεία',type:'text',placeholder:'π.χ. PFA, Ablation'},
+      {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
+      {id:'credit',label:'Πιστωτικό (€)',type:'number',placeholder:'0.00'},
+      {id:'notes',label:'Παρατηρήσεις',type:'text'},
+    ]
+  },
+  evar:{
+    label:'EVAR',icon:'🩸',
+    fields:[
+      {id:'date',label:'Ημερομηνία',type:'date',required:true},
+      {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
+      {id:'patient',label:'Ασθενής',type:'text',required:true,placeholder:'Επώνυμο Όνομα'},
+      {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
+      {id:'notes',label:'Παρατηρήσεις',type:'text'},
+    ]
+  }
+};
+
+function getRecords(){return state[state.cat]||[];}
+
+function getFiltered(){
+  let records=getRecords();
+  const q=(document.getElementById('search-inp')||{}).value||'';
+  if(q.trim()) records=records.filter(r=>
+    (r.patient||'').toLowerCase().includes(q.toLowerCase())||
+    (r.nosileia||'').toLowerCase().includes(q.toLowerCase())||
+    (r.notes||'').toLowerCase().includes(q.toLowerCase())||
+    (r.valve||'').toLowerCase().includes(q.toLowerCase())||
+    (r.therapy||'').toLowerCase().includes(q.toLowerCase())
+  );
+  if(state.sort==='date') records=[...records].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  else records=[...records].sort((a,b)=>(a.patient||'').localeCompare(b.patient||''));
+  return records;
+}
+
+function renderAddSection(){
+  const cat=CATS[state.cat];
+  const sec=document.getElementById('add-section');
+  const editing=state.editingId===0;
+  sec.innerHTML='';
+  const panel=document.createElement('div');panel.className='add-panel';
+  const h3=document.createElement('h3');h3.textContent='+ Νέα Εγγραφή — '+cat.label;
+  panel.appendChild(h3);
+  const grid=document.createElement('div');grid.className='form-grid';
+  cat.fields.forEach(f=>{
+    const g=document.createElement('div');g.className='form-group';
+    const lbl=document.createElement('label');lbl.textContent=f.label;
+    let inp;
+    if(f.type==='select'){
+      inp=document.createElement('select');inp.className='sel';inp.id='new_'+f.id;
+      f.options.forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;if(f.default&&f.default===o)opt.selected=true;inp.appendChild(opt);});
+    } else {
+      inp=document.createElement('input');inp.className='inp';
+      if(f.type==='date') inp.className+=' inp-date';
+      inp.type=f.type||'text';inp.id='new_'+f.id;
+      if(f.placeholder) inp.placeholder=f.placeholder;
+      if(f.id==='date') inp.value=today();
+    }
+    g.appendChild(lbl);g.appendChild(inp);grid.appendChild(g);
+  });
+  panel.appendChild(grid);
+  const actions=document.createElement('div');actions.className='form-actions';
+  const addBtn=document.createElement('button');addBtn.className='add-btn';addBtn.textContent='+ Προσθήκη';
+  addBtn.onclick=addRecord;
+  const clrBtn=document.createElement('button');clrBtn.className='clear-btn';clrBtn.textContent='✕ Καθαρισμός';
+  clrBtn.onclick=()=>{cat.fields.forEach(f=>{const el=document.getElementById('new_'+f.id);if(el){el.value=f.id==='date'?today():'';}});};
+  actions.appendChild(addBtn);actions.appendChild(clrBtn);
+  panel.appendChild(actions);
+  sec.appendChild(panel);
+}
+
+function addRecord(){
+  const cat=CATS[state.cat];
+  const rec={id:Date.now()};
+  let valid=true;
+  cat.fields.forEach(f=>{
+    const el=document.getElementById('new_'+f.id);
+    if(el) rec[f.id]=el.value.trim();
+    if(f.required&&(!rec[f.id])){valid=false;el.style.borderColor='#e74c3c';setTimeout(()=>el.style.borderColor='',2000);}
+  });
+  if(!valid) return;
+  if(!state[state.cat]) state[state.cat]=[];
+  state[state.cat].unshift(rec);
+  // reset form
+  cat.fields.forEach(f=>{const el=document.getElementById('new_'+f.id);if(el) el.value=f.id==='date'?today():'';});
+  save();render();
+}
+
+function renderStats(){
+  const records=getRecords();
+  const el=document.getElementById('stats');
+  let html=`<div class="stat">Σύνολο: <span>${records.length}</span></div>`;
+  if(state.cat==='tavi'){
+    const withInv=records.filter(r=>r.invoice_no).length;
+    html+=`<div class="stat">Με τιμολόγιο: <span>${withInv}</span></div>`;
+    html+=`<div class="stat">Χωρίς τιμολόγιο: <span>${records.length-withInv}</span></div>`;
+  }
+  if(state.cat==='boston'){
+    const total=records.reduce((s,r)=>s+parseFloat(r.amount||0),0);
+    const credit=records.reduce((s,r)=>s+parseFloat(r.credit||0),0);
+    html+=`<div class="stat">Σύνολο ποσό: <span>${total.toLocaleString('el-GR',{minimumFractionDigits:2})}€</span></div>`;
+    html+=`<div class="stat">Πιστωτικά: <span>${credit.toLocaleString('el-GR',{minimumFractionDigits:2})}€</span></div>`;
+  }
+  if(state.cat==='evar'){
+    const total=records.reduce((s,r)=>s+parseFloat(r.amount||0),0);
+    html+=`<div class="stat">Σύνολο ποσό: <span>${total.toLocaleString('el-GR',{minimumFractionDigits:2})}€</span></div>`;
+  }
+  el.innerHTML=html;
+}
+
+function renderSort(){
+  document.getElementById('sort-date').classList.toggle('active',state.sort==='date');
+  document.getElementById('sort-az').classList.toggle('active',state.sort==='az');
+  document.getElementById('sort-date').onclick=()=>{state.sort='date';render();};
+  document.getElementById('sort-az').onclick=()=>{state.sort='az';render();};
+}
+
+function makeEditPanel(rec){
+  const cat=CATS[state.cat];
+  const panel=document.createElement('div');panel.className='edit-panel';
+  const grid=document.createElement('div');grid.className='form-grid';
+  cat.fields.forEach(f=>{
+    const g=document.createElement('div');g.className='form-group';
+    const lbl=document.createElement('label');lbl.textContent=f.label;
+    let inp;
+    if(f.type==='select'){
+      inp=document.createElement('select');inp.className='sel';
+      f.options.forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;if(rec[f.id]===o)opt.selected=true;inp.appendChild(opt);});
+    } else {
+      inp=document.createElement('input');inp.className='inp';
+      if(f.type==='date') inp.className+=' inp-date';
+      inp.type=f.type||'text';inp.value=rec[f.id]||'';
+      if(f.placeholder) inp.placeholder=f.placeholder;
+    }
+    inp.id='edit_'+f.id+'_'+rec.id;
+    g.appendChild(lbl);g.appendChild(inp);grid.appendChild(g);
+  });
+  panel.appendChild(grid);
+  const actions=document.createElement('div');actions.className='form-actions';
+  const saveBtn=document.createElement('button');saveBtn.className='save-btn';saveBtn.textContent='Αποθήκευση';
+  saveBtn.onclick=()=>{
+    const all=state[state.cat];const idx=all.findIndex(r=>r.id===rec.id);if(idx===-1)return;
+    cat.fields.forEach(f=>{const el=document.getElementById('edit_'+f.id+'_'+rec.id);if(el) all[idx][f.id]=el.value.trim();});
+    state.editingId=null;save();render();
+  };
+  const canBtn=document.createElement('button');canBtn.className='cancel-btn';canBtn.textContent='Ακύρωση';
+  canBtn.onclick=()=>{state.editingId=null;render();};
+  actions.appendChild(saveBtn);actions.appendChild(canBtn);
+  panel.appendChild(actions);
+  return panel;
+}
+
+function renderRecords(){
+  const list=document.getElementById('records');
+  const records=getFiltered();
+  list.innerHTML='';
+  if(!records.length){list.innerHTML='<div class="empty">Καμία εγγραφή.</div>';return;}
+  records.forEach(rec=>{
+    const item=document.createElement('div');item.className='record-item';
+    const top=document.createElement('div');top.className='record-top';
+    const main=document.createElement('div');main.className='record-main';
+
+    const dateEl=document.createElement('div');dateEl.className='record-date';
+    dateEl.textContent='📅 '+fmtDate(rec.date);
+    main.appendChild(dateEl);
+
+    const patEl=document.createElement('div');patEl.className='record-patient';
+    patEl.textContent=rec.patient||'—';
+    main.appendChild(patEl);
+
+    const tags=document.createElement('div');tags.className='record-tags';
+
+    if(rec.nosileia){const t=document.createElement('span');t.className='tag blue';t.textContent='🏥 '+rec.nosileia;tags.appendChild(t);}
+
+    if(state.cat==='tavi'){
+      if(rec.valve){const t=document.createElement('span');t.className='tag purple';t.textContent='🫀 '+rec.valve;tags.appendChild(t);}
+      if(rec.company){const t=document.createElement('span');t.className='tag';t.textContent=rec.company;tags.appendChild(t);}
+      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.textContent='📄 '+rec.invoice_no;tags.appendChild(t);}
+      else {const t=document.createElement('span');t.className='tag red';t.textContent='⏳ Χωρίς τιμολόγιο';tags.appendChild(t);}
+    }
+    if(state.cat==='boston'){
+      if(rec.inout){const t=document.createElement('span');t.className='tag '+(rec.inout==='ΕΝΤΟΣ'?'green':'yellow');t.textContent=rec.inout;tags.appendChild(t);}
+      if(rec.therapy){const t=document.createElement('span');t.className='tag purple';t.textContent='⚡ '+rec.therapy;tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR')+'€';tags.appendChild(t);}
+      if(rec.credit&&parseFloat(rec.credit)>0){const t=document.createElement('span');t.className='tag red';t.textContent='↩ '+parseFloat(rec.credit).toLocaleString('el-GR')+'€';tags.appendChild(t);}
+    }
+    if(state.cat==='evar'){
+      if(rec.amount){const t=document.createElement('span');t.className='tag purple';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR')+'€';tags.appendChild(t);}
+    }
+
+    main.appendChild(tags);
+
+    if(rec.notes&&state.editingId!==rec.id){
+      const n=document.createElement('div');n.className='record-notes';n.textContent=rec.notes;main.appendChild(n);
+    }
+
+    const actions=document.createElement('div');actions.className='record-actions';
+    const editBtn=document.createElement('button');editBtn.className='icon-btn'+(state.editingId===rec.id?' active':'');
+    editBtn.title='Επεξεργασία';editBtn.textContent='✏️';
+    editBtn.onclick=()=>{state.editingId=state.editingId===rec.id?null:rec.id;render();};
+    const delBtn=document.createElement('button');delBtn.className='icon-btn del';
+    delBtn.title='Διαγραφή';delBtn.textContent='🗑';
+    delBtn.onclick=()=>{
+      if(!confirm('Διαγραφή εγγραφής "'+rec.patient+'"?'))return;
+      const all=state[state.cat];const i=all.findIndex(r=>r.id===rec.id);if(i>-1)all.splice(i,1);
+      if(state.editingId===rec.id)state.editingId=null;
+      save();render();
+    };
+    actions.appendChild(editBtn);actions.appendChild(delBtn);
+
+    top.appendChild(main);top.appendChild(actions);
+    item.appendChild(top);
+    if(state.editingId===rec.id) item.appendChild(makeEditPanel(rec));
+    list.appendChild(item);
+  });
+}
+
+function render(){
+  // Cat tabs
+  document.querySelectorAll('.cat-tab').forEach(b=>{
+    const active=b.dataset.cat===state.cat;
+    b.className='cat-tab '+b.dataset.cat+(active?' active':'');
+    b.onclick=()=>{state.cat=b.dataset.cat;state.editingId=null;document.getElementById('search-inp').value='';render();};
+  });
+  renderAddSection();
+  renderStats();
+  renderSort();
+  renderRecords();
+}
+
+loadFromCloud();
+</script>
+</body>
+</html>
