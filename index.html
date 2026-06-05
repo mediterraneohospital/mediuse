@@ -18,11 +18,11 @@ h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 .cat-tabs{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
-.cat-tab{padding:7px 16px;border-radius:6px;border:1px solid #2e4444;background:#243333;color:#7ab8b8;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
-.cat-tab.active.tavi{background:#00897b;border-color:#00796b;color:#fff}
-.cat-tab.active.bos{background:#00695c;border-color:#004d40;color:#fff}
-.cat-tab.active.evar{background:#00838f;border-color:#006064;color:#fff}
-.cat-tab:hover:not(.active){background:#2e4444;color:#b2dfdb;border-color:#4db6ac}
+.cat-tab{padding:8px 20px;border-radius:8px;border:2px solid #2e4444;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.cat-tab.active.tavi{background:#1e4d7a;border-color:#60a5fa;color:#bfdbfe}
+.cat-tab.active.boston{background:#14532d;border-color:#4ade80;color:#bbf7d0}
+.cat-tab.active.evar{background:#3b0764;border-color:#c084fc;color:#e9d5ff}
+.cat-tab:hover:not(.active){background:#243333;color:#e0f0f0;border-color:#4db6ac}
 
 .add-panel{background:#243333;border:1px solid #2e4444;border-radius:10px;padding:16px;margin-bottom:1.25rem}
 .add-panel h3{font-size:12px;color:#80cbc4;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
@@ -113,14 +113,14 @@ input[type=date]{color-scheme:dark}
 @media(max-width:600px){.form-grid{grid-template-columns:1fr 1fr}.toolbar{flex-direction:column}}
 
 .done-dropdown{position:relative;display:inline-block}
-.done-dropdown-btn{padding:7px 16px;border-radius:6px;border:1px solid #2e4444;background:#243333;color:#7ab8b8;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
-.done-dropdown-btn.active{background:#00695c;border-color:#004d40;color:#fff}
-.done-dropdown-btn:hover{background:#2e4444;color:#b2dfdb;border-color:#4db6ac}
+.done-dropdown-btn{padding:7px 16px;border-radius:6px;border:2px solid transparent;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.done-dropdown-btn.active{background:#302000;border-color:#f59e0b;color:#fcd34d}
+.done-dropdown-btn:hover{background:#243333;color:#b2dfdb;border-color:#4db6ac}
 .done-dropdown-menu{position:absolute;top:110%;left:0;background:#243333;border:1px solid #2e4444;border-radius:8px;padding:4px;z-index:100;min-width:160px;display:none;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.6)}
 .done-dropdown-menu.open{display:flex}
 .done-menu-item{padding:8px 12px;border-radius:6px;border:none;background:transparent;color:#7ab8b8;cursor:pointer;font-size:13px;text-align:left;transition:all .15s}
 .done-menu-item:hover{background:#2e4444;color:#e0f0f0}
-.done-menu-item.active{background:#00695c;color:#fff}
+.done-menu-item.active{background:#302000;border:1px solid #f59e0b;color:#fcd34d}
 </style>
 </head>
 <body>
@@ -284,9 +284,9 @@ function markSelectedDone(){
 function renderCatTabs(){
   const el=document.getElementById('cat-tabs');el.innerHTML='';
   const mainTabs=[
-    {cat:'tavi',done:false,label:'🫀 TAVI'},
-    {cat:'boston',done:false,label:'⚡ Boston ΗΦΕ'},
-    {cat:'evar',done:false,label:'🩸 EVAR'},
+    {cat:'tavi',done:false,label:'TAVI'},
+    {cat:'boston',done:false,label:'Boston ΗΦΕ'},
+    {cat:'evar',done:false,label:'EVAR'},
   ];
   mainTabs.forEach(t=>{
     const b=document.createElement('button');
@@ -299,14 +299,14 @@ function renderCatTabs(){
 
   // Dropdown for done tabs
   const doneTabs=[
-    {cat:'tavi',label:'🫀 TAVI Ολοκλ.'},
-    {cat:'boston',label:'⚡ Boston Ολοκλ.'},
-    {cat:'evar',label:'🩸 EVAR Ολοκλ.'},
+    {cat:'tavi',label:'TAVI Ολοκλ.'},
+    {cat:'boston',label:'Boston Ολοκλ.'},
+    {cat:'evar',label:'EVAR Ολοκλ.'},
   ];
   const wrap=document.createElement('div');wrap.className='done-dropdown';
   const btn=document.createElement('button');
   btn.className='done-dropdown-btn'+(state.viewDone?' active':'');
-  btn.textContent='✅ Ολοκληρωμένα ▾';
+  btn.textContent='Ολοκληρωμένα ▾';
   const menu=document.createElement('div');menu.className='done-dropdown-menu';
   doneTabs.forEach(t=>{
     const item=document.createElement('button');item.className='done-menu-item'+(state.viewDone&&state.cat===t.cat?' active':'');
