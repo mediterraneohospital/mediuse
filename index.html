@@ -125,6 +125,10 @@ input[type=date]{color-scheme:dark}
   <div id="add-section"></div>
   <div class="alert-bar" id="alert-bar"></div>
   <div class="toolbar">
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <input type="checkbox" id="select-all-cb" style="width:16px;height:16px;cursor:pointer;accent-color:#4ade80" onchange="toggleSelectAll(this.checked)" title="Επιλογή όλων"/>
+      <label for="select-all-cb" style="font-size:12px;color:#888;cursor:pointer;white-space:nowrap">Όλες</label>
+    </div>
     <input class="search-inp" id="search-inp" type="text" placeholder="🔍 Αναζήτηση ασθενή, νοσηλεία..." oninput="render()"/>
     <div class="sort-row">
       <button class="sort-btn active" id="sort-date">📅 Ημερομηνία</button>
@@ -237,6 +241,13 @@ function getFiltered(){
 }
 
 function getSelected(){return Object.keys(state.selected).filter(id=>state.selected[id]);}
+
+function toggleSelectAll(checked){
+  const recs=getFiltered();
+  if(checked){recs.forEach(r=>{state.selected[r.id]=true;});}
+  else{state.selected={};} 
+  renderStats();renderBulkBar();renderRecords();
+}
 
 function clearSelection(){state.selected={};render();}
 
@@ -381,6 +392,9 @@ function renderBulkBar(){
 }
 
 function renderSort(){
+  const cb=document.getElementById('select-all-cb');
+  const cblbl=cb?cb.nextElementSibling:null;
+  if(cb){cb.style.display=state.viewDone?'none':'';if(cblbl)cblbl.style.display=state.viewDone?'none':'';}
   const sd=document.getElementById('sort-date');
   const sa=document.getElementById('sort-az');
   sd.classList.toggle('active',state.sort==='date'||state.sort==='date_asc');
@@ -514,9 +528,20 @@ function renderRecords(){
   });
 }
 
+function updateSelectAllCb(){
+  const cb=document.getElementById('select-all-cb');if(!cb)return;
+  const recs=getFiltered();
+  if(!recs.length){cb.checked=false;cb.indeterminate=false;return;}
+  const selCount=recs.filter(r=>state.selected[r.id]).length;
+  if(selCount===0){cb.checked=false;cb.indeterminate=false;}
+  else if(selCount===recs.length){cb.checked=true;cb.indeterminate=false;}
+  else{cb.checked=false;cb.indeterminate=true;}
+}
+
 function render(){
   renderCatTabs();renderAddSection();renderAlertBar();
   renderSort();renderStats();renderBulkBar();renderRecords();
+  updateSelectAllCb();
 }
 
 loadFromCloud();
