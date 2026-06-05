@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0d0d0d;color:#fff;font-family:Arial,sans-serif;min-height:100vh}
 #app{max-width:1200px;margin:0 auto;padding:1.5rem}
-h1{font-size:24px;font-weight:700;color:#fff;margin-bottom:.5rem;display:flex;align-items:center;gap:10px}
+h1{font-size:24px;font-weight:700;color:#fff;margin-bottom:.5rem;display:flex;align-items:center;gap:0}
 .subtitle{font-size:13px;color:#555;margin-bottom:1.5rem}
 .sync-bar{display:flex;align-items:center;gap:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:8px 14px;margin-bottom:1.25rem;font-size:12px;color:#888}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#555;flex-shrink:0}
@@ -118,7 +118,7 @@ input[type=date]{color-scheme:dark}
 </head>
 <body>
 <div id="app">
-  <h1>🏥 MediUse</h1>
+  <h1><span style="color:#1a3a8f;font-weight:800;letter-spacing:-1px">Medi</span><span style="color:#cc1a1a;font-weight:800;letter-spacing:-1px">Use</span></h1>
   <p class="subtitle">Καταγραφή Ιατρικών Επεμβάσεων — Mediterraneo Hospital</p>
   <div class="sync-bar"><div class="sync-dot loading" id="sync-dot"></div><span id="sync-label">Σύνδεση...</span></div>
   <div class="cat-tabs" id="cat-tabs"></div>
@@ -184,6 +184,7 @@ async function loadFromCloud(){
       setSyncStatus('ok','Συγχρονισμένο ✓');
     } else loadLocal();
   }catch(e){loadLocal();}
+  recalcEvarCredits();
   render();
 }
 function loadLocal(){
@@ -212,14 +213,50 @@ const CATS={
     {id:'credit',label:'Πιστωτικό 30% (€)',type:'number',placeholder:'Αυτόματος υπολογισμός',readonly:true},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]},
-  evar:{label:'EVAR',icon:'🩸',hasAmount:true,fields:[
+  evar:{label:'EVAR',icon:'🩸',hasAmount:true,hasCredit:true,fields:[
     {id:'date',label:'Ημερομηνία',type:'date',required:true},
     {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
     {id:'patient',label:'Ασθενής',type:'text',required:true},
     {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
+    {id:'credit',label:'Πιστωτικό (€)',type:'number',placeholder:'Αυτόματος υπολογισμός',readonly:true},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]}
 };
+
+function calcEvarTotalCredit(){
+  // Tiered: first 10 sets @ 20%, next 5 (11-15) @ 25%, rest (16+) @ 30%
+  const all=[...(state.evar||[]),...(state.evar_done||[])];
+  const n=all.length;
+  // Sort by amount desc to maximize credit (or just use order as-is)
+  // Calculate average amount per set
+  const totalAmount=all.reduce((s,r)=>s+parseFloat(r.amount||0),0);
+  if(n===0) return {total:0,credit:0,breakdown:''};
+  const avgAmount=totalAmount/n;
+  
+  let credit=0;
+  const t1=Math.min(n,10);
+  const t2=Math.min(Math.max(n-10,0),5);
+  const t3=Math.max(n-15,0);
+  credit+=(t1*avgAmount*0.20)+(t2*avgAmount*0.25)+(t3*avgAmount*0.30);
+  
+  let breakdown=t1+' SET×20%';
+  if(t2>0) breakdown+=', '+t2+' SET×25%';
+  if(t3>0) breakdown+=', '+t3+' SET×30%';
+  
+  return {total:totalAmount,credit:Math.round(credit*100)/100,breakdown,n};
+}
+
+function getEvarDiscount(){
+  // Per-record discount based on position
+  return 0.20; // fallback
+}
+
+function recalcEvarCredits(){
+  // Individual record credit = amount × 20% base (display purposes)
+  // Real total credit shown in stats via calcEvarTotalCredit
+  (state.evar||[]).forEach(r=>{if(r.amount) r.credit=(parseFloat(r.amount)*0.20).toFixed(2);});
+  (state.evar_done||[]).forEach(r=>{if(r.amount) r.credit=(parseFloat(r.amount)*0.20).toFixed(2);});
+}
 
 function getKey(){return state.viewDone?state.cat+'_done':state.cat;}
 function getRecords(){return state[getKey()]||[];}
@@ -301,6 +338,14 @@ function renderAddSection(){
         const v=parseFloat(inp.value)||0;
         const cEl=document.getElementById('new_credit');
         if(cEl) cEl.value=v>0?(v*0.3).toFixed(2):'';
+      };
+    }
+    // Auto-calculate credit for EVAR (base 20%)
+    if(state.cat==='evar'&&f.id==='amount'){
+      inp.oninput=()=>{
+        const v=parseFloat(inp.value)||0;
+        const cEl=document.getElementById('new_credit');
+        if(cEl) cEl.value=v>0?(v*0.20).toFixed(2):'';
       };
     }
     g.appendChild(lbl);g.appendChild(inp);grid.appendChild(g);
@@ -418,6 +463,13 @@ function makeEditPanel(rec){
         if(cEl) cEl.value=v>0?(v*0.3).toFixed(2):'';
       };
     }
+    if(state.cat==='evar'&&f.id==='amount'){
+      inp.oninput=()=>{
+        const v=parseFloat(inp.value)||0;
+        const cEl=document.getElementById('edit_credit_'+rec.id);
+        if(cEl) cEl.value=v>0?(v*0.20).toFixed(2):'';
+      };
+    }
     g.appendChild(lbl);g.appendChild(inp);grid.appendChild(g);
   });
   panel.appendChild(grid);
@@ -484,6 +536,7 @@ function renderRecords(){
     }
     if(state.cat==='evar'){
       if(rec.amount){const t=document.createElement('span');t.className='tag purple';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+      if(rec.credit&&parseFloat(rec.credit)>0){const t=document.createElement('span');t.className='tag orange';t.textContent='↩ '+parseFloat(rec.credit).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
     }
     main.appendChild(tags);
 
