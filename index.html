@@ -98,7 +98,7 @@ h1{font-size:24px;font-weight:700;color:#fff;margin-bottom:.5rem;display:flex;al
 .credit-due.overdue{background:#3a1a1a;color:#f87171}
 .credit-due.soon{background:#2a1a0a;color:#f97316}
 .credit-due.ok{background:#1a2a1a;color:#6ee7b7}
-.record-notes{font-size:12px;color:#555;margin-top:4px;border-left:2px solid #2a2a2a;padding-left:8px}
+.record-notes{font-size:12px;color:#ccc;margin-top:4px;border-left:2px solid #2a2a2a;padding-left:8px}
 .record-actions{display:flex;gap:5px;flex-shrink:0}
 .icon-btn{background:#2a2a2a;border:1px solid #333;border-radius:6px;padding:6px 8px;color:#aaa;cursor:pointer;font-size:14px;line-height:1;transition:all .15s}
 .icon-btn:hover{background:#3a3a3a;color:#fff}
@@ -450,9 +450,15 @@ function renderRecords(){
 
     if(state.cat==='tavi'){
       if(rec.valve){const t=document.createElement('span');t.className='tag purple';t.textContent='🫀 '+rec.valve;tags.appendChild(t);}
-      if(rec.company){const t=document.createElement('span');t.className='tag';t.textContent=rec.company;tags.appendChild(t);}
+      if(rec.company){
+        const t=document.createElement('span');
+        const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange'};
+        t.className=cmap[rec.company]||'tag';
+        t.textContent=rec.company;
+        tags.appendChild(t);
+      }
       if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.textContent='📄 '+rec.invoice_no;tags.appendChild(t);}
-      else if(!state.viewDone){const t=document.createElement('span');t.className='tag red';t.textContent='⏳ Χωρίς τιμολόγιο';tags.appendChild(t);}
+
     }
     if(state.cat==='boston'){
       if(rec.inout){const t=document.createElement('span');t.className='tag '+(rec.inout==='ΕΝΤΟΣ'?'green':'yellow');t.textContent=rec.inout;tags.appendChild(t);}
