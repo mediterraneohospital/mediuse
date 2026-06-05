@@ -184,7 +184,6 @@ async function loadFromCloud(){
       setSyncStatus('ok','Συγχρονισμένο ✓');
     } else loadLocal();
   }catch(e){loadLocal();}
-  recalcEvarCredits();
   render();
 }
 function loadLocal(){
@@ -213,50 +212,16 @@ const CATS={
     {id:'credit',label:'Πιστωτικό 30% (€)',type:'number',placeholder:'Αυτόματος υπολογισμός',readonly:true},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]},
-  evar:{label:'EVAR',icon:'🩸',hasAmount:true,hasCredit:true,fields:[
+  evar:{label:'EVAR',icon:'🩸',hasAmount:true,fields:[
     {id:'date',label:'Ημερομηνία',type:'date',required:true},
     {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
     {id:'patient',label:'Ασθενής',type:'text',required:true},
     {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
-    {id:'credit',label:'Πιστωτικό (€)',type:'number',placeholder:'Αυτόματος υπολογισμός',readonly:true},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]}
 };
 
-function calcEvarTotalCredit(){
-  // Tiered: first 10 sets @ 20%, next 5 (11-15) @ 25%, rest (16+) @ 30%
-  const all=[...(state.evar||[]),...(state.evar_done||[])];
-  const n=all.length;
-  // Sort by amount desc to maximize credit (or just use order as-is)
-  // Calculate average amount per set
-  const totalAmount=all.reduce((s,r)=>s+parseFloat(r.amount||0),0);
-  if(n===0) return {total:0,credit:0,breakdown:''};
-  const avgAmount=totalAmount/n;
-  
-  let credit=0;
-  const t1=Math.min(n,10);
-  const t2=Math.min(Math.max(n-10,0),5);
-  const t3=Math.max(n-15,0);
-  credit+=(t1*avgAmount*0.20)+(t2*avgAmount*0.25)+(t3*avgAmount*0.30);
-  
-  let breakdown=t1+' SET×20%';
-  if(t2>0) breakdown+=', '+t2+' SET×25%';
-  if(t3>0) breakdown+=', '+t3+' SET×30%';
-  
-  return {total:totalAmount,credit:Math.round(credit*100)/100,breakdown,n};
-}
 
-function getEvarDiscount(){
-  // Per-record discount based on position
-  return 0.20; // fallback
-}
-
-function recalcEvarCredits(){
-  // Individual record credit = amount × 20% base (display purposes)
-  // Real total credit shown in stats via calcEvarTotalCredit
-  (state.evar||[]).forEach(r=>{if(r.amount) r.credit=(parseFloat(r.amount)*0.20).toFixed(2);});
-  (state.evar_done||[]).forEach(r=>{if(r.amount) r.credit=(parseFloat(r.amount)*0.20).toFixed(2);});
-}
 
 function getKey(){return state.viewDone?state.cat+'_done':state.cat;}
 function getRecords(){return state[getKey()]||[];}
@@ -340,14 +305,7 @@ function renderAddSection(){
         if(cEl) cEl.value=v>0?(v*0.3).toFixed(2):'';
       };
     }
-    // Auto-calculate credit for EVAR (base 20%)
-    if(state.cat==='evar'&&f.id==='amount'){
-      inp.oninput=()=>{
-        const v=parseFloat(inp.value)||0;
-        const cEl=document.getElementById('new_credit');
-        if(cEl) cEl.value=v>0?(v*0.20).toFixed(2):'';
-      };
-    }
+
     g.appendChild(lbl);g.appendChild(inp);grid.appendChild(g);
   });
   panel.appendChild(grid);
@@ -463,13 +421,7 @@ function makeEditPanel(rec){
         if(cEl) cEl.value=v>0?(v*0.3).toFixed(2):'';
       };
     }
-    if(state.cat==='evar'&&f.id==='amount'){
-      inp.oninput=()=>{
-        const v=parseFloat(inp.value)||0;
-        const cEl=document.getElementById('edit_credit_'+rec.id);
-        if(cEl) cEl.value=v>0?(v*0.20).toFixed(2):'';
-      };
-    }
+
     g.appendChild(lbl);g.appendChild(inp);grid.appendChild(g);
   });
   panel.appendChild(grid);
@@ -523,7 +475,7 @@ function renderRecords(){
       if(rec.inout){const t=document.createElement('span');t.className='tag '+(rec.inout==='ΕΝΤΟΣ'?'green':'yellow');t.textContent=rec.inout;tags.appendChild(t);}
       if(rec.therapy){const t=document.createElement('span');t.className='tag purple';t.textContent='⚡ '+rec.therapy;tags.appendChild(t);}
       if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
-      if(rec.credit&&parseFloat(rec.credit)>0){const t=document.createElement('span');t.className='tag orange';t.textContent='↩ '+parseFloat(rec.credit).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+
       // Credit due date
       if(rec.date&&!state.viewDone){
         const dueDate=addMonths(rec.date,3);const diff=daysDiff(dueDate);
@@ -536,7 +488,7 @@ function renderRecords(){
     }
     if(state.cat==='evar'){
       if(rec.amount){const t=document.createElement('span');t.className='tag purple';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
-      if(rec.credit&&parseFloat(rec.credit)>0){const t=document.createElement('span');t.className='tag orange';t.textContent='↩ '+parseFloat(rec.credit).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+
     }
     main.appendChild(tags);
 
