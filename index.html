@@ -306,7 +306,8 @@ function renderCatTabs(){
   const wrap=document.createElement('div');wrap.className='done-dropdown';
   const btn=document.createElement('button');
   btn.className='done-dropdown-btn'+(state.viewDone?' active':'');
-  btn.textContent='Ολοκληρωμένα ▾';
+  const doneLabel=state.viewDone?({'tavi':'TAVI','boston':'Boston ΗΦΕ','evar':'EVAR'}[state.cat]+' Ολοκλ. ▾'):'Ολοκληρωμένα ▾';
+  btn.textContent=doneLabel;
   const menu=document.createElement('div');menu.className='done-dropdown-menu';
   doneTabs.forEach(t=>{
     const item=document.createElement('button');item.className='done-menu-item'+(state.viewDone&&state.cat===t.cat?' active':'');
