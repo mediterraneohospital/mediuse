@@ -112,6 +112,51 @@ h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex
 input[type=date]{color-scheme:dark}
 @media(max-width:600px){.form-grid{grid-template-columns:1fr 1fr}.toolbar{flex-direction:column}}
 
+/* ── Τιμοκατάλογος Tab ── */
+.cat-tab.active.pricelist{background:#3a1f00;border-color:#f59e0b;color:#fcd34d}
+.pl-search-wrap{display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
+.pl-search-inp{background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:10px 16px;color:#e0f0f0;font-size:15px;outline:none;flex:1;min-width:220px}
+.pl-search-inp:focus{border-color:#f59e0b;box-shadow:0 0 0 2px rgba(245,158,11,.15)}
+.pl-search-inp::placeholder{color:#446666}
+.pl-filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.pl-filter-btn{padding:6px 14px;border-radius:6px;border:1px solid #2e4444;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.pl-filter-btn.active{background:#3a1f00;border-color:#f59e0b;color:#fcd34d}
+.pl-filter-btn:hover:not(.active){background:#243333;color:#e0f0f0}
+.pl-result{background:#243333;border:1px solid #2e4444;border-radius:10px;padding:14px 16px;margin-bottom:8px;transition:border-color .15s}
+.pl-result:hover{border-color:#4db6ac}
+.pl-result-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.pl-ref{font-size:12px;color:#f59e0b;font-weight:700;letter-spacing:.5px;font-family:monospace}
+.pl-supplier-tag{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.pl-supplier-tag.boston{background:#14532d;color:#4ade80}
+.pl-supplier-tag.medtronic{background:#1e3a5f;color:#60a5fa}
+.pl-desc{font-size:14px;color:#e0f0f0;font-weight:500;margin-bottom:10px}
+.pl-prices{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.pl-price-box{background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:8px 14px;text-align:center;min-width:130px}
+.pl-price-box.primary{border-color:#f59e0b;background:#2a1a00}
+.pl-price-label{font-size:10px;color:#7ab8b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.pl-price-val{font-size:17px;font-weight:700;color:#fcd34d}
+.pl-price-val.secondary{color:#b2dfdb;font-size:15px}
+.pl-price-val.free{color:#4ade80;font-size:14px}
+.pl-cat-badge{font-size:10px;padding:2px 7px;border-radius:8px;background:#2e4444;color:#80cbc4;margin-top:4px;display:inline-block}
+.pl-bundle{background:#1a2828;border:1px solid #2e3d3d;border-radius:8px;padding:10px 14px;margin-top:8px}
+.pl-bundle-title{font-size:11px;color:#f59e0b;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.pl-bundle-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #2e3d3d;font-size:12px;gap:8px}
+.pl-bundle-row:last-child{border-bottom:none}
+.pl-bundle-code{color:#7ab8b8;font-family:monospace;font-size:11px;flex-shrink:0}
+.pl-bundle-desc{color:#b2dfdb;flex:1}
+.pl-bundle-qty{color:#80cbc4;flex-shrink:0}
+.pl-bundle-price{font-weight:600;flex-shrink:0}
+.pl-bundle-price.free{color:#4ade80}
+.pl-bundle-price.normal{color:#fcd34d}
+.pl-bundle-total{display:flex;justify-content:flex-end;margin-top:6px;padding-top:6px;border-top:1px solid #f59e0b33}
+.pl-bundle-total-val{font-size:13px;font-weight:700;color:#fcd34d}
+.pl-empty{text-align:center;padding:3rem;color:#446666;font-size:14px}
+.pl-implant-toggle{display:flex;gap:6px;margin-bottom:10px}
+.pl-implant-btn{padding:6px 16px;border-radius:6px;border:1px solid #2e4444;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.pl-implant-btn.active{background:#1a3a2a;border-color:#4ade80;color:#4ade80}
+.pl-implant-btn:hover:not(.active){background:#243333;color:#e0f0f0}
+.pl-hint{font-size:12px;color:#446666;margin-bottom:1rem}
+
 .done-dropdown{position:relative;display:inline-block}
 .done-dropdown-btn{padding:7px 16px;border-radius:6px;border:2px solid transparent;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
 .done-dropdown-btn.active{background:#302000;border-color:#f59e0b;color:#fcd34d}
@@ -287,6 +332,7 @@ function renderCatTabs(){
     {cat:'tavi',done:false,label:'TAVI'},
     {cat:'boston',done:false,label:'Boston ΗΦΕ'},
     {cat:'evar',done:false,label:'EVAR'},
+    {cat:'pricelist',done:false,label:'💰 Τιμοκατάλογος'},
   ];
   mainTabs.forEach(t=>{
     const b=document.createElement('button');
@@ -323,7 +369,7 @@ function renderCatTabs(){
 
 function renderAddSection(){
   const sec=document.getElementById('add-section');
-  if(state.viewDone){sec.innerHTML='';return;}
+  if(state.viewDone||state.cat==='pricelist'){sec.innerHTML='';return;}
   const cat=CATS[state.cat];
   sec.innerHTML='';
   const panel=document.createElement('div');panel.className='add-panel';
@@ -598,8 +644,216 @@ function updateSelectAllCb(){
 
 function render(){
   renderCatTabs();renderAddSection();renderAlertBar();
+  // Hide main toolbar/bulk for pricelist
+  const isPL=state.cat==='pricelist';
+  document.querySelector('.toolbar').style.display=isPL?'none':'';
+  document.getElementById('bulk-bar').style.display=isPL?'none':'';
+  document.getElementById('stats').style.display=isPL?'none':'';
+  if(isPL){renderPricelist();return;}
   renderSort();renderStats();renderBulkBar();renderRecords();
   updateSelectAllCb();
+}
+
+// ── Τιμοκατάλογος ──────────────────────────────────────────────
+let plState={query:'',supplier:'all',category:'all',implantType:'initial'};
+let plCache=[];
+
+const CAT_LABELS={pacemaker:'Βηματοδότης',icd:'Απινιδωτής',ablation:'Ablation',lead:'Ηλεκτρόδιο/Υλικό',other:'Άλλο'};
+const CAT_COLORS={pacemaker:'#60a5fa',icd:'#f87171',ablation:'#c084fc',lead:'#4ade80',other:'#7ab8b8'};
+
+async function plFetch(q){
+  q=q.trim();
+  if(!q){plCache=[];renderPlResults([]);return;}
+  try{
+    const enc=encodeURIComponent(q.toUpperCase());
+    // search by ref_code (ilike) OR description (ilike)
+    const url=SUPA_URL+'/rest/v1/offers?or=(ref_code.ilike.*'+encodeURIComponent(q)+'*,description.ilike.*'+encodeURIComponent(q)+'*)&limit=30&select=*';
+    const r=await fetch(url,{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    let data=await r.json();
+    // apply filters
+    if(plState.supplier!=='all') data=data.filter(d=>d.supplier===plState.supplier);
+    if(plState.category!=='all') data=data.filter(d=>d.category===plState.category);
+    plCache=data;
+    renderPlResults(data);
+  }catch(e){console.error(e);}
+}
+
+async function plFetchBundles(offerId){
+  try{
+    const r=await fetch(SUPA_URL+'/rest/v1/offer_bundles?offer_id=eq.'+offerId+'&order=sort_order',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    return await r.json();
+  }catch(e){return [];}
+}
+
+function fmtPrice(v){
+  if(v===null||v===undefined||v==='') return null;
+  const n=parseFloat(v);
+  if(isNaN(n)) return null;
+  if(n===0) return 'ΔΩΡΕΑΝ';
+  return n.toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2})+'€';
+}
+
+function renderPlResults(data){
+  const list=document.getElementById('records');
+  list.innerHTML='';
+  if(!data.length){
+    const q=(document.getElementById('pl-search-inp')||{}).value||'';
+    list.innerHTML='<div class="pl-empty">'+(q?'Δεν βρέθηκαν αποτελέσματα για «'+q+'»':'Πληκτρολόγησε REF code ή περιγραφή για αναζήτηση.')+'</div>';
+    return;
+  }
+  data.forEach(item=>{
+    const div=document.createElement('div');div.className='pl-result';
+
+    // Header
+    const hdr=document.createElement('div');hdr.className='pl-result-header';
+    const left=document.createElement('div');
+    const ref=document.createElement('div');ref.className='pl-ref';ref.textContent=item.ref_code||'—';
+    const badge=document.createElement('span');
+    badge.className='pl-cat-badge';
+    badge.style.color=CAT_COLORS[item.category]||'#7ab8b8';
+    badge.textContent=CAT_LABELS[item.category]||item.category;
+    left.appendChild(ref);left.appendChild(badge);
+    const supTag=document.createElement('span');
+    supTag.className='pl-supplier-tag '+(item.supplier==='Boston'?'boston':'medtronic');
+    supTag.textContent=item.supplier;
+    hdr.appendChild(left);hdr.appendChild(supTag);
+    div.appendChild(hdr);
+
+    // Description
+    const desc=document.createElement('div');desc.className='pl-desc';desc.textContent=item.description||'';
+    div.appendChild(desc);
+
+    // Price boxes
+    const prices=document.createElement('div');prices.className='pl-prices';
+
+    const hasTwoImplant=item.price_purchase!==null && item.price_replacement!==null;
+    const hasAblationSell=item.price_sell_insurance!==null || item.price_sell_package!==null;
+
+    if(hasTwoImplant){
+      // Show based on implant toggle
+      const isInitial=plState.implantType==='initial';
+      const box=document.createElement('div');box.className='pl-price-box primary';
+      const lbl=document.createElement('div');lbl.className='pl-price-label';
+      lbl.textContent=isInitial?'Αρχική Εμφύτευση':'Αντικατάσταση';
+      const val=document.createElement('div');val.className='pl-price-val';
+      val.textContent=fmtPrice(isInitial?item.price_purchase:item.price_replacement)||'—';
+      box.appendChild(lbl);box.appendChild(val);prices.appendChild(box);
+    } else if(item.price_purchase!==null){
+      const box=document.createElement('div');box.className='pl-price-box primary';
+      const lbl=document.createElement('div');lbl.className='pl-price-label';lbl.textContent='Τιμή Αγοράς';
+      const val=document.createElement('div');val.className='pl-price-val';val.textContent=fmtPrice(item.price_purchase)||'—';
+      box.appendChild(lbl);box.appendChild(val);prices.appendChild(box);
+    }
+
+    if(hasAblationSell){
+      if(item.price_sell_insurance!==null){
+        const box=document.createElement('div');box.className='pl-price-box';
+        const lbl=document.createElement('div');lbl.className='pl-price-label';lbl.textContent='Πώληση Ασφάλεια';
+        const val=document.createElement('div');val.className='pl-price-val secondary';val.textContent=fmtPrice(item.price_sell_insurance)||'—';
+        box.appendChild(lbl);box.appendChild(val);prices.appendChild(box);
+      }
+      if(item.price_sell_package!==null){
+        const box=document.createElement('div');box.className='pl-price-box';
+        const lbl=document.createElement('div');lbl.className='pl-price-label';lbl.textContent='Πώληση Πακέτο';
+        const val=document.createElement('div');val.className='pl-price-val secondary';val.textContent=fmtPrice(item.price_sell_package)||'—';
+        box.appendChild(lbl);box.appendChild(val);prices.appendChild(box);
+      }
+    }
+
+    div.appendChild(prices);
+
+    // Bundle (async, only for initial implant Boston pacemaker/icd)
+    const showBundle=item.supplier==='Boston' && (item.category==='pacemaker'||item.category==='icd') && plState.implantType==='initial';
+    if(showBundle){
+      const bundleWrap=document.createElement('div');
+      div.appendChild(bundleWrap);
+      plFetchBundles(item.id).then(bundles=>{
+        if(!bundles.length) return;
+        const bDiv=document.createElement('div');bDiv.className='pl-bundle';
+        const btitle=document.createElement('div');btitle.className='pl-bundle-title';btitle.textContent='📦 Πακέτο Αρχικής Εμφύτευσης';
+        bDiv.appendChild(btitle);
+        let total=parseFloat(item.price_purchase)||0;
+        bundles.forEach(b=>{
+          const row=document.createElement('div');row.className='pl-bundle-row';
+          const code=document.createElement('span');code.className='pl-bundle-code';code.textContent=b.ref_code||'';
+          const bdesc=document.createElement('span');bdesc.className='pl-bundle-desc';bdesc.textContent=b.description||'';
+          const qty=document.createElement('span');qty.className='pl-bundle-qty';qty.textContent='x'+b.quantity;
+          const bprice=document.createElement('span');
+          if(b.is_free){
+            bprice.className='pl-bundle-price free';bprice.textContent='ΔΩΡΕΑΝ';
+          } else {
+            const lineTotal=(parseFloat(b.unit_price)||0)*b.quantity;
+            total+=lineTotal;
+            bprice.className='pl-bundle-price normal';bprice.textContent=fmtPrice(lineTotal);
+          }
+          row.appendChild(code);row.appendChild(bdesc);row.appendChild(qty);row.appendChild(bprice);
+          bDiv.appendChild(row);
+        });
+        const totalRow=document.createElement('div');totalRow.className='pl-bundle-total';
+        totalRow.innerHTML='<span style="font-size:12px;color:#7ab8b8;margin-right:8px">Σύνολο πακέτου:</span><span class="pl-bundle-total-val">'+fmtPrice(total)+'</span>';
+        bDiv.appendChild(totalRow);
+        bundleWrap.appendChild(bDiv);
+      });
+    }
+
+    list.appendChild(div);
+  });
+}
+
+function renderPricelist(){
+  const sec=document.getElementById('add-section');
+  sec.innerHTML='';
+  const list=document.getElementById('records');
+
+  // Build search UI
+  const wrap=document.createElement('div');
+  // Implant toggle (only relevant for pacemaker/icd)
+  const toggleRow=document.createElement('div');toggleRow.className='pl-implant-toggle';
+  [{v:'initial',l:'Αρχική Εμφύτευση'},{v:'replacement',l:'Αντικατάσταση'}].forEach(t=>{
+    const b=document.createElement('button');b.className='pl-implant-btn'+(plState.implantType===t.v?' active':'');
+    b.textContent=t.l;
+    b.onclick=()=>{plState.implantType=t.v;renderPricelist();const q=(document.getElementById('pl-search-inp')||{}).value||'';if(q) plFetch(q);};
+    toggleRow.appendChild(b);
+  });
+  wrap.appendChild(toggleRow);
+
+  const hint=document.createElement('div');hint.className='pl-hint';hint.textContent='Αφορά βηματοδότες & απινιδωτές. Για ablation εμφανίζεται πάντα η τιμή αγοράς.';
+  wrap.appendChild(hint);
+
+  // Search row
+  const srow=document.createElement('div');srow.className='pl-search-wrap';
+  const sinp=document.createElement('input');sinp.className='pl-search-inp';sinp.id='pl-search-inp';
+  sinp.type='text';sinp.placeholder='🔍 REF code ή περιγραφή...';sinp.autocomplete='off';
+  let searchTimer;
+  sinp.oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>plFetch(sinp.value),300);};
+  sinp.onkeydown=(e)=>{if(e.key==='Enter'){clearTimeout(searchTimer);plFetch(sinp.value);}};
+  srow.appendChild(sinp);
+  wrap.appendChild(srow);
+
+  // Filters
+  const frow=document.createElement('div');frow.className='pl-filter-row';
+  // Supplier
+  [{v:'all',l:'Όλοι'},{v:'Boston',l:'Boston'},{v:'Medtronic',l:'Medtronic'}].forEach(f=>{
+    const b=document.createElement('button');b.className='pl-filter-btn'+(plState.supplier===f.v?' active':'');
+    b.textContent=f.l;
+    b.onclick=()=>{plState.supplier=f.v;b.closest('.pl-filter-row').querySelectorAll('.pl-filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');const q=(document.getElementById('pl-search-inp')||{}).value||'';if(q) plFetch(q);};
+    frow.appendChild(b);
+  });
+  const sep=document.createElement('span');sep.style.cssText='width:1px;background:#2e4444;margin:0 4px';frow.appendChild(sep);
+  [{v:'all',l:'Κατηγορία'},{v:'pacemaker',l:'Βηματοδότης'},{v:'icd',l:'Απινιδωτής'},{v:'ablation',l:'Ablation'},{v:'lead',l:'Ηλεκτρόδιο'},{v:'other',l:'Άλλο'}].forEach(f=>{
+    const b=document.createElement('button');b.className='pl-filter-btn'+(plState.category===f.v?' active':'');
+    b.textContent=f.l;
+    b.onclick=()=>{plState.category=f.v;const q=(document.getElementById('pl-search-inp')||{}).value||'';if(q) plFetch(q);renderPricelist();if(q) plFetch(q);};
+    frow.appendChild(b);
+  });
+  wrap.appendChild(frow);
+  sec.appendChild(wrap);
+
+  // Empty state
+  list.innerHTML='<div class="pl-empty">Πληκτρολόγησε REF code ή περιγραφή για αναζήτηση.</div>';
+
+  // Re-focus
+  setTimeout(()=>{const el=document.getElementById('pl-search-inp');if(el)el.focus();},50);
 }
 
 loadFromCloud();
