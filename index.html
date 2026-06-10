@@ -655,7 +655,7 @@ function render(){
 }
 
 // ── Τιμοκατάλογος ──────────────────────────────────────────────
-let plState={query:'',supplier:'all',category:'all',implantType:'initial'};
+let plState={query:'',supplier:'all',category:'all',implantType:'initial',bundleMode:'out'};
 let plCache=[];
 
 const CAT_LABELS={pacemaker:'Βηματοδότης',icd:'Απινιδωτής',ablation:'Ablation',lead:'Ηλεκτρόδιο/Υλικό',other:'Άλλο'};
@@ -813,13 +813,15 @@ function renderPlResults(data){
           const bdesc=document.createElement('span');bdesc.style.cssText='color:#bbf7d0;flex:1';bdesc.textContent=b.description||'';
           const qty=document.createElement('span');qty.style.cssText='color:#6ee7b7;flex-shrink:0;margin:0 6px';qty.textContent='x'+b.quantity;
           const priceWrap=document.createElement('span');priceWrap.style.cssText='flex-shrink:0;text-align:right';
-          if(b.is_free){
+          const inPackage=plState.bundleMode==='in';
+          if(b.is_free && inPackage){
+            // Εντός πακέτου + FOC → ΔΩΡΕΑΝ
             priceWrap.style.color='#4ade80';priceWrap.style.fontWeight='700';priceWrap.textContent='ΔΩΡΕΑΝ';
           } else {
-            const lineTotal=(parseFloat(b.unit_price)||0)*b.quantity;
-            total+=lineTotal;
-            // Αρχική τιμή | Τιμή πακέτου (εδώ ίδια — FOC αλλιώς)
-            priceWrap.innerHTML='<span style="color:#fcd34d;font-weight:700">'+fmtPrice(lineTotal)+'</span>';
+            // Εκτός πακέτου ή μη-FOC → αρχική τιμή
+            const origPrice=(parseFloat(b.price_original)||parseFloat(b.unit_price)||0)*b.quantity;
+            total+=origPrice;
+            priceWrap.innerHTML='<span style="color:#fcd34d;font-weight:700">'+fmtPrice(origPrice)+'</span>';
           }
           row.appendChild(code);row.appendChild(bdesc);row.appendChild(qty);row.appendChild(priceWrap);
           bDiv.appendChild(row);
@@ -853,7 +855,21 @@ function renderPricelist(){
   });
   wrap.appendChild(toggleRow);
 
-  const hint=document.createElement('div');hint.className='pl-hint';hint.textContent='Αφορά βηματοδότες & απινιδωτές. Για ablation εμφανίζεται πάντα η τιμή αγοράς.';
+  // Bundle mode toggle
+  const bundleRow=document.createElement('div');bundleRow.className='pl-implant-toggle';bundleRow.style.marginTop='6px';
+  [{v:'out',l:'Εκτός Πακέτου'},{v:'in',l:'Εντός Πακέτου'}].forEach(t=>{
+    const b=document.createElement('button');
+    b.className='pl-implant-btn'+(plState.bundleMode===t.v?' active':'');
+    b.style.background=plState.bundleMode===t.v?(t.v==='in'?'#1a3a5f':'#1a2828'):'';
+    b.style.borderColor=plState.bundleMode===t.v?(t.v==='in'?'#60a5fa':'#4ade80'):'';
+    b.style.color=plState.bundleMode===t.v?(t.v==='in'?'#60a5fa':'#4ade80'):'';
+    b.textContent=t.l;
+    b.onclick=()=>{plState.bundleMode=t.v;renderPricelist();const q=(document.getElementById('pl-search-inp')||{}).value||'';if(q) plFetch(q);};
+    bundleRow.appendChild(b);
+  });
+  wrap.appendChild(bundleRow);
+
+  const hint=document.createElement('div');hint.className='pl-hint';hint.textContent='Αρχική Εμφύτευση/Αντικατάσταση αφορά βηματοδότες & απινιδωτές. Εκτός/Εντός Πακέτου αφορά τα bundles υλικών.';
   wrap.appendChild(hint);
 
   // Search row
