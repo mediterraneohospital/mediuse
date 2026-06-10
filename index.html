@@ -850,7 +850,7 @@ function renderPricelist(){
   [{v:'initial',l:'Αρχική Εμφύτευση'},{v:'replacement',l:'Αντικατάσταση'}].forEach(t=>{
     const b=document.createElement('button');b.className='pl-implant-btn'+(plState.implantType===t.v?' active':'');
     b.textContent=t.l;
-    b.onclick=()=>{plState.implantType=t.v;renderPricelist();const q=(document.getElementById('pl-search-inp')||{}).value||'';if(q) plFetch(q);};
+    b.onclick=()=>{plState.implantType=t.v;renderPricelist();};
     toggleRow.appendChild(b);
   });
   wrap.appendChild(toggleRow);
@@ -864,7 +864,7 @@ function renderPricelist(){
     b.style.borderColor=plState.bundleMode===t.v?(t.v==='in'?'#60a5fa':'#4ade80'):'';
     b.style.color=plState.bundleMode===t.v?(t.v==='in'?'#60a5fa':'#4ade80'):'';
     b.textContent=t.l;
-    b.onclick=()=>{plState.bundleMode=t.v;renderPricelist();const q=(document.getElementById('pl-search-inp')||{}).value||'';if(q) plFetch(q);};
+    b.onclick=()=>{plState.bundleMode=t.v;renderPricelist();};
     bundleRow.appendChild(b);
   });
   wrap.appendChild(bundleRow);
@@ -877,19 +877,22 @@ function renderPricelist(){
   const sinp=document.createElement('input');sinp.className='pl-search-inp';sinp.id='pl-search-inp';
   sinp.type='text';sinp.placeholder='🔍 REF code ή περιγραφή...';sinp.autocomplete='off';
   let searchTimer;
-  sinp.oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>plFetch(sinp.value),300);};
-  sinp.onkeydown=(e)=>{if(e.key==='Enter'){clearTimeout(searchTimer);plFetch(sinp.value);}};
+  sinp.oninput=()=>{clearTimeout(searchTimer);plState.query=sinp.value;searchTimer=setTimeout(()=>plFetch(sinp.value),300);};
+  sinp.onkeydown=(e)=>{if(e.key==='Enter'){clearTimeout(searchTimer);plState.query=sinp.value;plFetch(sinp.value);}};
   srow.appendChild(sinp);
   wrap.appendChild(srow);
 
-
   sec.appendChild(wrap);
 
-  // Empty state
-  list.innerHTML='<div class="pl-empty">Πληκτρολόγησε REF code ή περιγραφή για αναζήτηση.</div>';
-
-  // Re-focus
-  setTimeout(()=>{const el=document.getElementById('pl-search-inp');if(el)el.focus();},50);
+  // Restore query or show empty state
+  if(plState.query){
+    sinp.value=plState.query;
+    list.innerHTML='<div class="pl-empty">Φόρτωση...</div>';
+    setTimeout(()=>plFetch(plState.query),50);
+  } else {
+    list.innerHTML='<div class="pl-empty">Πληκτρολόγησε REF code ή περιγραφή για αναζήτηση.</div>';
+    setTimeout(()=>sinp.focus(),50);
+  }
 }
 
 loadFromCloud();
