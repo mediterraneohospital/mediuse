@@ -332,7 +332,7 @@ function renderCatTabs(){
     {cat:'tavi',done:false,label:'TAVI'},
     {cat:'boston',done:false,label:'Boston ΗΦΕ'},
     {cat:'evar',done:false,label:'EVAR'},
-    {cat:'pricelist',done:false,label:'💰 Τιμοκατάλογος'},
+    {cat:'pricelist',done:false,label:'Τιμοκατάλογοι'},
   ];
   mainTabs.forEach(t=>{
     const b=document.createElement('button');
@@ -762,15 +762,26 @@ function renderPlResults(data){
 
     div.appendChild(prices);
 
-    // Bundle (async, only for initial implant Boston pacemaker/icd)
-    const showBundle=item.supplier==='Boston' && (item.category==='pacemaker'||item.category==='icd') && plState.implantType==='initial';
+    // Bundle για Boston pacemaker/icd αρχική εμφύτευση
+    // ΚΑΙ για Medtronic ablation (3 κύρια πακέτα)
+    const MEDTRONIC_ABLATION_BUNDLES=['PSCC100','AFAPRO28','AFR-00001'];
+    const MEDTRONIC_ABLATION_NAMES={
+      'PSCC100':'Καθετήρας ηλεκτροδιάτρησης μεμβράνης (PFA)',
+      'AFAPRO28':'Καθετήρας κρυοκατάλυσης',
+      'AFR-00001':'Καθετήρας χαρτογράφησης και κατάλυσης AFFERA'
+    };
+    const isMedtronicAblationBundle=item.supplier==='Medtronic' && item.category==='ablation' && MEDTRONIC_ABLATION_BUNDLES.includes(item.ref_code);
+    const showBundle=(item.supplier==='Boston' && (item.category==='pacemaker'||item.category==='icd') && plState.implantType==='initial') || isMedtronicAblationBundle;
     if(showBundle){
       const bundleWrap=document.createElement('div');
       div.appendChild(bundleWrap);
       plFetchBundles(item.id).then(bundles=>{
         if(!bundles.length) return;
         const bDiv=document.createElement('div');bDiv.className='pl-bundle';
-        const btitle=document.createElement('div');btitle.className='pl-bundle-title';btitle.textContent='📦 Πακέτο Αρχικής Εμφύτευσης';
+        const bundleName=isMedtronicAblationBundle
+          ? '📦 Σετ — '+MEDTRONIC_ABLATION_NAMES[item.ref_code]
+          : '📦 Πακέτο Αρχικής Εμφύτευσης';
+        const btitle=document.createElement('div');btitle.className='pl-bundle-title';btitle.textContent=bundleName;
         bDiv.appendChild(btitle);
         let total=parseFloat(item.price_purchase)||0;
         bundles.forEach(b=>{
@@ -830,23 +841,7 @@ function renderPricelist(){
   srow.appendChild(sinp);
   wrap.appendChild(srow);
 
-  // Filters
-  const frow=document.createElement('div');frow.className='pl-filter-row';
-  // Supplier
-  [{v:'all',l:'Όλοι'},{v:'Boston',l:'Boston'},{v:'Medtronic',l:'Medtronic'}].forEach(f=>{
-    const b=document.createElement('button');b.className='pl-filter-btn'+(plState.supplier===f.v?' active':'');
-    b.textContent=f.l;
-    b.onclick=()=>{plState.supplier=f.v;b.closest('.pl-filter-row').querySelectorAll('.pl-filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');const q=(document.getElementById('pl-search-inp')||{}).value||'';if(q) plFetch(q);};
-    frow.appendChild(b);
-  });
-  const sep=document.createElement('span');sep.style.cssText='width:1px;background:#2e4444;margin:0 4px';frow.appendChild(sep);
-  [{v:'all',l:'Κατηγορία'},{v:'pacemaker',l:'Βηματοδότης'},{v:'icd',l:'Απινιδωτής'},{v:'ablation',l:'Ablation'},{v:'lead',l:'Ηλεκτρόδιο'},{v:'other',l:'Άλλο'}].forEach(f=>{
-    const b=document.createElement('button');b.className='pl-filter-btn'+(plState.category===f.v?' active':'');
-    b.textContent=f.l;
-    b.onclick=()=>{plState.category=f.v;const q=(document.getElementById('pl-search-inp')||{}).value||'';if(q) plFetch(q);renderPricelist();if(q) plFetch(q);};
-    frow.appendChild(b);
-  });
-  wrap.appendChild(frow);
+
   sec.appendChild(wrap);
 
   // Empty state
