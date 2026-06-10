@@ -706,17 +706,17 @@ function renderPlResults(data){
 
     // Header
     const hdr=document.createElement('div');hdr.className='pl-result-header';
-    const left=document.createElement('div');
+    const left=document.createElement('div');left.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
     const ref=document.createElement('div');ref.className='pl-ref';ref.textContent=item.ref_code||'—';
     const badge=document.createElement('span');
     badge.className='pl-cat-badge';
     badge.style.color=CAT_COLORS[item.category]||'#7ab8b8';
     badge.textContent=CAT_LABELS[item.category]||item.category;
-    left.appendChild(ref);left.appendChild(badge);
     const supTag=document.createElement('span');
     supTag.className='pl-supplier-tag '+(item.supplier==='Boston'?'boston':'medtronic');
     supTag.textContent=item.supplier;
-    hdr.appendChild(left);hdr.appendChild(supTag);
+    left.appendChild(ref);left.appendChild(badge);left.appendChild(supTag);
+    hdr.appendChild(left);
     div.appendChild(hdr);
 
     // Description
