@@ -796,7 +796,7 @@ function renderPlResults(data){
         const btitle=document.createElement('div');btitle.className='pl-bundle-title';btitle.textContent=bundleName;
         bDiv.appendChild(btitle);
 
-        // Κύρια γραμμή (μπλε) — το ίδιο το κύριο υλικό
+        // Κύρια γραμμή (μπλε)
         const mainRow=document.createElement('div');
         mainRow.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:6px 8px;margin-bottom:4px;background:#1a2a3a;border:1px solid #2a4a6a;border-radius:6px;gap:8px;font-size:12px';
         const mainCode=document.createElement('span');mainCode.style.cssText='color:#60a5fa;font-family:monospace;font-size:11px;flex-shrink:0';mainCode.textContent=item.ref_code;
@@ -805,31 +805,59 @@ function renderPlResults(data){
         mainRow.appendChild(mainCode);mainRow.appendChild(mainDesc);mainRow.appendChild(mainPrice);
         bDiv.appendChild(mainRow);
 
-        let total=parseFloat(item.price_purchase)||0;
+        let totalActive=parseFloat(item.price_purchase)||0;
+        let totalPassive=parseFloat(item.price_purchase)||0;
+        let hasDual=false;
+
         bundles.forEach(b=>{
+          const isDual=b.ref_code_alt && b.unit_price_alt;
+          if(isDual) hasDual=true;
+          const inPackage=plState.bundleMode==='in';
+
           const row=document.createElement('div');
           row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:#1a2e1a;border:1px solid #2a4a2a;border-radius:6px;margin-bottom:3px;gap:8px;font-size:12px';
-          const code=document.createElement('span');code.style.cssText='color:#4ade80;font-family:monospace;font-size:11px;flex-shrink:0';code.textContent=b.ref_code||'';
+
+          const code=document.createElement('span');code.style.cssText='color:#4ade80;font-family:monospace;font-size:11px;flex-shrink:0';
+          code.textContent=isDual?(b.ref_code+' / '+b.ref_code_alt):b.ref_code||'';
           const bdesc=document.createElement('span');bdesc.style.cssText='color:#bbf7d0;flex:1';bdesc.textContent=b.description||'';
           const qty=document.createElement('span');qty.style.cssText='color:#6ee7b7;flex-shrink:0;margin:0 6px';qty.textContent='x'+b.quantity;
-          const priceWrap=document.createElement('span');priceWrap.style.cssText='flex-shrink:0;text-align:right';
-          const inPackage=plState.bundleMode==='in';
+          const priceWrap=document.createElement('span');priceWrap.style.cssText='flex-shrink:0;text-align:right;white-space:nowrap';
+
           if(b.is_free && inPackage){
-            // Εντός πακέτου + FOC → ΔΩΡΕΑΝ
             priceWrap.style.color='#4ade80';priceWrap.style.fontWeight='700';priceWrap.textContent='ΔΩΡΕΑΝ';
+          } else if(isDual){
+            const priceA=(parseFloat(b.unit_price)||0)*b.quantity;
+            const priceP=(parseFloat(b.unit_price_alt)||0)*b.quantity;
+            totalActive+=priceA;
+            totalPassive+=priceP;
+            priceWrap.innerHTML=
+              '<span style="color:#60a5fa;font-size:10px;margin-right:2px">'+(b.label_main||'A')+':</span>'+
+              '<span style="color:#fcd34d;font-weight:700">'+fmtPrice(priceA)+'</span>'+
+              '<span style="color:#7ab8b8;margin:0 4px">|</span>'+
+              '<span style="color:#c084fc;font-size:10px;margin-right:2px">'+(b.label_alt||'P')+':</span>'+
+              '<span style="color:#fcd34d;font-weight:700">'+fmtPrice(priceP)+'</span>';
           } else {
-            // Εκτός πακέτου ή μη-FOC → αρχική τιμή
             const origPrice=(parseFloat(b.price_original)||parseFloat(b.unit_price)||0)*b.quantity;
-            total+=origPrice;
+            totalActive+=origPrice;
+            totalPassive+=origPrice;
             priceWrap.innerHTML='<span style="color:#fcd34d;font-weight:700">'+fmtPrice(origPrice)+'</span>';
           }
           row.appendChild(code);row.appendChild(bdesc);row.appendChild(qty);row.appendChild(priceWrap);
           bDiv.appendChild(row);
         });
 
-        const totalRow=document.createElement('div');totalRow.className='pl-bundle-total';
-        totalRow.innerHTML='<span style="font-size:12px;color:#7ab8b8;margin-right:8px">Σύνολο πακέτου:</span><span class="pl-bundle-total-val">'+fmtPrice(total)+'</span>';
-        bDiv.appendChild(totalRow);
+        // Σύνολο — αν υπάρχει dual τότε 2 γραμμές
+        if(hasDual){
+          const totalWrap=document.createElement('div');totalWrap.style.cssText='display:flex;justify-content:flex-end;gap:16px;margin-top:6px;padding-top:6px;border-top:1px solid #f59e0b33;flex-wrap:wrap';
+          totalWrap.innerHTML=
+            '<span style="font-size:12px;color:#7ab8b8">Σύνολο <span style="color:#60a5fa">Active</span>: <strong style="color:#fcd34d">'+fmtPrice(totalActive)+'</strong></span>'+
+            '<span style="font-size:12px;color:#7ab8b8">Σύνολο <span style="color:#c084fc">Passive</span>: <strong style="color:#fcd34d">'+fmtPrice(totalPassive)+'</strong></span>';
+          bDiv.appendChild(totalWrap);
+        } else {
+          const totalRow=document.createElement('div');totalRow.className='pl-bundle-total';
+          totalRow.innerHTML='<span style="font-size:12px;color:#7ab8b8;margin-right:8px">Σύνολο πακέτου:</span><span class="pl-bundle-total-val">'+fmtPrice(totalActive)+'</span>';
+          bDiv.appendChild(totalRow);
+        }
         bundleWrap.appendChild(bDiv);
       });
     }
