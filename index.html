@@ -716,6 +716,8 @@ function renderPlResults(data){
     supTag.className='pl-supplier-tag '+(item.supplier==='Boston'?'boston':'medtronic');
     supTag.textContent=item.supplier;
     left.appendChild(ref);left.appendChild(badge);left.appendChild(supTag);
+    if(item.pt_code){const ptc=document.createElement('span');ptc.style.cssText='font-size:11px;color:#7ab8b8;background:#1a2828;border:1px solid #2e4444;border-radius:6px;padding:2px 8px';ptc.textContent='ΚΕΝ: '+item.pt_code;left.appendChild(ptc);}
+    if(item.pt_price){const ptp=document.createElement('span');ptp.style.cssText='font-size:11px;color:#fbbf24;background:#2a2a0a;border:1px solid #3a3a0a;border-radius:6px;padding:2px 8px';ptp.textContent='ΠΤ: '+parseFloat(item.pt_price).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';left.appendChild(ptp);}
     hdr.appendChild(left);
     div.appendChild(hdr);
 
@@ -743,6 +745,14 @@ function renderPlResults(data){
       const lbl=document.createElement('div');lbl.className='pl-price-label';lbl.textContent='Τιμή Αγοράς';
       const val=document.createElement('div');val.className='pl-price-val';val.textContent=fmtPrice(item.price_purchase)||'—';
       box.appendChild(lbl);box.appendChild(val);prices.appendChild(box);
+    }
+
+    // CSP pacing
+    if(item.price_purchase_csp!=null && plState.implantType==='initial'){
+      const boxCSP=document.createElement('div');boxCSP.className='pl-price-box';boxCSP.style.cssText='border-color:#f59e0b;background:#2a1a00';
+      const lblCSP=document.createElement('div');lblCSP.className='pl-price-label';lblCSP.textContent='Αρχική με CSP Pacing';
+      const valCSP=document.createElement('div');valCSP.className='pl-price-val';valCSP.style.color='#f59e0b';valCSP.textContent=fmtPrice(item.price_purchase_csp)||'—';
+      boxCSP.appendChild(lblCSP);boxCSP.appendChild(valCSP);prices.appendChild(boxCSP);
     }
 
     if(hasAblationSell){
