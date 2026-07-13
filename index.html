@@ -22,6 +22,7 @@ h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex
 .cat-tab.active.tavi{background:#1e4d7a;border-color:#60a5fa;color:#bfdbfe}
 .cat-tab.active.boston{background:#14532d;border-color:#4ade80;color:#bbf7d0}
 .cat-tab.active.evar{background:#3b0764;border-color:#c084fc;color:#e9d5ff}
+.cat-tab.active.clip{background:#7a1a3a;border-color:#f43f5e;color:#fecdd3}
 .cat-tab:hover:not(.active){background:#243333;color:#e0f0f0;border-color:#4db6ac}
 
 .add-panel{background:#243333;border:1px solid #2e4444;border-radius:10px;padding:16px;margin-bottom:1.25rem}
@@ -223,7 +224,7 @@ function today(){const n=new Date();return n.getFullYear()+'-'+pad(n.getMonth()+
 function addMonths(dateStr,months){const d=new Date(dateStr);d.setMonth(d.getMonth()+months);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function daysDiff(dateStr){const d=new Date(dateStr),now=new Date();now.setHours(0,0,0,0);d.setHours(0,0,0,0);return Math.round((d-now)/(1000*60*60*24));}
 
-let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],tavi_done:[],boston_done:[],evar_done:[],selected:{},editingId:null};
+let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:[],tavi_done:[],boston_done:[],evar_done:[],clip_done:[],selected:{},editingId:null};
 
 function setSyncStatus(s,m){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-label').textContent=m;}
 let saveTimeout=null;
@@ -260,8 +261,8 @@ const CATS={
     {id:'patient',label:'Ασθενής',type:'text',required:true},
     {id:'invoice_no',label:'Αρ. Τιμολογίου',type:'text'},
     {id:'invoice_date',label:'Ημερ. Τιμολογίου',type:'date'},
-    {id:'valve',label:'Βαλβίδα',type:'text',placeholder:'π.χ. EVPRO PLUS-29, Navitor'},
-    {id:'company',label:'Εταιρεία',type:'select',options:['Medtronic','Edwards','Flexmed','Abbott','Άλλο']},
+    {id:'valve',label:'Βαλβίδα',type:'text',placeholder:'π.χ. EVPRO PLUS-29'},
+    {id:'company',label:'Εταιρεία',type:'select',options:['Medtronic','Edwards','Flexmed','Άλλο']},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]},
   boston:{label:'Boston ΗΦΕ',icon:'⚡',hasAmount:true,hasCredit:true,fields:[
@@ -272,6 +273,16 @@ const CATS={
     {id:'therapy',label:'Θεραπεία',type:'text',placeholder:'π.χ. PFA, Ablation'},
     {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
     {id:'credit',label:'Πιστωτικό 30% (€)',type:'number',placeholder:'Αυτόματος υπολογισμός',readonly:true},
+    {id:'notes',label:'Παρατηρήσεις',type:'text'},
+  ]},
+  clip:{label:'Clip Abbott',icon:'🩺',hasAmount:true,fields:[
+    {id:'date',label:'Ημερομηνία',type:'date',required:true},
+    {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
+    {id:'patient',label:'Ασθενής',type:'text',required:true},
+    {id:'clip_type',label:'Τύπος Clip',type:'select',options:['MitraClip','TriClip']},
+    {id:'invoice_no',label:'Αρ. Τιμολογίου',type:'text'},
+    {id:'invoice_date',label:'Ημερ. Τιμολογίου',type:'date'},
+    {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]},
   evar:{label:'EVAR',icon:'🩸',hasAmount:true,fields:[
@@ -332,6 +343,7 @@ function renderCatTabs(){
     {cat:'tavi',done:false,label:'TAVI'},
     {cat:'boston',done:false,label:'Boston ΗΦΕ'},
     {cat:'evar',done:false,label:'EVAR'},
+    {cat:'clip',done:false,label:'Clip Abbott'},
     {cat:'pricelist',done:false,label:'Τιμοκατάλογοι'},
   ];
   mainTabs.forEach(t=>{
@@ -348,11 +360,12 @@ function renderCatTabs(){
     {cat:'tavi',label:'TAVI Ολοκλ.'},
     {cat:'boston',label:'Boston Ολοκλ.'},
     {cat:'evar',label:'EVAR Ολοκλ.'},
+    {cat:'clip',label:'Clip Ολοκλ.'},
   ];
   const wrap=document.createElement('div');wrap.className='done-dropdown';
   const btn=document.createElement('button');
   btn.className='done-dropdown-btn'+(state.viewDone?' active':'');
-  const doneLabel=state.viewDone?({'tavi':'TAVI','boston':'Boston ΗΦΕ','evar':'EVAR'}[state.cat]+' Ολοκλ. ▾'):'Ολοκληρωμένα ▾';
+  const doneLabel=state.viewDone?({'tavi':'TAVI','boston':'Boston ΗΦΕ','evar':'EVAR','clip':'Clip Abbott'}[state.cat]+' Ολοκλ. ▾'):'Ολοκληρωμένα ▾';
   btn.textContent=doneLabel;
   const menu=document.createElement('div');menu.className='done-dropdown-menu';
   doneTabs.forEach(t=>{
@@ -426,6 +439,21 @@ function addRecord(){
 
 function renderAlertBar(){
   const bar=document.getElementById('alert-bar');
+  if(state.cat==='clip'&&!state.viewDone){
+    const clips=state.clip||[];
+    const total=clips.length;
+    const free=Math.floor(total/10);
+    const next=10-(total%10);
+    if(total>0){
+      bar.className='alert-bar show';
+      let html='<strong style="font-size:12px;color:#f43f5e;display:block;margin-bottom:6px">🩺 Clip Abbott — Πρόγραμμα Δωρεάν</strong>';
+      html+='<div class="alert-item"><div class="alert-dot" style="background:#f43f5e"></div><span style="color:#fecdd3">Συνολικά clips: <strong>'+total+'</strong>';
+      if(free>0) html+=' | Δωρεάν clips: <strong style="color:#4ade80">'+free+'</strong>';
+      html+=' | Επόμενο δωρεάν σε: <strong>'+next+'</strong> clips</span></div>';
+      bar.innerHTML=html;return;
+    }
+    bar.className='alert-bar';return;
+  }
   if(state.cat!=='boston'||state.viewDone){bar.className='alert-bar';return;}
   const recs=state.boston||[];
   const overdue=recs.filter(r=>r.date&&daysDiff(addMonths(r.date,3))<0);
@@ -560,7 +588,7 @@ function renderRecords(){
       if(rec.valve){const t=document.createElement('span');t.className='tag purple';t.textContent='🫀 '+rec.valve;tags.appendChild(t);}
       if(rec.company){
         const t=document.createElement('span');
-        const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange','Abbott':'tag purple'};
+        const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange'};
         t.className=cmap[rec.company]||'tag';
         t.textContent=rec.company;
         tags.appendChild(t);
@@ -586,7 +614,11 @@ function renderRecords(){
     }
     if(state.cat==='evar'){
       if(rec.amount){const t=document.createElement('span');t.className='tag purple';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
-
+    }
+    if(state.cat==='clip'){
+      if(rec.clip_type){const t=document.createElement('span');t.className='tag '+(rec.clip_type==='MitraClip'?'red':'orange');t.textContent='🩺 '+rec.clip_type;tags.appendChild(t);}
+      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.textContent='📄 '+rec.invoice_no;tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
     }
     main.appendChild(tags);
 
