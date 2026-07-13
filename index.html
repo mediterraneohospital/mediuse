@@ -914,6 +914,12 @@ function renderPlResults(data){
             '<span style="font-size:12px;color:#7ab8b8">Σύνολο <span style="color:#c084fc">Passive</span>: <strong style="color:#fcd34d">'+fmtPrice(totalPassive)+'</strong></span>';
           bDiv.appendChild(totalWrap);
         } else {
+          if(item.ref_code==='AFR-00001'){
+            const focNote=document.createElement('div');
+            focNote.style.cssText='background:#3a1a1a;border:1px solid #f43f5e;border-radius:6px;padding:8px 10px;margin-top:6px;margin-bottom:2px;font-size:13px;font-weight:800;color:#fecaca;text-align:center;letter-spacing:.3px';
+            focNote.textContent='ΟΛΑ ΤΑ ΥΠΟΛΟΙΠΑ ΥΛΙΚΑ ΕΙΝΑΙ F.O.C.';
+            bDiv.appendChild(focNote);
+          }
           const totalRow=document.createElement('div');totalRow.className='pl-bundle-total';
           totalRow.innerHTML='<span style="font-size:12px;color:#7ab8b8;margin-right:8px">Σύνολο πακέτου:</span><span class="pl-bundle-total-val">'+fmtPrice(totalActive)+'</span>';
           bDiv.appendChild(totalRow);
