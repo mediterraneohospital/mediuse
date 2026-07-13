@@ -262,7 +262,7 @@ const CATS={
     {id:'invoice_no',label:'Αρ. Τιμολογίου',type:'text'},
     {id:'invoice_date',label:'Ημερ. Τιμολογίου',type:'date'},
     {id:'valve',label:'Βαλβίδα',type:'text',placeholder:'π.χ. EVPRO PLUS-29'},
-    {id:'company',label:'Εταιρεία',type:'select',options:['Medtronic','Edwards','Flexmed','Άλλο']},
+    {id:'company',label:'Εταιρεία',type:'select',options:['Medtronic','Edwards','Flexmed','Abbott','Άλλο']},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]},
   boston:{label:'Boston ΗΦΕ',icon:'⚡',hasAmount:true,hasCredit:true,fields:[
@@ -588,7 +588,7 @@ function renderRecords(){
       if(rec.valve){const t=document.createElement('span');t.className='tag purple';t.textContent='🫀 '+rec.valve;tags.appendChild(t);}
       if(rec.company){
         const t=document.createElement('span');
-        const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange'};
+        const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange','Abbott':'tag purple'};
         t.className=cmap[rec.company]||'tag';
         t.textContent=rec.company;
         tags.appendChild(t);
