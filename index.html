@@ -405,6 +405,7 @@ function renderAddSection(){
       if(f.id==='date') inp.value=today();
       if(f.readonly) inp.readOnly=true;
     }
+
     // Auto-calculate credit for Boston
     if(state.cat==='boston'&&f.id==='amount'){
       inp.oninput=()=>{
@@ -983,6 +984,21 @@ function renderPricelist(){
 }
 
 loadFromCloud();
+
+// Smart paste για ημερομηνίες (DD/MM/YYYY → YYYY-MM-DD)
+document.addEventListener('paste', function(e){
+  const el = document.activeElement;
+  if(!el || el.type !== 'date') return;
+  const text = (e.clipboardData || window.clipboardData).getData('text').trim();
+  const m = text.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(m){
+    e.preventDefault();
+    const dd=m[1].padStart(2,'0'), mm=m[2].padStart(2,'0'), yyyy=m[3];
+    el.value = yyyy+'-'+mm+'-'+dd;
+    el.dispatchEvent(new Event('change',{bubbles:true}));
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+});
 </script>
 </body>
 </html>
