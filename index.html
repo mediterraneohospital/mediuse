@@ -224,7 +224,7 @@ function today(){const n=new Date();return n.getFullYear()+'-'+pad(n.getMonth()+
 function addMonths(dateStr,months){const d=new Date(dateStr);d.setMonth(d.getMonth()+months);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function daysDiff(dateStr){const d=new Date(dateStr),now=new Date();now.setHours(0,0,0,0);d.setHours(0,0,0,0);return Math.round((d-now)/(1000*60*60*24));}
 
-let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:[],tavi_done:[],boston_done:[],evar_done:[],clip_done:[],selected:{},editingId:null};
+let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:[],tavi_done:[],boston_done:[],evar_done:[],clip_done:[],selected:{},editingId:null,taviFilter:null};
 
 function setSyncStatus(s,m){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-label').textContent=m;}
 let saveTimeout=null;
@@ -307,6 +307,7 @@ function getFiltered(){
   const to=(document.getElementById('filter-to')||{}).value||'';
   if(from) recs=recs.filter(r=>r.date&&r.date>=from);
   if(to) recs=recs.filter(r=>r.date&&r.date<=to);
+  if(state.cat==='tavi'&&state.taviFilter) recs=recs.filter(r=>(r.company||'Άλλο')===state.taviFilter);
   if(state.sort==='date') recs=[...recs].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   else if(state.sort==='date_asc') recs=[...recs].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
   else recs=[...recs].sort((a,b)=>(a.patient||'').localeCompare(b.patient||''));
@@ -351,7 +352,7 @@ function renderCatTabs(){
     const active=state.cat===t.cat&&!state.viewDone;
     b.className='cat-tab '+t.cat+(active?' active':'');
     b.textContent=t.label;
-    b.onclick=()=>{state.cat=t.cat;state.viewDone=false;state.editingId=null;state.selected={};document.getElementById('search-inp').value='';render();};
+    b.onclick=()=>{state.cat=t.cat;state.viewDone=false;state.editingId=null;state.selected={};state.taviFilter=null;document.getElementById('search-inp').value='';render();};
     el.appendChild(b);
   });
 
@@ -471,6 +472,21 @@ function renderStats(){
   const el=document.getElementById('stats');
   html_total=recs.length!==getRecords().length?`<div class="stat">Σύνολο: <span>${recs.length}</span> <span style="color:#555">(από ${getRecords().length})</span></div>`:`<div class="stat">Σύνολο: <span>${recs.length}</span></div>`;
   let html=html_total;
+  // TAVI company counts
+  if(state.cat==='tavi'&&!state.viewDone){
+    const all=getRecords();
+    const companies=['Medtronic','Edwards','Flexmed','Abbott','Άλλο'];
+    const counts={};
+    all.forEach(r=>{const c=r.company||'Άλλο';counts[c]=(counts[c]||0)+1;});
+    const colors={'Medtronic':'#4db6ac','Edwards':'#4ade80','Flexmed':'#f97316','Abbott':'#c084fc','Άλλο':'#7ab8b8'};
+    companies.forEach(c=>{
+      if(counts[c]){
+        html+=`<div class="stat" style="cursor:pointer;padding:2px 8px;border-radius:6px;border:1px solid ${state.taviFilter===c?colors[c]:'#2e4444'};background:${state.taviFilter===c?'#1a2828':'transparent'}" onclick="state.taviFilter=(state.taviFilter==='${c}'?null:'${c}');renderStats();renderBulkBar();renderRecords();updateSelectAllCb();">`+
+        `<span style="color:${colors[c]};font-weight:600">${c}</span><span style="color:#7ab8b8;margin-left:4px">${counts[c]}</span></div>`;
+      }
+    });
+    if(state.taviFilter) html+=`<div class="stat" style="cursor:pointer;color:#e74c3c;font-size:11px" onclick="state.taviFilter=null;renderStats();renderBulkBar();renderRecords();updateSelectAllCb();">✕ Καθαρισμός</div>`;
+  }
   const cat=CATS[state.cat];
   if(cat.hasAmount){
     const useRecs=sel.length>0?recs.filter(r=>state.selected[r.id]):recs;
