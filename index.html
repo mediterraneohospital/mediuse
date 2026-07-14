@@ -775,7 +775,9 @@ function render(){
   // Το toggle κουμπιού "Νέα Εγγραφή" μόνο όταν υπάρχει add-panel (όχι σε pricelist/ολοκληρωμένα)
   if(addPanelToggle){
     addPanelToggle.style.display=(isPL||state.viewDone)?'none':'';
-    if(isPL||state.viewDone) addSectionEl.classList.remove('open');
+    if(isPL) addSectionEl.classList.add('open'); // Τιμοκατάλογοι: πάντα ορατό, δεν το αφορά το collapse
+    else if(state.viewDone) addSectionEl.classList.remove('open');
+    else addSectionEl.classList.remove('open'); // κανονικό tab: ξεκινά πάντα κλειστό σε κινητό
   }
   if(isPL){renderPricelist();return;}
   renderSort();renderStats();renderBulkBar();renderRecords();
