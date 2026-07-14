@@ -77,7 +77,10 @@ h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex
 .alert-dot.red{background:#e74c3c}
 .alert-dot.orange{background:#f97316}
 
-.stats{display:flex;gap:12px;margin-bottom:.75rem;flex-wrap:wrap;align-items:center}
+.stats-row{display:flex;align-items:center;gap:12px;margin-bottom:.75rem;flex-wrap:wrap}
+.stats{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.select-all-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.date-filter-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .stat{font-size:12px;color:#7ab8b8}
 .stat span{color:#b2dfdb;font-weight:500}
 .stat.highlight span{color:#4db6ac}
@@ -119,7 +122,7 @@ h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex
 .cancel-btn:hover{border-color:#4db6ac}
 
 input[type=date]{color-scheme:dark}
-@media(max-width:600px){.form-grid{grid-template-columns:1fr 1fr}.toolbar{flex-direction:column}}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr 1fr}}
 
 /* ── Τιμοκατάλογος Tab ── */
 .cat-tab.active.pricelist{background:#3a1f00;border-color:#f59e0b;color:#fcd34d}
@@ -195,7 +198,16 @@ input[type=date]{color-scheme:dark}
     display:block;width:100%;background:transparent;border:1px solid #2e4444;border-radius:8px;
     padding:7px;margin-bottom:10px;color:#7ab8b8;font-size:12px;cursor:pointer;
   }
-  .stats{gap:8px;font-size:10px;margin-bottom:.5rem}
+  .stats{gap:8px;font-size:10px;margin-bottom:0}
+  .stats-row{margin-bottom:.5rem;gap:8px}
+  .select-all-wrap label{font-size:10px}
+
+  .toolbar{gap:6px}
+  .search-inp{flex:1 1 100%;order:1}
+  .date-filter-wrap{order:2;flex:1 1 auto;gap:4px}
+  .date-filter-wrap input[type=date]{width:100px !important;font-size:11px !important;padding:5px 6px !important}
+  .sort-row{order:3;flex:0 0 auto;gap:4px}
+  .sort-btn{padding:4px 9px;font-size:11px}
 }
 </style>
 </head>
@@ -209,12 +221,8 @@ input[type=date]{color-scheme:dark}
   <div id="add-section"></div>
   <div class="alert-bar" id="alert-bar"></div>
   <div class="toolbar">
-    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-      <input type="checkbox" id="select-all-cb" style="width:16px;height:16px;cursor:pointer;accent-color:#4ade80" onchange="toggleSelectAll(this.checked)" title="Επιλογή όλων"/>
-      <label for="select-all-cb" style="font-size:12px;color:#888;cursor:pointer;white-space:nowrap">Όλες</label>
-    </div>
     <input class="search-inp" id="search-inp" type="text" placeholder="🔍 Αναζήτηση ασθενή, νοσηλεία..." oninput="render()"/>
-    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+    <div class="date-filter-wrap">
       <input type="date" id="filter-from" class="inp" style="width:135px;padding:5px 8px;font-size:12px;color:#fff" title="Από" onchange="render()"/>
       <span style="color:#555;font-size:12px">–</span>
       <input type="date" id="filter-to" class="inp" style="width:135px;padding:5px 8px;font-size:12px;color:#fff" title="Έως" onchange="render()"/>
@@ -231,7 +239,13 @@ input[type=date]{color-scheme:dark}
     <button class="bulk-btn bulk-done-btn" onclick="markSelectedDone()">✅ Ολοκλήρωση επιλεγμένων</button>
     <button class="bulk-btn bulk-clear-btn" onclick="clearSelection()">✕ Αποεπιλογή</button>
   </div>
-  <div class="stats" id="stats"></div>
+  <div class="stats-row">
+    <div class="select-all-wrap" id="select-all-wrap">
+      <input type="checkbox" id="select-all-cb" style="width:16px;height:16px;cursor:pointer;accent-color:#4ade80" onchange="toggleSelectAll(this.checked)" title="Επιλογή όλων"/>
+      <label for="select-all-cb" style="font-size:12px;color:#888;cursor:pointer;white-space:nowrap">Όλες</label>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
   <div class="records" id="records"></div>
 </div>
 
@@ -757,7 +771,7 @@ function render(){
   const isPL=state.cat==='pricelist';
   document.querySelector('.toolbar').style.display=isPL?'none':'';
   document.getElementById('bulk-bar').style.display=isPL?'none':'';
-  document.getElementById('stats').style.display=isPL?'none':'';
+  document.querySelector('.stats-row').style.display=isPL?'none':'';
   // Το toggle κουμπιού "Νέα Εγγραφή" μόνο όταν υπάρχει add-panel (όχι σε pricelist/ολοκληρωμένα)
   if(addPanelToggle){
     addPanelToggle.style.display=(isPL||state.viewDone)?'none':'';
