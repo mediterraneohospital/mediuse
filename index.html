@@ -180,18 +180,18 @@ input[type=date]{color-scheme:dark}
 
 /* ── Smart Date Filter (Y/M/W/D + custom calendar) ── */
 .df-wrap{position:relative;display:flex;align-items:center;gap:2px;background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:4px 6px;flex-shrink:0}
-.df-mode-btn{background:transparent;border:1px solid #2e4444;border-radius:5px;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:800;padding:3px 7px;transition:all .12s;min-width:24px;text-align:center}
+.df-mode-btn{background:transparent;border:1px solid #2e4444;border-radius:5px;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:800;padding:3px 0;transition:all .12s;width:26px;flex-shrink:0;text-align:center}
 .df-mode-btn.active{background:#00897b;border-color:#00796b;color:#fff}
 .df-mode-btn:hover:not(.active){background:#2e4444;color:#e0f0f0}
 .df-arrow{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;line-height:1}
 .df-arrow:hover{background:#2e4444;color:#e0f0f0}
 .df-arrow:disabled{opacity:.25;cursor:default}
 .df-arrow:disabled:hover{background:transparent}
-.df-label{font-size:12px;color:#e0f0f0;font-weight:600;min-width:70px;text-align:center;white-space:nowrap;padding:2px 4px}
+.df-label{font-size:12px;color:#e0f0f0;font-weight:600;min-width:150px;text-align:center;white-space:nowrap;padding:2px 4px}
 .df-calbtn{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px}
 .df-calbtn:hover{background:#2e4444;color:#e0f0f0}
 .df-calbtn.open{background:#00897b;color:#fff}
-.df-clear{background:transparent;border:none;color:#446666;cursor:pointer;font-size:13px;padding:2px 4px}
+.df-clear{background:transparent;border:none;color:#446666;cursor:pointer;font-size:13px;padding:2px 4px;width:20px;flex-shrink:0}
 .df-clear:hover{color:#e74c3c}
 .df-popup{position:absolute;top:calc(100% + 6px);left:0;background:#1a2828;border:1px solid #2e4444;border-radius:10px;padding:12px;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.6);width:260px}
 .df-popup-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -389,6 +389,17 @@ function getFiltered(){
   return recs;
 }
 
+function getSearchDateFiltered(){
+  let recs=getRecords();
+  const q=(document.getElementById('search-inp')||{}).value||'';
+  if(q.trim()) recs=recs.filter(r=>(r.patient||'').toLowerCase().includes(q.toLowerCase())||(r.nosileia||'').toLowerCase().includes(q.toLowerCase())||(r.therapy||'').toLowerCase().includes(q.toLowerCase())||(r.valve||'').toLowerCase().includes(q.toLowerCase()));
+  const from=(document.getElementById('filter-from')||{}).value||'';
+  const to=(document.getElementById('filter-to')||{}).value||'';
+  if(from) recs=recs.filter(r=>r.date&&r.date>=from);
+  if(to) recs=recs.filter(r=>r.date&&r.date<=to);
+  return recs;
+}
+
 function getSelected(){return Object.keys(state.selected).filter(id=>state.selected[id]);}
 
 function toggleSelectAll(checked){
@@ -554,7 +565,7 @@ function renderStats(){
   let html=html_total;
   // TAVI company counts
   if(state.cat==='tavi'&&!state.viewDone){
-    const all=getRecords();
+    const all=getSearchDateFiltered();
     const companies=['Medtronic','Edwards','Flexmed','Abbott','Άλλο'];
     const counts={};
     all.forEach(r=>{const c=r.company||'Άλλο';counts[c]=(counts[c]||0)+1;});
@@ -1184,14 +1195,14 @@ function dfPickDay(y,m,d){
 function dfRender(){
   const c=document.getElementById('df-container');if(!c)return;
   const hasArrows=DF.mode&&DF.mode!=='C';
-  const modeLabel=(DF.mode&&DF.mode!=='C')?DF.mode:(DF.mode==='C'?'📅':'—');
+  const modeLabel=DF.mode?(DF.mode==='C'?'C':DF.mode):'—';
   let h='<div class="df-wrap">';
   h+='<button class="df-mode-btn'+(DF.mode?' active':'')+'" onclick="dfCycleMode()" title="Εναλλαγή: Έτος/Μήνας/Εβδομάδα/Ημέρα">'+modeLabel+'</button>';
   h+='<button class="df-arrow" onclick="dfStep(-1)" '+(hasArrows?'':'disabled')+'>◀</button>';
   h+='<span class="df-label">'+dfLabel()+'</span>';
   h+='<button class="df-arrow" onclick="dfStep(1)" '+(hasArrows?'':'disabled')+'>▶</button>';
   h+='<button class="df-calbtn'+(DF.calOpen?' open':'')+'" onclick="dfToggleCal()" title="Επιλογή ημερομηνίας">▾</button>';
-  if(DF.mode) h+='<button class="df-clear" onclick="dfClear()" title="Καθαρισμός">✕</button>';
+  h+='<button class="df-clear" onclick="dfClear()" title="Καθαρισμός" style="visibility:'+(DF.mode?'visible':'hidden')+'">✕</button>';
   if(DF.calOpen){
     h+='<div class="df-popup" onclick="event.stopPropagation()">';
     h+='<div class="df-popup-nav"><button class="df-popup-navbtn" onclick="dfCalNav(-1)">◀</button><span class="df-popup-title">'+DF_MONTHS[DF.calMonth]+' '+DF.calYear+'</span><button class="df-popup-navbtn" onclick="dfCalNav(1)">▶</button></div>';
