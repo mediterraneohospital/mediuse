@@ -2,6 +2,14 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e2a2a">
+<meta property="og:title" content="MediUse">
+<meta property="og:description" content="Καταγραφή Ιατρικών Επεμβάσεων — Mediterraneo Hospital">
+<meta property="og:image" content="icon-512.png">
+<meta property="og:type" content="website">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MediUse</title>
 <style>
@@ -22,6 +30,7 @@ h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex
 .cat-tab.active.tavi{background:#1e4d7a;border-color:#60a5fa;color:#bfdbfe}
 .cat-tab.active.boston{background:#14532d;border-color:#4ade80;color:#bbf7d0}
 .cat-tab.active.evar{background:#3b0764;border-color:#c084fc;color:#e9d5ff}
+.cat-tab.active.clip{background:#7a1a3a;border-color:#f43f5e;color:#fecdd3}
 .cat-tab:hover:not(.active){background:#243333;color:#e0f0f0;border-color:#4db6ac}
 
 .add-panel{background:#243333;border:1px solid #2e4444;border-radius:10px;padding:16px;margin-bottom:1.25rem}
@@ -68,7 +77,9 @@ h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex
 .alert-dot.red{background:#e74c3c}
 .alert-dot.orange{background:#f97316}
 
-.stats{display:flex;gap:12px;margin-bottom:.75rem;flex-wrap:wrap;align-items:center}
+.stats-row{display:flex;align-items:center;gap:12px;margin-bottom:.75rem;flex-wrap:wrap}
+.stats{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.select-all-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .stat{font-size:12px;color:#7ab8b8}
 .stat span{color:#b2dfdb;font-weight:500}
 .stat.highlight span{color:#4db6ac}
@@ -110,20 +121,8 @@ h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex
 .cancel-btn:hover{border-color:#4db6ac}
 
 input[type=date]{color-scheme:dark}
-@media(max-width:600px){.form-grid{grid-template-columns:1fr 1fr}.toolbar{flex-direction:column}}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr 1fr}}
 
-/* ── Smart Date Filter ── */
-.df-wrap{display:flex;align-items:center;gap:4px;background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:3px 6px;flex-shrink:0;flex-wrap:wrap}
-.df-arrow{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:14px;padding:2px 5px;border-radius:4px;line-height:1}
-.df-arrow:hover{background:#2e4444;color:#e0f0f0}
-.df-label{font-size:12px;color:#e0f0f0;font-weight:600;cursor:pointer;min-width:130px;text-align:center;white-space:nowrap;padding:2px 4px;border-radius:4px}
-.df-label:hover{background:#2e4444}
-
-.df-mode-btn{background:transparent;border:1px solid #2e4444;border-radius:5px;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:800;padding:2px 6px;transition:all .12s;min-width:22px;text-align:center}
-.df-mode-btn.active{background:#00897b;border-color:#00796b;color:#fff}
-.df-mode-btn:hover:not(.active){background:#2e4444;color:#e0f0f0}
-.df-clear{background:transparent;border:none;color:#446666;cursor:pointer;font-size:13px;padding:2px 4px}
-.df-clear:hover{color:#e74c3c}
 /* ── Τιμοκατάλογος Tab ── */
 .cat-tab.active.pricelist{background:#3a1f00;border-color:#f59e0b;color:#fcd34d}
 .pl-search-wrap{display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
@@ -178,6 +177,65 @@ input[type=date]{color-scheme:dark}
 .done-menu-item{padding:8px 12px;border-radius:6px;border:none;background:transparent;color:#7ab8b8;cursor:pointer;font-size:13px;text-align:left;transition:all .15s}
 .done-menu-item:hover{background:#2e4444;color:#e0f0f0}
 .done-menu-item.active{background:#302000;border:1px solid #f59e0b;color:#fcd34d}
+
+/* ── Smart Date Filter (Y/M/W/D + custom calendar) ── */
+.df-wrap{position:relative;display:flex;align-items:center;gap:2px;background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:4px 6px;flex-shrink:0}
+.df-mode-btn{background:transparent;border:1px solid #2e4444;border-radius:5px;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:800;padding:3px 7px;transition:all .12s;min-width:24px;text-align:center}
+.df-mode-btn.active{background:#00897b;border-color:#00796b;color:#fff}
+.df-mode-btn:hover:not(.active){background:#2e4444;color:#e0f0f0}
+.df-arrow{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;line-height:1}
+.df-arrow:hover{background:#2e4444;color:#e0f0f0}
+.df-arrow:disabled{opacity:.25;cursor:default}
+.df-arrow:disabled:hover{background:transparent}
+.df-label{font-size:12px;color:#e0f0f0;font-weight:600;min-width:70px;text-align:center;white-space:nowrap;padding:2px 4px}
+.df-calbtn{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px}
+.df-calbtn:hover{background:#2e4444;color:#e0f0f0}
+.df-calbtn.open{background:#00897b;color:#fff}
+.df-clear{background:transparent;border:none;color:#446666;cursor:pointer;font-size:13px;padding:2px 4px}
+.df-clear:hover{color:#e74c3c}
+.df-popup{position:absolute;top:calc(100% + 6px);left:0;background:#1a2828;border:1px solid #2e4444;border-radius:10px;padding:12px;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.6);width:260px}
+.df-popup-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.df-popup-navbtn{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:14px;padding:2px 8px;border-radius:4px}
+.df-popup-navbtn:hover{background:#2e4444;color:#e0f0f0}
+.df-popup-title{font-size:13px;font-weight:700;color:#e0f0f0}
+.df-popup-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.df-popup-dow{font-size:11px;color:#7ab8b8;font-weight:700;padding:4px 0}
+.df-popup-day{font-size:12px;color:#e0f0f0;padding:6px 0;border-radius:6px;cursor:pointer;background:transparent}
+.df-popup-day:hover{background:#2e4444}
+.df-popup-day.other{color:#3a4a4a}
+.df-popup-day.today{color:#f59e0b;font-weight:700}
+.df-popup-day.selected{background:#00897b;color:#fff;font-weight:700}
+.df-popup-day.in-range{background:#00897b40}
+
+/* ── Collapsible add-panel για κινητό ── */
+.add-panel-toggle{display:none;width:100%;background:#243333;border:1px solid #2e4444;border-radius:10px;padding:11px 14px;margin-bottom:1.25rem;color:#4db6ac;font-size:14px;font-weight:600;cursor:pointer;text-align:left;align-items:center;gap:8px}
+.add-panel-close{display:none}
+@media(max-width:640px){
+  #app{padding:.75rem}
+  h1{font-size:19px}
+  .subtitle{font-size:11px;margin-bottom:.75rem}
+  .sync-bar{padding:5px 10px;margin-bottom:.75rem;font-size:11px}
+  .cat-tabs{gap:5px;margin-bottom:.75rem}
+  .cat-tab{padding:7px 14px;font-size:12px}
+  .done-dropdown-btn{padding:7px 14px;font-size:12px}
+  #add-section{display:none}
+  #add-section.open{display:block}
+  .add-panel-toggle{display:flex}
+  .add-panel-toggle.hidden{display:none}
+  .add-panel-close{
+    display:block;width:100%;background:transparent;border:1px solid #2e4444;border-radius:8px;
+    padding:7px;margin-bottom:10px;color:#7ab8b8;font-size:12px;cursor:pointer;
+  }
+  .stats{gap:8px;font-size:10px;margin-bottom:0}
+  .stats-row{margin-bottom:.5rem;gap:8px}
+  .select-all-wrap label{font-size:10px}
+
+  .toolbar{gap:6px}
+  .search-inp{flex:1 1 100%;order:1}
+  .df-wrap{order:2}
+  .sort-row{order:3;flex:0 0 auto;gap:4px}
+  .sort-btn{padding:4px 9px;font-size:11px}
+}
 </style>
 </head>
 <body>
@@ -186,15 +244,12 @@ input[type=date]{color-scheme:dark}
   <p class="subtitle">Καταγραφή Ιατρικών Επεμβάσεων — Mediterraneo Hospital</p>
   <div class="sync-bar"><div class="sync-dot loading" id="sync-dot"></div><span id="sync-label">Σύνδεση...</span></div>
   <div class="cat-tabs" id="cat-tabs" style="position:relative"></div>
+  <button class="add-panel-toggle" id="add-panel-toggle">+ Νέα Εγγραφή</button>
   <div id="add-section"></div>
   <div class="alert-bar" id="alert-bar"></div>
   <div class="toolbar">
-    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-      <input type="checkbox" id="select-all-cb" style="width:16px;height:16px;cursor:pointer;accent-color:#4ade80" onchange="toggleSelectAll(this.checked)" title="Επιλογή όλων"/>
-      <label for="select-all-cb" style="font-size:12px;color:#888;cursor:pointer;white-space:nowrap">Όλες</label>
-    </div>
     <input class="search-inp" id="search-inp" type="text" placeholder="🔍 Αναζήτηση ασθενή, νοσηλεία..." oninput="render()"/>
-    <div id="df-container" style="display:flex;align-items:center;gap:4px;flex-shrink:0;position:relative"></div>
+    <div id="df-container"></div>
     <input type="hidden" id="filter-from"/>
     <input type="hidden" id="filter-to"/>
     <div class="sort-row">
@@ -208,11 +263,23 @@ input[type=date]{color-scheme:dark}
     <button class="bulk-btn bulk-done-btn" onclick="markSelectedDone()">✅ Ολοκλήρωση επιλεγμένων</button>
     <button class="bulk-btn bulk-clear-btn" onclick="clearSelection()">✕ Αποεπιλογή</button>
   </div>
-  <div class="stats" id="stats"></div>
+  <div class="stats-row">
+    <div class="select-all-wrap" id="select-all-wrap">
+      <input type="checkbox" id="select-all-cb" style="width:16px;height:16px;cursor:pointer;accent-color:#4ade80" onchange="toggleSelectAll(this.checked)" title="Επιλογή όλων"/>
+      <label for="select-all-cb" style="font-size:12px;color:#888;cursor:pointer;white-space:nowrap">Όλες</label>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
   <div class="records" id="records"></div>
 </div>
 
 <script>
+// Καθαρίζει τυχόν παλιό service worker (χωρίς να καταχωρεί νέο), ώστε να μην "κολλάει" ποτέ σε παλιά έκδοση.
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
+  }).catch(() => {});
+}
 const SUPA_URL='https://odtbtugzilxsfqxlpofq.supabase.co';
 const SUPA_KEY='sb_publishable_ch-7C1ihpZRrxEhXFqV1xA_hXPwq61S';
 const ROW_ID=1;
@@ -232,7 +299,7 @@ function today(){const n=new Date();return n.getFullYear()+'-'+pad(n.getMonth()+
 function addMonths(dateStr,months){const d=new Date(dateStr);d.setMonth(d.getMonth()+months);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function daysDiff(dateStr){const d=new Date(dateStr),now=new Date();now.setHours(0,0,0,0);d.setHours(0,0,0,0);return Math.round((d-now)/(1000*60*60*24));}
 
-let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],tavi_done:[],boston_done:[],evar_done:[],selected:{},editingId:null};
+let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:[],tavi_done:[],boston_done:[],evar_done:[],clip_done:[],selected:{},editingId:null,taviFilter:null};
 
 function setSyncStatus(s,m){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-label').textContent=m;}
 let saveTimeout=null;
@@ -270,7 +337,7 @@ const CATS={
     {id:'invoice_no',label:'Αρ. Τιμολογίου',type:'text'},
     {id:'invoice_date',label:'Ημερ. Τιμολογίου',type:'date'},
     {id:'valve',label:'Βαλβίδα',type:'text',placeholder:'π.χ. EVPRO PLUS-29'},
-    {id:'company',label:'Εταιρεία',type:'select',options:['Medtronic','Edwards','Flexmed','Άλλο']},
+    {id:'company',label:'Εταιρεία',type:'select',options:['Medtronic','Edwards','Flexmed','Abbott','Άλλο']},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]},
   boston:{label:'Boston ΗΦΕ',icon:'⚡',hasAmount:true,hasCredit:true,fields:[
@@ -281,6 +348,16 @@ const CATS={
     {id:'therapy',label:'Θεραπεία',type:'text',placeholder:'π.χ. PFA, Ablation'},
     {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
     {id:'credit',label:'Πιστωτικό 30% (€)',type:'number',placeholder:'Αυτόματος υπολογισμός',readonly:true},
+    {id:'notes',label:'Παρατηρήσεις',type:'text'},
+  ]},
+  clip:{label:'Clip Abbott',icon:'🩺',hasAmount:true,fields:[
+    {id:'date',label:'Ημερομηνία',type:'date',required:true},
+    {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
+    {id:'patient',label:'Ασθενής',type:'text',required:true},
+    {id:'clip_type',label:'Τύπος Clip',type:'select',options:['MitraClip','TriClip']},
+    {id:'invoice_no',label:'Αρ. Τιμολογίου',type:'text'},
+    {id:'invoice_date',label:'Ημερ. Τιμολογίου',type:'date'},
+    {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]},
   evar:{label:'EVAR',icon:'🩸',hasAmount:true,fields:[
@@ -305,6 +382,7 @@ function getFiltered(){
   const to=(document.getElementById('filter-to')||{}).value||'';
   if(from) recs=recs.filter(r=>r.date&&r.date>=from);
   if(to) recs=recs.filter(r=>r.date&&r.date<=to);
+  if(state.cat==='tavi'&&state.taviFilter) recs=recs.filter(r=>(r.company||'Άλλο')===state.taviFilter);
   if(state.sort==='date') recs=[...recs].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   else if(state.sort==='date_asc') recs=[...recs].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
   else recs=[...recs].sort((a,b)=>(a.patient||'').localeCompare(b.patient||''));
@@ -341,6 +419,7 @@ function renderCatTabs(){
     {cat:'tavi',done:false,label:'TAVI'},
     {cat:'boston',done:false,label:'Boston ΗΦΕ'},
     {cat:'evar',done:false,label:'EVAR'},
+    {cat:'clip',done:false,label:'Clip Abbott'},
     {cat:'pricelist',done:false,label:'Τιμοκατάλογοι'},
   ];
   mainTabs.forEach(t=>{
@@ -348,7 +427,7 @@ function renderCatTabs(){
     const active=state.cat===t.cat&&!state.viewDone;
     b.className='cat-tab '+t.cat+(active?' active':'');
     b.textContent=t.label;
-    b.onclick=()=>{state.cat=t.cat;state.viewDone=false;state.editingId=null;state.selected={};document.getElementById('search-inp').value='';render();};
+    b.onclick=()=>{state.cat=t.cat;state.viewDone=false;state.editingId=null;state.selected={};state.taviFilter=null;document.getElementById('search-inp').value='';render();};
     el.appendChild(b);
   });
 
@@ -357,11 +436,12 @@ function renderCatTabs(){
     {cat:'tavi',label:'TAVI Ολοκλ.'},
     {cat:'boston',label:'Boston Ολοκλ.'},
     {cat:'evar',label:'EVAR Ολοκλ.'},
+    {cat:'clip',label:'Clip Ολοκλ.'},
   ];
   const wrap=document.createElement('div');wrap.className='done-dropdown';
   const btn=document.createElement('button');
   btn.className='done-dropdown-btn'+(state.viewDone?' active':'');
-  const doneLabel=state.viewDone?({'tavi':'TAVI','boston':'Boston ΗΦΕ','evar':'EVAR'}[state.cat]+' Ολοκλ. ▾'):'Ολοκληρωμένα ▾';
+  const doneLabel=state.viewDone?({'tavi':'TAVI','boston':'Boston ΗΦΕ','evar':'EVAR','clip':'Clip Abbott'}[state.cat]+' Ολοκλ. ▾'):'Ολοκληρωμένα ▾';
   btn.textContent=doneLabel;
   const menu=document.createElement('div');menu.className='done-dropdown-menu';
   doneTabs.forEach(t=>{
@@ -382,6 +462,9 @@ function renderAddSection(){
   const cat=CATS[state.cat];
   sec.innerHTML='';
   const panel=document.createElement('div');panel.className='add-panel';
+  const closeBtn=document.createElement('button');closeBtn.className='add-panel-close';closeBtn.type='button';closeBtn.textContent='✕ Κλείσιμο';
+  closeBtn.onclick=()=>closeAddPanelMobile();
+  panel.appendChild(closeBtn);
   const h3=document.createElement('h3');h3.textContent='+ Νέα Εγγραφή — '+cat.label;panel.appendChild(h3);
   const grid=document.createElement('div');grid.className='form-grid';
   cat.fields.forEach(f=>{
@@ -399,6 +482,7 @@ function renderAddSection(){
       if(f.id==='date') inp.value=today();
       if(f.readonly) inp.readOnly=true;
     }
+
     // Auto-calculate credit for Boston
     if(state.cat==='boston'&&f.id==='amount'){
       inp.oninput=()=>{
@@ -431,10 +515,26 @@ function addRecord(){
   state[state.cat].unshift(rec);
   cat.fields.forEach(f=>{const el=document.getElementById('new_'+f.id);if(el)el.value=f.id==='date'?today():'';});
   save();render();
+  closeAddPanelMobile();
 }
 
 function renderAlertBar(){
   const bar=document.getElementById('alert-bar');
+  if(state.cat==='clip'&&!state.viewDone){
+    const clips=state.clip||[];
+    const total=clips.length;
+    const free=Math.floor(total/10);
+    const next=10-(total%10);
+    if(total>0){
+      bar.className='alert-bar show';
+      let html='<strong style="font-size:12px;color:#f43f5e;display:block;margin-bottom:6px">🩺 Clip Abbott — Πρόγραμμα Δωρεάν</strong>';
+      html+='<div class="alert-item"><div class="alert-dot" style="background:#f43f5e"></div><span style="color:#fecdd3">Συνολικά clips: <strong>'+total+'</strong>';
+      if(free>0) html+=' | Δωρεάν clips: <strong style="color:#4ade80">'+free+'</strong>';
+      html+=' | Επόμενο δωρεάν σε: <strong>'+next+'</strong> clips</span></div>';
+      bar.innerHTML=html;return;
+    }
+    bar.className='alert-bar';return;
+  }
   if(state.cat!=='boston'||state.viewDone){bar.className='alert-bar';return;}
   const recs=state.boston||[];
   const overdue=recs.filter(r=>r.date&&daysDiff(addMonths(r.date,3))<0);
@@ -452,6 +552,21 @@ function renderStats(){
   const el=document.getElementById('stats');
   html_total=recs.length!==getRecords().length?`<div class="stat">Σύνολο: <span>${recs.length}</span> <span style="color:#555">(από ${getRecords().length})</span></div>`:`<div class="stat">Σύνολο: <span>${recs.length}</span></div>`;
   let html=html_total;
+  // TAVI company counts
+  if(state.cat==='tavi'&&!state.viewDone){
+    const all=getRecords();
+    const companies=['Medtronic','Edwards','Flexmed','Abbott','Άλλο'];
+    const counts={};
+    all.forEach(r=>{const c=r.company||'Άλλο';counts[c]=(counts[c]||0)+1;});
+    const colors={'Medtronic':'#4db6ac','Edwards':'#4ade80','Flexmed':'#f97316','Abbott':'#c084fc','Άλλο':'#7ab8b8'};
+    companies.forEach(c=>{
+      if(counts[c]){
+        html+=`<div class="stat" style="cursor:pointer;padding:2px 8px;border-radius:6px;border:1px solid ${state.taviFilter===c?colors[c]:'#2e4444'};background:${state.taviFilter===c?'#1a2828':'transparent'}" onclick="state.taviFilter=(state.taviFilter==='${c}'?null:'${c}');renderStats();renderBulkBar();renderRecords();updateSelectAllCb();">`+
+        `<span style="color:${colors[c]};font-weight:600">${c}</span><span style="color:#7ab8b8;margin-left:4px">${counts[c]}</span></div>`;
+      }
+    });
+    if(state.taviFilter) html+=`<div class="stat" style="cursor:pointer;color:#e74c3c;font-size:11px" onclick="state.taviFilter=null;renderStats();renderBulkBar();renderRecords();updateSelectAllCb();">✕ Καθαρισμός</div>`;
+  }
   const cat=CATS[state.cat];
   if(cat.hasAmount){
     const useRecs=sel.length>0?recs.filter(r=>state.selected[r.id]):recs;
@@ -569,7 +684,7 @@ function renderRecords(){
       if(rec.valve){const t=document.createElement('span');t.className='tag purple';t.textContent='🫀 '+rec.valve;tags.appendChild(t);}
       if(rec.company){
         const t=document.createElement('span');
-        const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange'};
+        const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange','Abbott':'tag purple'};
         t.className=cmap[rec.company]||'tag';
         t.textContent=rec.company;
         tags.appendChild(t);
@@ -595,7 +710,11 @@ function renderRecords(){
     }
     if(state.cat==='evar'){
       if(rec.amount){const t=document.createElement('span');t.className='tag purple';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
-
+    }
+    if(state.cat==='clip'){
+      if(rec.clip_type){const t=document.createElement('span');t.className='tag '+(rec.clip_type==='MitraClip'?'red':'orange');t.textContent='🩺 '+rec.clip_type;tags.appendChild(t);}
+      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.textContent='📄 '+rec.invoice_no;tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
     }
     main.appendChild(tags);
 
@@ -651,13 +770,39 @@ function updateSelectAllCb(){
   else{cb.checked=false;cb.indeterminate=true;}
 }
 
+const addPanelToggle=document.getElementById('add-panel-toggle');
+const addSectionEl=document.getElementById('add-section');
+if(addPanelToggle){
+  addPanelToggle.onclick=()=>{
+    addSectionEl.classList.add('open');
+    addPanelToggle.classList.add('hidden');
+    setTimeout(()=>{
+      const firstInp=addSectionEl.querySelector('input,select');
+      if(firstInp) firstInp.focus();
+    },50);
+  };
+}
+function closeAddPanelMobile(){
+  if(window.innerWidth<=640){
+    addSectionEl.classList.remove('open');
+    if(addPanelToggle) addPanelToggle.classList.remove('hidden');
+  }
+}
+
 function render(){
   renderCatTabs();renderAddSection();renderAlertBar();
   // Hide main toolbar/bulk for pricelist
   const isPL=state.cat==='pricelist';
   document.querySelector('.toolbar').style.display=isPL?'none':'';
   document.getElementById('bulk-bar').style.display=isPL?'none':'';
-  document.getElementById('stats').style.display=isPL?'none':'';
+  document.querySelector('.stats-row').style.display=isPL?'none':'';
+  // Το toggle κουμπιού "Νέα Εγγραφή" μόνο όταν υπάρχει add-panel (όχι σε pricelist/ολοκληρωμένα)
+  if(addPanelToggle){
+    addPanelToggle.style.display=(isPL||state.viewDone)?'none':'';
+    if(isPL) addSectionEl.classList.add('open'); // Τιμοκατάλογοι: πάντα ορατό, δεν το αφορά το collapse
+    else if(state.viewDone) addSectionEl.classList.remove('open');
+    else addSectionEl.classList.remove('open'); // κανονικό tab: ξεκινά πάντα κλειστό σε κινητό
+  }
   dfRender();
   if(isPL){renderPricelist();return;}
   renderSort();renderStats();renderBulkBar();renderRecords();
@@ -874,6 +1019,12 @@ function renderPlResults(data){
             '<span style="font-size:12px;color:#7ab8b8">Σύνολο <span style="color:#c084fc">Passive</span>: <strong style="color:#fcd34d">'+fmtPrice(totalPassive)+'</strong></span>';
           bDiv.appendChild(totalWrap);
         } else {
+          if(item.ref_code==='AFR-00001'){
+            const focNote=document.createElement('div');
+            focNote.style.cssText='background:#3a1a1a;border:1px solid #f43f5e;border-radius:6px;padding:8px 10px;margin-top:6px;margin-bottom:2px;font-size:13px;font-weight:800;color:#fecaca;text-align:center;letter-spacing:.3px';
+            focNote.textContent='ΟΛΑ ΤΑ ΥΠΟΛΟΙΠΑ ΥΛΙΚΑ ΕΙΝΑΙ F.O.C.';
+            bDiv.appendChild(focNote);
+          }
           const totalRow=document.createElement('div');totalRow.className='pl-bundle-total';
           totalRow.innerHTML='<span style="font-size:12px;color:#7ab8b8;margin-right:8px">Σύνολο πακέτου:</span><span class="pl-bundle-total-val">'+fmtPrice(totalActive)+'</span>';
           bDiv.appendChild(totalRow);
@@ -943,90 +1094,155 @@ function renderPricelist(){
   }
 }
 
-// ── Smart Date Filter ──────────────────────────────
-const DF={mode:null,offset:0,calStep:0,calFrom:null,calTo:null};
-function dfPad(n){return String(n).padStart(2,'0');}
-function dfFmt(d){if(!d)return '';const[y,m,dd]=d.split('-');return dd+'/'+m+'/'+y;}
+// ── Smart Date Filter (Y/M/W/D + custom calendar) ──────────────
+const DF={mode:null,offset:0,calOpen:false,calMonth:new Date().getMonth(),calYear:new Date().getFullYear(),rangeFrom:null,rangeTo:null,pickStep:0};
+const DF_DOW=['Δ','Τ','Τ','Π','Π','Σ','Κ'];
+const DF_MONTHS=['Ιανουάριος','Φεβρουάριος','Μάρτιος','Απρίλιος','Μάιος','Ιούνιος','Ιούλιος','Αύγουστος','Σεπτέμβριος','Οκτώβριος','Νοέμβριος','Δεκέμβριος'];
+
+function dfDateStr(y,m,d){return y+'-'+pad(m+1)+'-'+pad(d);}
+
 function dfGetRange(){
-  if(!DF.mode||DF.mode==='C') return {from:DF.calFrom||'',to:DF.calTo||''};
-  const now=new Date();let from,to;
+  if(DF.mode==='C'){return {from:DF.rangeFrom||'',to:DF.rangeTo||DF.rangeFrom||''};}
+  if(!DF.mode) return {from:'',to:''};
+  const now=new Date();
   if(DF.mode==='D'){
     const d=new Date(now);d.setDate(d.getDate()+DF.offset);
-    const s=d.getFullYear()+'-'+dfPad(d.getMonth()+1)+'-'+dfPad(d.getDate());
+    const s=dfDateStr(d.getFullYear(),d.getMonth(),d.getDate());
     return {from:s,to:s};
   }
   if(DF.mode==='W'){
     const d=new Date(now);const dow=d.getDay()||7;
     d.setDate(d.getDate()-dow+1+DF.offset*7);
     const f=new Date(d),t=new Date(d);t.setDate(t.getDate()+6);
-    from=f.getFullYear()+'-'+dfPad(f.getMonth()+1)+'-'+dfPad(f.getDate());
-    to=t.getFullYear()+'-'+dfPad(t.getMonth()+1)+'-'+dfPad(t.getDate());
+    return {from:dfDateStr(f.getFullYear(),f.getMonth(),f.getDate()),to:dfDateStr(t.getFullYear(),t.getMonth(),t.getDate())};
   }
   if(DF.mode==='M'){
     const y=now.getFullYear(),m=now.getMonth()+DF.offset;
     const fd=new Date(y,m,1),ld=new Date(y,m+1,0);
-    from=fd.getFullYear()+'-'+dfPad(fd.getMonth()+1)+'-01';
-    to=ld.getFullYear()+'-'+dfPad(ld.getMonth()+1)+'-'+dfPad(ld.getDate());
+    return {from:dfDateStr(fd.getFullYear(),fd.getMonth(),1),to:dfDateStr(ld.getFullYear(),ld.getMonth(),ld.getDate())};
   }
   if(DF.mode==='Y'){
-    const y=now.getFullYear()+DF.offset;from=y+'-01-01';to=y+'-12-31';
+    const y=now.getFullYear()+DF.offset;
+    return {from:y+'-01-01',to:y+'-12-31'};
   }
-  return {from:from||'',to:to||''};
+  return {from:'',to:''};
 }
+
 function dfLabel(){
   if(!DF.mode) return 'Όλες οι ημερ.';
   const {from,to}=dfGetRange();
-  if(DF.mode==='D') return from?dfFmt(from):'—';
-  return (from?dfFmt(from):'—')+' – '+(to?dfFmt(to):'—');
+  return (from?fmtDate(from):'—')+' - '+(to?fmtDate(to):'—');
 }
+
 function dfApply(){
   const {from,to}=dfGetRange();
   document.getElementById('filter-from').value=from;
   document.getElementById('filter-to').value=to;
   render();
 }
-function dfSetMode(m){DF.mode=m;DF.offset=0;DF.calStep=0;DF.calFrom=null;DF.calTo=null;dfApply();dfRender();}
-function dfStep(dir){DF.offset+=dir;dfApply();dfRender();}
-function dfCalPick(val,step){
-  if(step===1){
-    DF.calFrom=val;DF.calStep=2;
-    document.getElementById('filter-from').value=val;
-    document.getElementById('filter-to').value='';
-    render();dfRender();
-    setTimeout(()=>{const i=document.getElementById('df-inp2');if(i)i.click();},80);
-  } else {
-    if(val<DF.calFrom){DF.calTo=DF.calFrom;DF.calFrom=val;}else DF.calTo=val;
-    DF.calStep=0;dfApply();dfRender();
+
+function dfCycleMode(){
+  const seq=[null,'Y','M','W','D'];
+  const idx=seq.indexOf(DF.mode);
+  DF.mode=seq[(idx+1)%seq.length];
+  DF.offset=0;DF.rangeFrom=null;DF.rangeTo=null;DF.pickStep=0;DF.calOpen=false;
+  dfApply();dfRender();
+}
+function dfStep(dir){DF.offset+=dir;DF.calOpen=false;dfApply();dfRender();}
+function dfClear(){DF.mode=null;DF.offset=0;DF.rangeFrom=null;DF.rangeTo=null;DF.pickStep=0;DF.calOpen=false;dfApply();dfRender();}
+
+function dfToggleCal(){
+  DF.calOpen=!DF.calOpen;
+  if(DF.calOpen){
+    DF.pickStep=0;
+    const base=DF.rangeFrom?new Date(DF.rangeFrom):new Date();
+    DF.calMonth=base.getMonth();DF.calYear=base.getFullYear();
   }
+  dfRender();
 }
-function dfOpenCal(){
-  DF.mode='C';DF.calStep=1;DF.calFrom=null;DF.calTo=null;
-  document.getElementById('filter-from').value='';document.getElementById('filter-to').value='';
-  render();dfRender();
-  setTimeout(()=>{const i=document.getElementById('df-inp1');if(i)i.click();},80);
+function dfCalNav(dir){
+  DF.calMonth+=dir;
+  if(DF.calMonth<0){DF.calMonth=11;DF.calYear--;}
+  if(DF.calMonth>11){DF.calMonth=0;DF.calYear++;}
+  dfRender();
 }
+function dfPickDay(y,m,d){
+  const ds=dfDateStr(y,m,d);
+  if(DF.pickStep===0){
+    // 1ο κλικ = ΑΠΟ
+    DF.rangeFrom=ds;DF.rangeTo=null;DF.pickStep=1;
+    dfRender();
+    return;
+  }
+  // 2ο κλικ = ΕΩΣ (αν είναι ίδια ή προγενέστερη ημέρα, γίνεται σωστά η σειρά)
+  let from=DF.rangeFrom,to=ds;
+  if(to<from){const t=from;from=to;to=t;}
+  DF.rangeFrom=from;DF.rangeTo=to;DF.mode='C';DF.pickStep=0;DF.calOpen=false;
+  dfApply();dfRender();
+}
+
 function dfRender(){
   const c=document.getElementById('df-container');if(!c)return;
   const hasArrows=DF.mode&&DF.mode!=='C';
-  let h=`<div class="df-wrap">`;
-  const modeSeq=['Y','M','W','D'];
-  const curIdx=modeSeq.indexOf(DF.mode);
-  const nextMode=modeSeq[(curIdx+1)%modeSeq.length];
-  const modeLabel=DF.mode||'—';
-  h+=`<button class="df-mode-btn${DF.mode?' active':''}" onclick="dfSetMode('${nextMode}')" title="Εναλλαγή περιόδου">${modeLabel}</button>`;
-  if(hasArrows) h+=`<button class="df-arrow" onclick="dfStep(-1)">◀</button>`;
-  h+=`<span class="df-label" onclick="dfOpenCal()" title="Χειροκίνητη επιλογή">${dfLabel()}</span>`;
-  if(hasArrows) h+=`<button class="df-arrow" onclick="dfStep(1)">▶</button>`;
-  h+=`<button class="df-clear" onclick="dfSetMode(null)" title="Καθαρισμός" style="display:${DF.mode?'block':'none'}">✕</button>`;
-  h+=`</div>`;
-  if(DF.mode==='C'&&DF.calStep>=1) h+=`<input type="date" id="df-inp1" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0" onchange="dfCalPick(this.value,1)">`;
-  if(DF.mode==='C'&&DF.calStep===2) h+=`<input type="date" id="df-inp2" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0" onchange="dfCalPick(this.value,2)">`;
-  if(DF.mode==='C'&&DF.calStep===1) h+=`<span style="font-size:11px;color:#f59e0b;margin-left:4px">← επιλέξτε ΑΠΟ</span>`;
-  if(DF.mode==='C'&&DF.calStep===2) h+=`<span style="font-size:11px;color:#4ade80;margin-left:4px">← ΕΩΣ (από: ${dfFmt(DF.calFrom)})</span>`;
+  const modeLabel=(DF.mode&&DF.mode!=='C')?DF.mode:(DF.mode==='C'?'📅':'—');
+  let h='<div class="df-wrap">';
+  h+='<button class="df-mode-btn'+(DF.mode?' active':'')+'" onclick="dfCycleMode()" title="Εναλλαγή: Έτος/Μήνας/Εβδομάδα/Ημέρα">'+modeLabel+'</button>';
+  h+='<button class="df-arrow" onclick="dfStep(-1)" '+(hasArrows?'':'disabled')+'>◀</button>';
+  h+='<span class="df-label">'+dfLabel()+'</span>';
+  h+='<button class="df-arrow" onclick="dfStep(1)" '+(hasArrows?'':'disabled')+'>▶</button>';
+  h+='<button class="df-calbtn'+(DF.calOpen?' open':'')+'" onclick="dfToggleCal()" title="Επιλογή ημερομηνίας">▾</button>';
+  if(DF.mode) h+='<button class="df-clear" onclick="dfClear()" title="Καθαρισμός">✕</button>';
+  if(DF.calOpen){
+    h+='<div class="df-popup" onclick="event.stopPropagation()">';
+    h+='<div class="df-popup-nav"><button class="df-popup-navbtn" onclick="dfCalNav(-1)">◀</button><span class="df-popup-title">'+DF_MONTHS[DF.calMonth]+' '+DF.calYear+'</span><button class="df-popup-navbtn" onclick="dfCalNav(1)">▶</button></div>';
+    if(DF.pickStep===1) h+='<div style="font-size:11px;color:#f59e0b;text-align:center;margin-bottom:6px">ΑΠΟ: '+fmtDate(DF.rangeFrom)+' — επίλεξε ΕΩΣ</div>';
+    h+='<div class="df-popup-grid">';
+    DF_DOW.forEach(d=>{h+='<div class="df-popup-dow">'+d+'</div>';});
+    const firstOfMonth=new Date(DF.calYear,DF.calMonth,1);
+    let startDow=firstOfMonth.getDay();startDow=startDow===0?6:startDow-1; // Monday=0
+    const daysInMonth=new Date(DF.calYear,DF.calMonth+1,0).getDate();
+    const prevMonthDays=new Date(DF.calYear,DF.calMonth,0).getDate();
+    const todayStr=today();
+    let cellIdx=0;
+    for(let i=0;i<startDow;i++){
+      const dnum=prevMonthDays-startDow+1+i;
+      h+='<div class="df-popup-day other">'+dnum+'</div>';cellIdx++;
+    }
+    for(let d=1;d<=daysInMonth;d++){
+      const ds=dfDateStr(DF.calYear,DF.calMonth,d);
+      let cls='df-popup-day';
+      if(ds===todayStr) cls+=' today';
+      if(ds===DF.rangeFrom||ds===DF.rangeTo) cls+=' selected';
+      else if(DF.rangeFrom&&DF.rangeTo&&ds>DF.rangeFrom&&ds<DF.rangeTo) cls+=' in-range';
+      h+='<div class="'+cls+'" onclick="dfPickDay('+DF.calYear+','+DF.calMonth+','+d+')">'+d+'</div>';cellIdx++;
+    }
+    let nextDay=1;
+    while(cellIdx%7!==0){h+='<div class="df-popup-day other">'+(nextDay++)+'</div>';cellIdx++;}
+    h+='</div></div>';
+  }
+  h+='</div>';
   c.innerHTML=h;
 }
+document.addEventListener('click',(e)=>{
+  if(DF.calOpen && !e.target.closest('.df-wrap')){DF.calOpen=false;dfRender();}
+});
 
 loadFromCloud();
+
+// Smart paste για ημερομηνίες (DD/MM/YYYY → YYYY-MM-DD)
+document.addEventListener('paste', function(e){
+  const el = document.activeElement;
+  if(!el || el.type !== 'date') return;
+  const text = (e.clipboardData || window.clipboardData).getData('text').trim();
+  const m = text.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(m){
+    e.preventDefault();
+    const dd=m[1].padStart(2,'0'), mm=m[2].padStart(2,'0'), yyyy=m[3];
+    el.value = yyyy+'-'+mm+'-'+dd;
+    el.dispatchEvent(new Event('change',{bubbles:true}));
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+});
 </script>
 </body>
 </html>
