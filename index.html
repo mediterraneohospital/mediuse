@@ -307,7 +307,7 @@ function today(){const n=new Date();return n.getFullYear()+'-'+pad(n.getMonth()+
 function addMonths(dateStr,months){const d=new Date(dateStr);d.setMonth(d.getMonth()+months);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function daysDiff(dateStr){const d=new Date(dateStr),now=new Date();now.setHours(0,0,0,0);d.setHours(0,0,0,0);return Math.round((d-now)/(1000*60*60*24));}
 
-let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:[],tavi_done:[],boston_done:[],evar_done:[],clip_done:[],selected:{},editingId:null,taviFilter:null};
+let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:[],tavi_done:[],boston_done:[],evar_done:[],clip_done:[],selected:{},editingId:null,taviFilter:null,addPanelOpen:true};
 
 function setSyncStatus(s,m){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-label').textContent=m;}
 let saveTimeout=null;
@@ -484,7 +484,12 @@ function renderAddSection(){
   const closeBtn=document.createElement('button');closeBtn.className='add-panel-close';closeBtn.type='button';closeBtn.textContent='✕ Κλείσιμο';
   closeBtn.onclick=()=>closeAddPanelMobile();
   panel.appendChild(closeBtn);
-  const h3=document.createElement('h3');h3.textContent='+ Νέα Εγγραφή — '+cat.label;panel.appendChild(h3);
+  const h3=document.createElement('h3');
+  h3.style.cssText='cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none';
+  h3.innerHTML='<span style="display:inline-block;width:14px;text-align:center;color:#4db6ac;font-weight:800">'+(state.addPanelOpen?'−':'+')+'</span>Νέα Εγγραφή — '+cat.label;
+  h3.onclick=()=>{state.addPanelOpen=!state.addPanelOpen;renderAddSection();};
+  panel.appendChild(h3);
+  if(state.addPanelOpen){
   const grid=document.createElement('div');grid.className='form-grid';
   cat.fields.forEach(f=>{
     const g=document.createElement('div');g.className='form-group';
@@ -519,6 +524,7 @@ function renderAddSection(){
   const clrBtn=document.createElement('button');clrBtn.className='clear-btn';clrBtn.textContent='✕ Καθαρισμός';
   clrBtn.onclick=()=>{cat.fields.forEach(f=>{const el=document.getElementById('new_'+f.id);if(el)el.value=f.id==='date'?today():'';});};
   actions.appendChild(addBtn);actions.appendChild(clrBtn);panel.appendChild(actions);
+  }
   sec.appendChild(panel);
 }
 
