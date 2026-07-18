@@ -300,12 +300,23 @@ let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:
 
 function setSyncStatus(s,m){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-label').textContent=m;}
 let saveTimeout=null;
-function save(){localStorage.setItem('mediuse_bk',JSON.stringify(state));clearTimeout(saveTimeout);saveTimeout=setTimeout(saveToCloud,1000);}
+function save(){localStorage.setItem('mediuse_bk',JSON.stringify(state));clearTimeout(saveTimeout);saveTimeout=setTimeout(saveToCloud,400);}
 async function saveToCloud(){
+  saveTimeout=null;
   setSyncStatus('loading','Αποθήκευση...');
-  try{const s={...state,selected:{},editingId:null};await supaSet(JSON.stringify(s));setSyncStatus('ok','Συγχρονισμένο ✓');}
-  catch(e){setSyncStatus('err','Σφάλμα αποθήκευσης');}
+  try{const s={...state,selected:{},editingId:null,addPanelOpen:false};await supaSet(JSON.stringify(s));setSyncStatus('ok','Συγχρονισμένο ✓');}
+  catch(e){setSyncStatus('err','Σφάλμα αποθήκευσης — δοκίμασε ξανά');}
 }
+// Flush τυχόν εκκρεμούς αποθήκευσης αμέσως όταν η σελίδα κρύβεται/κλείνει
+// (π.χ. κλείδωμα κινητού ή αλλαγή εφαρμογής), ώστε να μη χαθεί καμία εγγραφή
+// λόγω του debounce των 400ms.
+function flushPendingSave(){
+  if(saveTimeout){clearTimeout(saveTimeout);saveToCloud();}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushPendingSave();});
+window.addEventListener('pagehide',flushPendingSave);
+window.addEventListener('beforeunload',flushPendingSave);
+
 async function loadFromCloud(){
   setSyncStatus('loading','Φόρτωση...');
   try{
@@ -314,7 +325,7 @@ async function loadFromCloud(){
       let data=raw;try{data=JSON.parse(raw);}catch(e){}
       if(typeof data==='string'){try{data=JSON.parse(data);}catch(e){data={};}}
       if(data&&(data.tavi!==undefined||data.boston!==undefined||data.evar!==undefined)){
-        state={...state,...data,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date'};
+        state={...state,...data,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date',addPanelOpen:false};
       }
       setSyncStatus('ok','Συγχρονισμένο ✓');
     } else loadLocal();
@@ -322,7 +333,7 @@ async function loadFromCloud(){
   render();
 }
 function loadLocal(){
-  try{const b=localStorage.getItem('mediuse_bk');if(b){const d=JSON.parse(b);state={...state,...d,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date'};}setSyncStatus('err','Offline');}
+  try{const b=localStorage.getItem('mediuse_bk');if(b){const d=JSON.parse(b);state={...state,...d,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date',addPanelOpen:false};}setSyncStatus('err','Offline');}
   catch(e){setSyncStatus('err','Σφάλμα');}
 }
 
