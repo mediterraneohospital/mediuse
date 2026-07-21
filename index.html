@@ -208,8 +208,6 @@ input[type=date]{color-scheme:dark}
 .df-popup-day.in-range{background:#00897b40}
 
 /* ── Collapsible add-panel για κινητό ── */
-.add-panel-toggle{display:none;width:100%;background:#243333;border:1px solid #2e4444;border-radius:10px;padding:11px 14px;margin-bottom:1.25rem;color:#4db6ac;font-size:14px;font-weight:600;cursor:pointer;text-align:left;align-items:center;gap:8px}
-.add-panel-close{display:none}
 @media(max-width:640px){
   #app{padding:.75rem}
   h1{font-size:19px}
@@ -218,14 +216,6 @@ input[type=date]{color-scheme:dark}
   .cat-tabs{gap:5px;margin-bottom:.75rem}
   .cat-tab{padding:7px 14px;font-size:12px}
   .done-dropdown-btn{padding:7px 14px;font-size:12px}
-  #add-section{display:none}
-  #add-section.open{display:block}
-  .add-panel-toggle{display:flex}
-  .add-panel-toggle.hidden{display:none}
-  .add-panel-close{
-    display:block;width:100%;background:transparent;border:1px solid #2e4444;border-radius:8px;
-    padding:7px;margin-bottom:10px;color:#7ab8b8;font-size:12px;cursor:pointer;
-  }
   .stats{gap:8px;font-size:10px;margin-bottom:0}
   .stats-row{margin-bottom:.5rem;gap:8px}
   .select-all-wrap label{font-size:10px}
@@ -252,7 +242,6 @@ input[type=date]{color-scheme:dark}
   <p class="subtitle">Καταγραφή Ιατρικών Επεμβάσεων — Mediterraneo Hospital</p>
   <div class="sync-bar"><div class="sync-dot loading" id="sync-dot"></div><span id="sync-label">Σύνδεση...</span></div>
   <div class="cat-tabs" id="cat-tabs" style="position:relative"></div>
-  <button class="add-panel-toggle" id="add-panel-toggle">+ Νέα Εγγραφή</button>
   <div id="add-section"></div>
   <div class="alert-bar" id="alert-bar"></div>
   <div class="toolbar">
@@ -307,16 +296,27 @@ function today(){const n=new Date();return n.getFullYear()+'-'+pad(n.getMonth()+
 function addMonths(dateStr,months){const d=new Date(dateStr);d.setMonth(d.getMonth()+months);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function daysDiff(dateStr){const d=new Date(dateStr),now=new Date();now.setHours(0,0,0,0);d.setHours(0,0,0,0);return Math.round((d-now)/(1000*60*60*24));}
 
-let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:[],tavi_done:[],boston_done:[],evar_done:[],clip_done:[],selected:{},editingId:null,taviFilter:null};
+let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:[],tavi_done:[],boston_done:[],evar_done:[],clip_done:[],selected:{},editingId:null,taviFilter:null,addPanelOpen:false};
 
 function setSyncStatus(s,m){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-label').textContent=m;}
 let saveTimeout=null;
-function save(){localStorage.setItem('mediuse_bk',JSON.stringify(state));clearTimeout(saveTimeout);saveTimeout=setTimeout(saveToCloud,1000);}
+function save(){localStorage.setItem('mediuse_bk',JSON.stringify(state));clearTimeout(saveTimeout);saveTimeout=setTimeout(saveToCloud,400);}
 async function saveToCloud(){
+  saveTimeout=null;
   setSyncStatus('loading','Αποθήκευση...');
-  try{const s={...state,selected:{},editingId:null};await supaSet(JSON.stringify(s));setSyncStatus('ok','Συγχρονισμένο ✓');}
-  catch(e){setSyncStatus('err','Σφάλμα αποθήκευσης');}
+  try{const s={...state,selected:{},editingId:null,addPanelOpen:false};await supaSet(JSON.stringify(s));setSyncStatus('ok','Συγχρονισμένο ✓');}
+  catch(e){setSyncStatus('err','Σφάλμα αποθήκευσης — δοκίμασε ξανά');}
 }
+// Flush τυχόν εκκρεμούς αποθήκευσης αμέσως όταν η σελίδα κρύβεται/κλείνει
+// (π.χ. κλείδωμα κινητού ή αλλαγή εφαρμογής), ώστε να μη χαθεί καμία εγγραφή
+// λόγω του debounce των 400ms.
+function flushPendingSave(){
+  if(saveTimeout){clearTimeout(saveTimeout);saveToCloud();}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushPendingSave();});
+window.addEventListener('pagehide',flushPendingSave);
+window.addEventListener('beforeunload',flushPendingSave);
+
 async function loadFromCloud(){
   setSyncStatus('loading','Φόρτωση...');
   try{
@@ -325,7 +325,7 @@ async function loadFromCloud(){
       let data=raw;try{data=JSON.parse(raw);}catch(e){}
       if(typeof data==='string'){try{data=JSON.parse(data);}catch(e){data={};}}
       if(data&&(data.tavi!==undefined||data.boston!==undefined||data.evar!==undefined)){
-        state={...state,...data,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date'};
+        state={...state,...data,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date',addPanelOpen:false};
       }
       setSyncStatus('ok','Συγχρονισμένο ✓');
     } else loadLocal();
@@ -333,7 +333,7 @@ async function loadFromCloud(){
   render();
 }
 function loadLocal(){
-  try{const b=localStorage.getItem('mediuse_bk');if(b){const d=JSON.parse(b);state={...state,...d,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date'};}setSyncStatus('err','Offline');}
+  try{const b=localStorage.getItem('mediuse_bk');if(b){const d=JSON.parse(b);state={...state,...d,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date',addPanelOpen:false};}setSyncStatus('err','Offline');}
   catch(e){setSyncStatus('err','Σφάλμα');}
 }
 
@@ -481,10 +481,12 @@ function renderAddSection(){
   const cat=CATS[state.cat];
   sec.innerHTML='';
   const panel=document.createElement('div');panel.className='add-panel';
-  const closeBtn=document.createElement('button');closeBtn.className='add-panel-close';closeBtn.type='button';closeBtn.textContent='✕ Κλείσιμο';
-  closeBtn.onclick=()=>closeAddPanelMobile();
-  panel.appendChild(closeBtn);
-  const h3=document.createElement('h3');h3.textContent='+ Νέα Εγγραφή — '+cat.label;panel.appendChild(h3);
+  const h3=document.createElement('h3');
+  h3.style.cssText='cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none';
+  h3.innerHTML='<span style="display:inline-block;width:14px;text-align:center;color:#4db6ac;font-weight:800">'+(state.addPanelOpen?'−':'+')+'</span>Νέα Εγγραφή — '+cat.label;
+  h3.onclick=()=>{state.addPanelOpen=!state.addPanelOpen;renderAddSection();};
+  panel.appendChild(h3);
+  if(state.addPanelOpen){
   const grid=document.createElement('div');grid.className='form-grid';
   cat.fields.forEach(f=>{
     const g=document.createElement('div');g.className='form-group';
@@ -519,6 +521,7 @@ function renderAddSection(){
   const clrBtn=document.createElement('button');clrBtn.className='clear-btn';clrBtn.textContent='✕ Καθαρισμός';
   clrBtn.onclick=()=>{cat.fields.forEach(f=>{const el=document.getElementById('new_'+f.id);if(el)el.value=f.id==='date'?today():'';});};
   actions.appendChild(addBtn);actions.appendChild(clrBtn);panel.appendChild(actions);
+  }
   sec.appendChild(panel);
 }
 
@@ -534,7 +537,6 @@ function addRecord(){
   state[state.cat].unshift(rec);
   cat.fields.forEach(f=>{const el=document.getElementById('new_'+f.id);if(el)el.value=f.id==='date'?today():'';});
   save();render();
-  closeAddPanelMobile();
 }
 
 function renderAlertBar(){
@@ -789,24 +791,7 @@ function updateSelectAllCb(){
   else{cb.checked=false;cb.indeterminate=true;}
 }
 
-const addPanelToggle=document.getElementById('add-panel-toggle');
 const addSectionEl=document.getElementById('add-section');
-if(addPanelToggle){
-  addPanelToggle.onclick=()=>{
-    addSectionEl.classList.add('open');
-    addPanelToggle.classList.add('hidden');
-    setTimeout(()=>{
-      const firstInp=addSectionEl.querySelector('input,select');
-      if(firstInp) firstInp.focus();
-    },50);
-  };
-}
-function closeAddPanelMobile(){
-  if(window.innerWidth<=640){
-    addSectionEl.classList.remove('open');
-    if(addPanelToggle) addPanelToggle.classList.remove('hidden');
-  }
-}
 
 function render(){
   renderCatTabs();renderAddSection();renderAlertBar();
@@ -815,13 +800,6 @@ function render(){
   document.querySelector('.toolbar').style.display=isPL?'none':'';
   document.getElementById('bulk-bar').style.display=isPL?'none':'';
   document.querySelector('.stats-row').style.display=isPL?'none':'';
-  // Το toggle κουμπιού "Νέα Εγγραφή" μόνο όταν υπάρχει add-panel (όχι σε pricelist/ολοκληρωμένα)
-  if(addPanelToggle){
-    addPanelToggle.style.display=(isPL||state.viewDone)?'none':'';
-    if(isPL) addSectionEl.classList.add('open'); // Τιμοκατάλογοι: πάντα ορατό, δεν το αφορά το collapse
-    else if(state.viewDone) addSectionEl.classList.remove('open');
-    else addSectionEl.classList.remove('open'); // κανονικό tab: ξεκινά πάντα κλειστό σε κινητό
-  }
   dfRender();
   if(isPL){renderPricelist();return;}
   renderSort();renderStats();renderBulkBar();renderRecords();
