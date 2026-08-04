@@ -2,2017 +2,1244 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CineDanal — Αναζήτηση Ταινιών &amp; Σειρών</title>
-<meta name="theme-color" content="#0b0d10">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
-<meta property="og:title" content="CineDanal — Αναζήτηση Ταινιών &amp; Σειρών">
-<meta property="og:description" content="Αναζήτηση ταινιών &amp; σειρών με φίλτρα είδους, χρονιάς και βαθμολογίας IMDb.">
+<meta name="theme-color" content="#1e2a2a">
+<meta property="og:title" content="MediUse">
+<meta property="og:description" content="Καταγραφή Ιατρικών Επεμβάσεων — Mediterraneo Hospital">
 <meta property="og:image" content="icon-512.png">
 <meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediUse</title>
 <style>
-  :root{
-    --bg:#0b0d10;
-    --bg-raised:#15181d;
-    --card:#1b1f26;
-    --line:#2a2f38;
-    --gold:#e8b34a;
-    --gold-dim:#a67f2f;
-    --teal:#5a9aa1;
-    --text:#f2ede1;
-    --text-dim:#9aa0ab;
-    --danger:#c96a5a;
-    --radius:10px;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:
-      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(232,179,74,0.08), transparent 60%),
-      var(--bg);
-    color:var(--text);
-    font-family:'IBM Plex Sans', sans-serif;
-    min-height:100vh;
-  }
-  .wrap{max-width:1180px;margin:0 auto;padding:32px 20px 80px;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1e2a2a;color:#e0f0f0;font-family:Arial,sans-serif;min-height:100vh}
+#app{max-width:1200px;margin:0 auto;padding:1.5rem}
+h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex;align-items:center;gap:0}
+.subtitle{font-size:13px;color:#7ab8b8;margin-bottom:1.5rem}
+.sync-bar{display:flex;align-items:center;gap:10px;background:#243333;border:1px solid #2e4444;border-radius:10px;padding:8px 14px;margin-bottom:1.25rem;font-size:12px;color:#7ab8b8}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#446666;flex-shrink:0}
+.sync-dot.ok{background:#4ade80}
+.sync-dot.err{background:#e74c3c}
+.sync-dot.loading{background:#f0c040;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-  header{
-    display:flex;flex-direction:column;gap:6px;margin-bottom:28px;
-    border-bottom:1px solid var(--line);padding-bottom:22px;
-  }
-  .brand{display:flex;align-items:baseline;gap:12px;}
-  .brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-  .profile-btn{
-    background:var(--bg-raised);border:1px solid var(--line);color:var(--text);
-    padding:8px 14px;border-radius:20px;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans';
-    white-space:nowrap;
-  }
-  .profile-btn:hover{border-color:var(--gold-dim);}
-  .watchlist-toggle-btn{
-    background:var(--bg-raised);border:1px solid var(--line);color:var(--text-dim);
-    padding:0 14px;height:38px;border-radius:7px;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans';
-    white-space:nowrap;display:inline-flex;align-items:center;
-  }
-  .watchlist-toggle-btn.active{background:var(--gold);color:#1a1200;font-weight:600;border-color:var(--gold);}
-  .watchlist-toggle-btn:hover:not(.active){border-color:var(--gold-dim);color:var(--text);}
+.cat-tabs{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
+.cat-tab{padding:8px 20px;border-radius:8px;border:2px solid #2e4444;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.cat-tab.active.tavi{background:#1e4d7a;border-color:#60a5fa;color:#bfdbfe}
+.cat-tab.active.boston{background:#14532d;border-color:#4ade80;color:#bbf7d0}
+.cat-tab.active.evar{background:#3b0764;border-color:#c084fc;color:#e9d5ff}
+.cat-tab.active.clip{background:#7a1a3a;border-color:#f43f5e;color:#fecdd3}
+.cat-tab:hover:not(.active){background:#243333;color:#e0f0f0;border-color:#4db6ac}
 
-  .auth-modal{max-width:400px;padding:28px;}
-  .auth-title{font-family:'Fraunces';font-weight:700;font-size:20px;margin-bottom:16px;}
-  .auth-section{margin-bottom:20px;}
-  .auth-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block;}
-  .profile-pill-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
-  .profile-pill{
-    background:var(--bg-raised);border:1px solid var(--line);color:var(--text);padding:8px 16px;
-    border-radius:20px;cursor:pointer;font-size:13px;
-  }
-  .profile-pill:hover{border-color:var(--gold-dim);}
-  .auth-input{
-    background:var(--bg-raised);border:1px solid var(--line);color:var(--text);padding:10px 12px;
-    border-radius:7px;font-size:14px;width:100%;margin-bottom:10px;outline:none;
-  }
-  .auth-input:focus{border-color:var(--gold-dim);}
-  .auth-btn{
-    background:var(--gold);color:#1a1200;border:none;padding:10px 20px;border-radius:7px;
-    font-weight:600;cursor:pointer;font-size:13.5px;width:100%;
-  }
-  .auth-btn:hover{background:#f0c165;}
-  .auth-btn.secondary{background:transparent;border:1px solid var(--line);color:var(--text-dim);margin-top:8px;}
-  .auth-error{color:var(--danger);font-size:12.5px;margin-top:6px;}
-  .auth-divider{text-align:center;color:var(--text-dim);font-size:11px;margin:16px 0;text-transform:uppercase;letter-spacing:1px;}
+.add-panel{background:#243333;border:1px solid #2e4444;border-radius:10px;padding:16px;margin-bottom:1.25rem}
+.add-panel h3{font-size:12px;color:#80cbc4;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;color:#80cbc4;text-transform:uppercase;letter-spacing:.3px}
+.inp{background:#1a2828;border:1px solid #2e4444;border-radius:6px;padding:8px 12px;color:#e0f0f0;font-size:14px;outline:none;width:100%}
+.inp:focus{border-color:#4db6ac}
+.inp::placeholder{color:#446666}
+.inp-date{color:#e0f0f0}
+.sel{background:#1a2828;border:1px solid #2e4444;border-radius:6px;padding:8px 10px;color:#e0f0f0;font-size:13px;outline:none;cursor:pointer;width:100%}
+.sel option{background:#1e2a2a;color:#e0f0f0}
+.form-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.add-btn{background:#00897b;color:#fff;border:none;border-radius:6px;padding:9px 20px;font-size:14px;font-weight:600;cursor:pointer}
+.add-btn:hover{background:#00796b}
+.clear-btn{background:transparent;border:1px solid #2e4444;border-radius:6px;padding:9px 14px;font-size:13px;color:#7ab8b8;cursor:pointer}
+.clear-btn:hover{border-color:#4db6ac;color:#e0f0f0}
 
-  .bookmark-badge{
-    position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    background:rgba(15,18,22,0.85);border:1.5px solid rgba(255,255,255,0.5);color:#fff;
-    cursor:pointer;font-size:16px;line-height:1;font-weight:600;padding:0;z-index:2;
-  }
-  .bookmark-badge.saved{background:var(--gold);border-color:var(--gold);color:#1a1200;}
-  .bookmark-badge:hover{border-color:var(--gold);}
-  .list-mode .bookmark-badge{width:22px;height:22px;font-size:14px;top:4px;left:4px;}
-  .brand .reel{font-family:'IBM Plex Mono';font-size:12px;letter-spacing:3px;color:var(--gold-dim);text-transform:uppercase;}
-  h1{
-    font-family:'Fraunces', serif;font-weight:700;font-size:40px;margin:0;
-    letter-spacing:-0.5px;
-  }
-  h1 span{color:var(--gold);font-style:italic;font-weight:600;}
-  .tagline{color:var(--text-dim);font-size:14px;margin:0;}
+.toolbar{display:flex;gap:8px;margin-bottom:.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.search-inp{background:#1a2828;border:1px solid #2e4444;border-radius:6px;padding:7px 12px;color:#e0f0f0;font-size:13px;outline:none;flex:1;min-width:180px}
+.search-inp:focus{border-color:#4db6ac}
+.search-inp::placeholder{color:#446666}
+.sort-row{display:flex;gap:6px}
+.sort-btn{padding:4px 12px;border-radius:6px;border:1px solid #2e4444;background:#243333;color:#7ab8b8;cursor:pointer;font-size:12px;transition:all .15s}
+.sort-btn.active{background:#00897b;color:#fff;border-color:#00796b}
+.sort-btn:hover:not(.active){color:#b2dfdb;border-color:#4db6ac}
 
-  .keys{
-    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;
-  }
-  .keys input{
-    background:var(--bg-raised);border:1px solid var(--line);color:var(--text);
-    padding:10px 12px;border-radius:8px;font-family:'IBM Plex Mono';font-size:12px;
-  }
-  .keys label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;}
-  .keys .field{display:flex;flex-direction:column;}
-  .keyshelp{font-size:12px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
-  .keyshelp a{color:var(--teal);}
+.bulk-bar{display:flex;align-items:center;gap:10px;background:#1a3333;border:1px solid #00897b;border-radius:10px;padding:10px 14px;margin-bottom:.75rem;flex-wrap:wrap}
+.bulk-bar.hidden{display:none}
+.bulk-info{font-size:13px;color:#80cbc4;flex:1}
+.bulk-subtotal{font-size:13px;color:#e0f0f0;font-weight:600}
+.bulk-btn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:500}
+.bulk-done-btn{background:#00897b;color:#fff}
+.bulk-done-btn:hover{background:#00796b}
+.bulk-clear-btn{background:#2e4444;color:#7ab8b8;border:1px solid #446666}
+.bulk-clear-btn:hover{color:#e0f0f0}
 
-  .controls{
-    display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin:26px 0 8px;
-    background:var(--bg-raised);border:1px solid var(--line);border-radius:var(--radius);
-    padding:18px;
-  }
-  .field label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;}
-  .field input[type=text], .field select, .field input[type=number]{
-    background:#0f1216;border:1px solid var(--line);color:var(--text);
-    padding:9px 10px;border-radius:7px;font-family:'IBM Plex Sans';font-size:13.5px;min-width:130px;
-  }
-  .field input[type=number]{min-width:100px;}
-  .keystatus{font-size:11.5px;color:var(--teal);margin-top:6px;min-height:16px;}
-  .field input[type=text]{min-width:220px;}
-  .field.grow{flex:1;}
-  .field-note{display:block;font-size:10.5px;color:var(--text-dim);margin-top:4px;max-width:150px;}
-  select:disabled{opacity:.4;cursor:not-allowed;}
-  .genre-chips{display:flex;flex-wrap:wrap;gap:6px;max-width:min(600px, 88vw);}
-  .genre-filter-btn{
-    background:var(--bg-raised);border:1px solid var(--line);color:var(--text);
-    padding:9px 14px;border-radius:7px;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans';
-  }
-  .genre-filter-btn:hover{border-color:var(--gold-dim);}
-  #genreFilterCount{color:var(--gold);font-family:'IBM Plex Mono';}
-  .genre-chips-panel{
-    position:absolute;top:calc(100% + 6px);left:0;z-index:20;background:var(--bg-raised);
-    border:1px solid var(--line);border-radius:10px;padding:14px;max-width:min(640px, 92vw);
-    max-height:min(70vh, 520px);overflow-y:auto;
-    box-shadow:0 12px 30px rgba(0,0,0,0.4);
-  }
-  .genre-chips-panel.hidden{display:none;}
-  .chip{
-    border:1px solid var(--line);padding:6px 12px;border-radius:999px;font-size:12.5px;
-    cursor:pointer;color:var(--text-dim);user-select:none;transition:all .15s;
-  }
-  .chip:hover{border-color:var(--gold-dim);color:var(--text);}
-  .chip.active{background:var(--gold);border-color:var(--gold);color:#1a1200;font-weight:600;}
-  .range-row{display:flex;align-items:center;gap:8px;}
-  .range-row input[type=range]{accent-color:var(--gold);width:130px;}
-  .range-val{font-family:'IBM Plex Mono';font-size:12.5px;color:var(--gold);min-width:28px;}
-  button.go{
-    background:var(--gold);color:#1a1200;border:none;padding:10px 22px;border-radius:7px;
-    font-weight:600;cursor:pointer;font-size:13.5px;letter-spacing:.3px;
-  }
-  button.go:hover{background:#f0c165;}
-  button.go:disabled{opacity:.5;cursor:default;}
-  button.clear{
-    background:transparent;border:1px solid var(--line);color:var(--text-dim);padding:10px 18px;
-    border-radius:7px;cursor:pointer;font-size:13.5px;font-family:'IBM Plex Sans';
-  }
-  button.clear:hover{border-color:var(--danger);color:var(--danger);}
+.alert-bar{background:#2a1a0a;border:1px solid #7a4a1a;border-radius:10px;padding:10px 14px;margin-bottom:.75rem;font-size:12px;display:none}
+.alert-bar.show{display:block}
+.alert-item{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.alert-item:last-child{margin-bottom:0}
+.alert-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.alert-dot.red{background:#e74c3c}
+.alert-dot.orange{background:#f97316}
 
-  .meta-row{display:flex;justify-content:space-between;align-items:center;margin:22px 0 14px;}
-  .meta-row .count{color:var(--text-dim);font-size:13px;font-family:'IBM Plex Mono';}
-  .sortfield select{background:var(--bg-raised);border:1px solid var(--line);color:var(--text);padding:8px 10px;border-radius:7px;font-size:12.5px;}
+.stats-row{display:flex;align-items:center;gap:12px;margin-bottom:.75rem;flex-wrap:wrap}
+.stats{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.select-all-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.stat{font-size:12px;color:#7ab8b8}
+.stat span{color:#b2dfdb;font-weight:500}
+.stat.highlight span{color:#4db6ac}
 
-  .view-toggle{display:flex;gap:4px;background:var(--bg-raised);border:1px solid var(--line);border-radius:7px;padding:3px;height:38px;box-sizing:border-box;}
-  .view-toggle button{
-    background:transparent;border:none;color:var(--text-dim);padding:0 12px;border-radius:5px;height:100%;
-    cursor:pointer;font-size:12.5px;font-family:'IBM Plex Sans';white-space:nowrap;
-    display:inline-flex;align-items:center;justify-content:center;gap:4px;
-  }
-  .view-toggle button.active{background:var(--gold);color:#1a1200;font-weight:600;}
+.records{display:flex;flex-direction:column;gap:6px}
+.record-item{background:#243333;border:1px solid #2e4444;border-radius:10px;padding:12px 14px;transition:border-color .15s}
+.record-item:hover{border-color:#4db6ac}
+.record-item.selected{border-color:#00897b;background:#1a3333}
+.record-item.completed-style{opacity:.6}
+.record-top{display:flex;align-items:flex-start;gap:10px}
+.record-cb{width:16px;height:16px;cursor:pointer;accent-color:#00897b;flex-shrink:0;margin-top:3px}
+.record-main{flex:1;min-width:0}
+.record-date{font-size:11px;color:#4db6ac;margin-bottom:2px}
+.record-patient{font-size:15px;font-weight:600;color:#e0f0f0;margin-bottom:4px}
+.record-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.tag{font-size:11px;padding:2px 8px;border-radius:12px;background:#2e4444;color:#80cbc4}
+.tag.green{background:#1a3a2a;color:#4ade80}
+.tag.blue{background:#1a2a3a;color:#4db6ac}
+.tag.purple{background:#2a1a3a;color:#c084fc}
+.tag.red{background:#3a1a1a;color:#f87171}
+.tag.yellow{background:#2a2a0a;color:#fbbf24}
+.tag.orange{background:#2a1a0a;color:#f97316}
+.credit-due{font-size:11px;margin-top:3px;padding:3px 8px;border-radius:6px;display:inline-block}
+.credit-due.overdue{background:#3a1a1a;color:#f87171}
+.credit-due.soon{background:#2a1a0a;color:#f97316}
+.credit-due.ok{background:#1a3a2a;color:#6ee7b7}
+.record-notes{font-size:12px;color:#b2dfdb;margin-top:4px;border-left:2px solid #2e4444;padding-left:8px}
+.record-actions{display:flex;gap:5px;flex-shrink:0}
+.icon-btn{background:#2e4444;border:1px solid #3a5555;border-radius:6px;padding:6px 8px;color:#80cbc4;cursor:pointer;font-size:14px;line-height:1;transition:all .15s}
+.icon-btn:hover{background:#3a5555;color:#e0f0f0}
+.icon-btn.del:hover{background:#3a1a1a;border-color:#7a1e1e;color:#e74c3c}
+.empty{text-align:center;padding:3rem;color:#446666;font-size:14px}
 
-  .toggle-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-dim);}
-  .toggle-row input{accent-color:var(--gold);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
-  .toggle-row label{cursor:pointer;}
-  .panel-toggle label{
-    display:inline !important;text-transform:none !important;font-size:12.5px !important;
-    color:var(--text-dim) !important;margin-bottom:0 !important;white-space:normal !important;
-    overflow:visible !important;text-overflow:clip !important;width:auto !important;letter-spacing:normal !important;
-  }
-  .panel-toggle{border-top:1px solid var(--line);margin-top:12px;padding-top:12px;}
+.edit-panel{background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:14px;margin-top:10px}
+.edit-panel .form-grid{margin-bottom:10px}
+.save-btn{background:#00897b;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer}
+.save-btn:hover{background:#00796b}
+.cancel-btn{background:transparent;border:1px solid #2e4444;border-radius:6px;padding:7px 14px;font-size:13px;color:#7ab8b8;cursor:pointer}
+.cancel-btn:hover{border-color:#4db6ac}
 
-  .active-filters-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+input[type=date]{color-scheme:dark}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr 1fr}}
 
-  .preview-notice{
-    background:rgba(232,179,74,0.08);border:1px solid rgba(232,179,74,0.25);color:var(--text-dim);
-    font-size:12.5px;padding:8px 14px;border-radius:8px;margin-top:12px;
-  }
-  .preview-notice strong{color:var(--gold);}
-  .preview-notice.hidden{display:none;}
-  .active-filter-chip{
-    display:inline-flex;align-items:center;gap:6px;background:rgba(232,179,74,0.12);
-    border:1px solid rgba(232,179,74,0.4);color:var(--gold);padding:5px 10px;border-radius:20px;
-    font-size:12px;
-  }
-  .active-filter-chip button{
-    background:transparent;border:none;color:var(--gold);cursor:pointer;font-size:13px;line-height:1;padding:0;
-  }
-  .active-filter-chip button:hover{color:#fff;}
+/* ── Τιμοκατάλογος Tab ── */
+.cat-tab.active.pricelist{background:#3a1f00;border-color:#f59e0b;color:#fcd34d}
+.pl-search-wrap{display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
+.pl-search-inp{background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:10px 16px;color:#e0f0f0;font-size:15px;outline:none;flex:1;min-width:220px}
+.pl-search-inp:focus{border-color:#f59e0b;box-shadow:0 0 0 2px rgba(245,158,11,.15)}
+.pl-search-inp::placeholder{color:#446666}
+.pl-filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.pl-filter-btn{padding:6px 14px;border-radius:6px;border:1px solid #2e4444;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.pl-filter-btn.active{background:#3a1f00;border-color:#f59e0b;color:#fcd34d}
+.pl-filter-btn:hover:not(.active){background:#243333;color:#e0f0f0}
+.pl-result{background:#243333;border:1px solid #2e4444;border-radius:10px;padding:14px 16px;margin-bottom:8px;transition:border-color .15s}
+.pl-result:hover{border-color:#4db6ac}
+.pl-result-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.pl-ref{font-size:15px;color:#f59e0b;font-weight:700;letter-spacing:.5px;font-family:monospace}
+.pl-supplier-tag{font-size:13px;padding:3px 10px;border-radius:10px;font-weight:600}
+.pl-supplier-tag.boston{background:#14532d;color:#4ade80}
+.pl-supplier-tag.medtronic{background:#1e3a5f;color:#60a5fa}
+.pl-desc{font-size:14px;color:#e0f0f0;font-weight:500;margin-bottom:10px}
+.pl-prices{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.pl-price-box{background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:8px 14px;text-align:center;min-width:130px}
+.pl-price-box.primary{border-color:#f59e0b;background:#2a1a00}
+.pl-price-label{font-size:10px;color:#7ab8b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.pl-price-val{font-size:17px;font-weight:700;color:#fcd34d}
+.pl-price-val.secondary{color:#b2dfdb;font-size:15px}
+.pl-price-val.free{color:#4ade80;font-size:14px}
+.pl-cat-badge{font-size:12px;padding:3px 9px;border-radius:8px;background:#2e4444;color:#80cbc4;margin-top:0;display:inline-block}
+.pl-bundle{background:#1a2828;border:1px solid #2e3d3d;border-radius:8px;padding:10px 14px;margin-top:8px}
+.pl-bundle-title{font-size:11px;color:#f59e0b;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.pl-bundle-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #2e3d3d;font-size:12px;gap:8px}
+.pl-bundle-row:last-child{border-bottom:none}
+.pl-bundle-code{color:#7ab8b8;font-family:monospace;font-size:11px;flex-shrink:0}
+.pl-bundle-desc{color:#b2dfdb;flex:1}
+.pl-bundle-qty{color:#80cbc4;flex-shrink:0}
+.pl-bundle-price{font-weight:600;flex-shrink:0}
+.pl-bundle-price.free{color:#4ade80}
+.pl-bundle-price.normal{color:#fcd34d}
+.pl-bundle-total{display:flex;justify-content:flex-end;margin-top:6px;padding-top:6px;border-top:1px solid #f59e0b33}
+.pl-bundle-total-val{font-size:13px;font-weight:700;color:#fcd34d}
+.pl-empty{text-align:center;padding:3rem;color:#446666;font-size:14px}
+.pl-implant-toggle{display:flex;gap:6px;margin-bottom:10px}
+.pl-implant-btn{padding:6px 16px;border-radius:6px;border:1px solid #2e4444;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.pl-implant-btn.active{background:#1a3a2a;border-color:#4ade80;color:#4ade80}
+.pl-implant-btn:hover:not(.active){background:#243333;color:#e0f0f0}
+.pl-hint{font-size:12px;color:#446666;margin-bottom:1rem}
 
-  .grid{
-    display:grid;grid-template-columns:repeat(auto-fill, minmax(190px, 1fr));gap:20px;
-  }
-  .grid.list-mode{
-    display:flex;flex-direction:column;gap:8px;
-  }
-  .card{
-    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
-    display:flex;flex-direction:column;transition:transform .18s, border-color .18s;cursor:pointer;
-  }
-  .card:hover{transform:translateY(-3px);border-color:var(--gold-dim);}
-  .rank{display:none;}
-  .stremio-inline{
-    display:inline-flex;align-items:center;gap:3px;color:var(--teal);text-decoration:none;
-    font-size:11px;font-weight:600;white-space:nowrap;
-  }
-  .stremio-inline:hover{color:var(--gold);}
+.done-dropdown{position:relative;display:inline-block}
+.done-dropdown-btn{padding:7px 16px;border-radius:6px;border:2px solid transparent;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.done-dropdown-btn.active{background:#302000;border-color:#f59e0b;color:#fcd34d}
+.done-dropdown-btn:hover{background:#243333;color:#b2dfdb;border-color:#4db6ac}
+.done-dropdown-menu{position:absolute;top:110%;left:0;background:#243333;border:1px solid #2e4444;border-radius:8px;padding:4px;z-index:100;min-width:160px;display:none;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.6)}
+.done-dropdown-menu.open{display:flex}
+.done-menu-item{padding:8px 12px;border-radius:6px;border:none;background:transparent;color:#7ab8b8;cursor:pointer;font-size:13px;text-align:left;transition:all .15s}
+.done-menu-item:hover{background:#2e4444;color:#e0f0f0}
+.done-menu-item.active{background:#302000;border:1px solid #f59e0b;color:#fcd34d}
 
-  .list-mode .card{
-    flex-direction:row;align-items:flex-start;transform:none !important;
-    padding:14px 20px 14px 14px;gap:16px;
-  }
-  .list-mode .card:hover{transform:none !important;border-color:var(--gold-dim);}
-  .list-mode .poster-wrap{width:80px;flex:0 0 80px;aspect-ratio:2/3;border-radius:8px;overflow:hidden;}
-  .list-mode .badges{display:none;}
-  .list-mode .card-body{
-    display:block;padding:0;flex:1;min-width:0;
-  }
-  .list-mode .card-main{display:flex;flex-direction:column;gap:4px;}
-  .card-rank{color:var(--text-dim);font-weight:600;margin-right:2px;}
-  .list-mode .card-title{
-    font-size:19px;line-height:1.3;white-space:normal;overflow:visible;text-overflow:clip;
-  }
-  .list-mode .card-sub{
-    display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--text-dim);margin-top:2px;
-  }
-  .list-mode .rating-line{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono';font-size:17px;white-space:nowrap;margin-top:4px;}
-  .list-mode .rating-line .star{color:var(--gold);font-size:17px;}
-  .list-mode .rating-line.imdb-line{color:var(--gold);font-weight:700;}
-  .list-mode .rating-line.meta-line{color:#6cb35a;font-size:13px;min-height:16px;margin-top:0;}
-  .list-mode .rating-line.meta-line:empty{display:none;}
-  .list-mode .rating-line.tmdb-line{color:var(--text-dim);font-size:12px;opacity:.75;margin-top:0;}
+/* ── Smart Date Filter (Y/M/W/D + custom calendar) ── */
+.df-wrap{position:relative;display:flex;align-items:center;gap:2px;background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:4px 6px;flex-shrink:0}
+.df-mode-btn{background:transparent;border:1px solid #2e4444;border-radius:5px;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:800;padding:3px 0;transition:all .12s;width:26px;flex-shrink:0;text-align:center}
+.df-mode-btn.active{background:#00897b;border-color:#00796b;color:#fff}
+.df-mode-btn:hover:not(.active){background:#2e4444;color:#e0f0f0}
+.df-arrow{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;line-height:1}
+.df-arrow:hover{background:#2e4444;color:#e0f0f0}
+.df-arrow:disabled{opacity:.25;cursor:default}
+.df-arrow:disabled:hover{background:transparent}
+.df-label{font-size:12px;color:#e0f0f0;font-weight:600;min-width:150px;text-align:center;white-space:nowrap;padding:2px 4px}
+.df-calbtn{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px}
+.df-calbtn:hover{background:#2e4444;color:#e0f0f0}
+.df-calbtn.open{background:#00897b;color:#fff}
+.df-clear{background:transparent;border:none;color:#446666;cursor:pointer;font-size:13px;padding:2px 4px;width:20px;flex-shrink:0}
+.df-clear:hover{color:#e74c3c}
+.df-popup{position:absolute;top:calc(100% + 6px);left:0;background:#1a2828;border:1px solid #2e4444;border-radius:10px;padding:12px;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.6);width:260px}
+.df-popup-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.df-popup-navbtn{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:14px;padding:2px 8px;border-radius:4px}
+.df-popup-navbtn:hover{background:#2e4444;color:#e0f0f0}
+.df-popup-title{font-size:13px;font-weight:700;color:#e0f0f0}
+.df-popup-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.df-popup-dow{font-size:11px;color:#7ab8b8;font-weight:700;padding:4px 0}
+.df-popup-day{font-size:12px;color:#e0f0f0;padding:6px 0;border-radius:6px;cursor:pointer;background:transparent}
+.df-popup-day:hover{background:#2e4444}
+.df-popup-day.other{color:#3a4a4a}
+.df-popup-day.today{color:#f59e0b;font-weight:700}
+.df-popup-day.selected{background:#00897b;color:#fff;font-weight:700}
+.df-popup-day.in-range{background:#00897b40}
 
-  .poster-wrap{position:relative;aspect-ratio:2/3;background:#0f1216;}
-  .poster-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
-  .poster-wrap .noimg{
-    display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-dim);
-    font-family:'Fraunces';font-style:italic;font-size:13px;text-align:center;padding:10px;
-  }
-  .badges{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;gap:6px;}
-  .badge{
-    font-family:'IBM Plex Mono';font-size:11px;font-weight:600;padding:3px 7px;border-radius:5px;
-    backdrop-filter:blur(4px);display:flex;align-items:center;gap:4px;
-  }
-  .badge.imdb{background:rgba(232,179,74,0.92);color:#1a1200;}
-  .badge.tmdb{background:rgba(255,255,255,0.1);color:var(--text-dim);}
-  .badge.pending{background:rgba(255,255,255,0.12);color:var(--text-dim);}
-  .badge.age{background:rgba(90,154,161,0.2);color:var(--teal);border:1px solid rgba(90,154,161,0.4);}
-  .badge.meta{background:rgba(108,179,90,0.2);color:#6cb35a;border:1px solid rgba(108,179,90,0.4);}
-  .badge.meta:empty{display:none;}
-  .rating-box{display:none;}
-  .card-body{padding:12px 13px 14px;display:flex;flex-direction:column;gap:5px;flex:1;}
-  .card-title{font-family:'Fraunces';font-weight:600;font-size:15.5px;line-height:1.25;}
-  .card-sub{font-size:12px;color:var(--text-dim);font-family:'IBM Plex Mono';}
+/* ── Collapsible add-panel για κινητό ── */
+@media(max-width:640px){
+  #app{padding:.75rem}
+  h1{font-size:19px}
+  .subtitle{font-size:11px;margin-bottom:.75rem}
+  .sync-bar{padding:5px 10px;margin-bottom:.75rem;font-size:11px}
+  .cat-tabs{gap:5px;margin-bottom:.75rem}
+  .cat-tab{padding:7px 14px;font-size:12px}
+  .done-dropdown-btn{padding:7px 14px;font-size:12px}
+  .stats{gap:8px;font-size:10px;margin-bottom:0}
+  .stats-row{margin-bottom:.5rem;gap:8px}
+  .select-all-wrap label{font-size:10px}
 
-  .state{padding:60px 20px;text-align:center;color:var(--text-dim);}
-  .state .icon{font-size:32px;margin-bottom:10px;}
-  .state.error{color:var(--danger);}
-
-  .load-more-row{display:flex;justify-content:center;margin-top:28px;}
-  button.loadmore{
-    background:transparent;border:1px solid var(--gold-dim);color:var(--gold);padding:10px 26px;border-radius:7px;
-    font-weight:600;cursor:pointer;font-size:13px;letter-spacing:.3px;
-  }
-  button.loadmore:hover{background:rgba(232,179,74,0.1);}
-  button.loadmore:disabled{opacity:.5;cursor:default;}
-
-  .modal-overlay{
-    position:fixed;inset:0;background:rgba(5,6,8,0.82);backdrop-filter:blur(3px);
-    display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;
-  }
-  .modal-overlay.hidden{display:none;}
-  .modal{
-    background:var(--card);border:1px solid var(--line);border-radius:14px;max-width:860px;width:100%;
-    max-height:86vh;overflow-y:auto;position:relative;
-  }
-  .modal-close{
-    position:absolute;top:12px;right:14px;background:rgba(0,0,0,0.4);border:none;color:var(--text);
-    width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;z-index:2;
-  }
-  .modal-hero{display:flex;gap:26px;padding:28px;border-bottom:1px solid var(--line);}
-  .modal-hero img.modal-poster-img{width:165px;border-radius:8px;flex:0 0 165px;}
-  .modal-hero .noimg{width:165px;height:248px;flex:0 0 165px;background:#0f1216;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-family:'Fraunces';font-style:italic;font-size:12px;text-align:center;padding:6px;}
-  .modal-title{font-family:'Fraunces';font-weight:700;font-size:25px;margin:0 0 4px;}
-  .modal-greek-title{font-size:12px;color:var(--text-dim);margin-bottom:8px;font-style:italic;}
-  .modal-meta{font-family:'IBM Plex Mono';font-size:12px;color:var(--text-dim);margin-bottom:10px;}
-  .modal-upcoming{
-    display:inline-block;background:rgba(232,179,74,0.15);border:1px solid rgba(232,179,74,0.4);
-    color:var(--gold);font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;margin-bottom:10px;
-  }
-  .modal-badges{display:flex;gap:8px;margin-bottom:10px;}
-  .modal-genres{font-size:12px;color:var(--teal);}
-  .modal-credits{margin-top:8px;display:flex;flex-direction:column;gap:3px;}
-  .modal-credits div{font-size:11.5px;color:var(--text-dim);}
-  .credits-label{color:var(--text);font-weight:600;}
-  .person-link{color:var(--teal);cursor:pointer;text-decoration:none;}
-  .person-link:hover{color:var(--gold);text-decoration:underline;}
-
-  .person-card{
-    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
-    display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;transition:border-color .15s;
-  }
-  .person-card:hover{border-color:var(--gold-dim);}
-  .person-photo{width:56px;height:56px;border-radius:50%;object-fit:cover;flex:0 0 56px;background:#0f1216;}
-  .person-photo-placeholder{
-    width:56px;height:56px;border-radius:50%;flex:0 0 56px;background:#0f1216;
-    display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:22px;
-  }
-  .person-info{min-width:0;}
-  .person-name{font-family:'Fraunces';font-weight:600;font-size:15px;color:var(--text);}
-  .person-known{font-size:12px;color:var(--text-dim);margin-top:2px;}
-
-  .person-header{display:flex;gap:20px;padding:26px;border-bottom:1px solid var(--line);align-items:flex-start;}
-  .person-header-photo{width:120px;height:120px;border-radius:50%;object-fit:cover;flex:0 0 120px;background:#0f1216;}
-  .person-header-photo-placeholder{
-    width:120px;height:120px;border-radius:50%;flex:0 0 120px;background:#0f1216;
-    display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:36px;
-  }
-  .person-header-name{font-family:'Fraunces';font-weight:700;font-size:25px;margin-bottom:6px;}
-  .person-header-dept{font-size:12.5px;color:var(--teal);margin-bottom:4px;}
-  .person-header-bio{font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.5;max-height:80px;overflow-y:auto;}
-  .person-filmo-title{font-family:'Fraunces';font-weight:600;font-size:15px;margin:20px 26px 10px;}
-  .person-filmo-list{display:flex;flex-direction:column;gap:6px;padding:0 26px 26px;}
-  .person-filmo-item{
-    display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;cursor:pointer;
-    transition:background .15s;
-  }
-  .person-filmo-item:hover{background:var(--bg-raised);}
-  .person-filmo-poster{width:40px;height:60px;border-radius:5px;object-fit:cover;flex:0 0 40px;background:#0f1216;}
-  .person-filmo-poster-placeholder{width:40px;height:60px;border-radius:5px;flex:0 0 40px;background:#0f1216;}
-  .person-filmo-info{flex:1;min-width:0;}
-  .person-filmo-title-text{font-size:13.5px;color:var(--text);font-weight:500;}
-  .person-filmo-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;}
-
-  .modal-providers{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;}
-  .providers-label{font-size:10.5px;color:var(--text-dim);margin-right:2px;}
-  .provider-logo{width:38px;height:38px;border-radius:8px;background:#fff;padding:2px;object-fit:contain;}
-  .provider-chip{
-    background:rgba(108,179,90,0.15);border:1px solid rgba(108,179,90,0.4);color:#6cb35a;
-    padding:6px 12px;border-radius:16px;font-size:11.5px;font-weight:600;
-  }
-  .modal-body{padding:22px 26px;}
-  .modal-overview{font-size:14px;line-height:1.6;color:var(--text);}
-  .modal-loading{padding:40px;text-align:center;color:var(--text-dim);}
-  .modal-recs-title{
-    font-family:'Fraunces';font-weight:600;font-size:15px;margin:22px 0 10px;color:var(--text);
-  }
-  .modal-recs-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;}
-  .rec-card{flex:0 0 92px;cursor:pointer;}
-  .rec-card img{width:92px;height:138px;object-fit:cover;border-radius:6px;display:block;}
-  .rec-noimg{
-    width:92px;height:138px;background:#0f1216;border-radius:6px;display:flex;align-items:center;
-    justify-content:center;text-align:center;font-size:10.5px;color:var(--text-dim);padding:4px;
-    font-family:'Fraunces';font-style:italic;
-  }
-  .rec-title{font-size:11px;color:var(--text-dim);margin-top:5px;line-height:1.3;
-    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-  .rec-card:hover .rec-title{color:var(--gold);}
-  .season-select{
-    background:var(--bg-raised);border:1px solid var(--line);color:var(--text);
-    padding:8px 10px;border-radius:7px;font-size:13px;margin-bottom:10px;
-  }
-  .episodes-list{display:flex;flex-direction:column;gap:1px;margin-bottom:20px;max-height:280px;overflow-y:auto;}
-  .episode-row{
-    display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg-raised);
-    border-radius:6px;font-size:12.5px;
-  }
-  .episode-num{font-family:'IBM Plex Mono';color:var(--text-dim);flex:0 0 30px;}
-  .episode-title{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .episode-rating{font-family:'IBM Plex Mono';color:var(--teal);flex:0 0 auto;}
-  .episode-stremio{
-    color:var(--teal);text-decoration:none;font-size:10.5px;font-weight:600;flex:0 0 auto;
-    opacity:.85;white-space:nowrap;
-  }
-  .episode-stremio:hover{opacity:1;color:var(--gold);}
-  .trailer-link{
-    display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#1a1200;
-    padding:9px 18px;border-radius:7px;font-weight:600;font-size:13px;text-decoration:none;
-    margin-bottom:16px;margin-right:8px;
-  }
-  .trailer-link:hover{background:#f0c165;}
-  .netflix-link{
-    display:inline-flex;align-items:center;gap:6px;background:#E50914;color:#fff;
-    padding:9px 18px;border-radius:7px;font-weight:600;font-size:13px;text-decoration:none;
-    margin-bottom:16px;margin-right:8px;
-  }
-  .netflix-link:hover{background:#c40812;}
-  .modal-share-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
-  .share-chip{
-    display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;
-    background:var(--bg-raised);border:1.5px solid var(--line);color:var(--text-dim);border-radius:50%;
-  }
-  .share-chip svg{width:26px;height:26px;}
-  .share-chip:hover{border-color:var(--gold-dim);}
-  .share-chip.whatsapp{border-color:#25D366;color:#25D366;}
-  .share-chip.whatsapp:hover{background:rgba(37,211,102,0.12);}
-  .share-chip.viber{border-color:#7360F2;color:#7360F2;}
-  .share-chip.viber:hover{background:rgba(115,96,242,0.12);}
-
-  footer{margin-top:50px;color:var(--text-dim);font-size:11.5px;text-align:center;font-family:'IBM Plex Mono';}
-
-  /* --- Πλοήγηση με τηλεκοντρόλ / πληκτρολόγιο (Android TV κ.λπ.) --- */
-  :focus{outline:none;}
-  :focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px;}
-  .card:focus{transform:translateY(-3px);border-color:var(--gold);outline-offset:-2px;}
-  .list-mode .card:focus{transform:none !important;}
-  .chip:focus{outline-offset:1px;}
-  .rec-card:focus{outline-offset:2px;}
-  .rec-card:focus img{outline:2px solid var(--gold);}
-
-  .filters-toggle-btn{
-    display:none;
-    background:var(--bg-raised);border:1px solid var(--line);color:var(--text);
-    padding:9px 12px;border-radius:7px;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans';
-    align-items:center;gap:4px;
-  }
-  #advancedFilters{display:contents;}
-
-  @media (max-width: 640px){
-    .wrap{padding:14px 12px 50px;}
-    .brand .reel{font-size:8px;letter-spacing:1.5px;}
-    h1{font-size:20px;}
-    .tagline{font-size:11.5px;}
-    header{margin-bottom:14px;padding-bottom:10px;}
-    .profile-btn{padding:6px 10px;font-size:11px;}
-    .watchlist-toggle-btn{padding:0 12px;font-size:12px;height:32px;box-sizing:border-box;}
-    .view-toggle{height:32px;}
-    .view-toggle button{padding:0 10px;font-size:12px;}
-    .controls{padding:12px;gap:8px 6px;}
-    .field input[type=text]{min-width:0;width:100%;}
-    .field.grow{flex:1 1 100%;}
-    .field{flex:1 1 auto;}
-
-    .filters-toggle-btn{display:inline-flex;flex:1 1 30%;justify-content:center;min-width:0;}
-
-    .controls > .field:nth-child(2),
-    .controls > .field:nth-child(3){
-      flex:1 1 30%;
-      min-width:0;
-    }
-    .controls > .field:nth-child(2) select,
-    .controls > .field:nth-child(3) select{
-      min-width:0;width:100%;padding:8px 6px;font-size:12px;
-    }
-
-    #advancedFilters{display:none;}
-    #advancedFilters.open{
-      display:flex;flex-wrap:wrap;gap:8px 6px;width:100%;
-      background:var(--bg-raised);border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:2px;
-    }
-    #advancedFilters .field{flex:1 1 45%;min-width:0;}
-    #advancedFilters .field input:not([type=checkbox]),
-    #advancedFilters .field select,
-    #advancedFilters .field .genre-filter-btn{min-width:0;width:100%;padding:8px 6px;font-size:12px;}
-    #advancedFilters .field input[type=checkbox]{width:15px;height:15px;flex-shrink:0;}
-
-    .controls > .field > label,
-    #advancedFilters > .field > label{font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .controls .range-row{gap:4px;}
-    .controls .range-row input[type=range]{width:100%;min-width:0;}
-    .controls .range-val{font-size:11px;min-width:22px;}
-    button.go, button.clear{padding:10px 16px;font-size:13px;}
-    .list-mode .card{padding:14px 16px 14px 12px;gap:12px;}
-    .list-mode .card-title{font-size:18px;line-height:1.3;}
-    .list-mode .poster-wrap{width:78px;flex:0 0 78px;}
-    .list-mode .rating-line{font-size:16px;margin-top:5px;}
-    .list-mode .rating-line .star{font-size:16px;}
-    .list-mode .rating-line.meta-line{font-size:12.5px;}
-    .list-mode .rating-line.tmdb-line{font-size:11px;}
-    .list-mode .card-sub{font-size:13px;gap:8px;}
-    .list-mode .bookmark-badge{width:24px;height:24px;font-size:15px;top:5px;left:5px;}
-    .stremio-inline{font-size:12px;}
-    .modal-hero{flex-direction:column;}
-    .modal-hero img.modal-poster-img, .modal-hero .noimg{width:100%;flex:none;height:auto;aspect-ratio:2/3;}
-  }
+  .toolbar{gap:6px}
+  .search-inp{flex:1 1 100%;order:1}
+  .df-wrap{order:2;width:100%;padding:6px 8px;gap:4px}
+  .df-mode-btn{width:34px;padding:8px 0;font-size:14px}
+  .df-arrow{padding:8px 8px;font-size:16px}
+  .df-calbtn{padding:8px 8px;font-size:14px}
+  .df-clear{padding:8px 6px;font-size:15px;width:26px}
+  .df-label{font-size:12px;min-width:auto;flex:1}
+  .sort-row{order:3;flex:0 0 auto;gap:4px}
+  .sort-btn{padding:4px 9px;font-size:11px}
+  .df-popup{width:min(300px,92vw);padding:14px}
+  .df-popup-day{padding:10px 0;font-size:13px}
+  .df-popup-dow{font-size:12px;padding:6px 0}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <header>
-    <div class="brand-row">
-      <div class="brand">
-        <span class="reel">● REC</span>
-        <h1>Cine<span>Danal</span></h1>
-      </div>
-      <button type="button" id="profileBtn" class="profile-btn">👤 Σύνδεση</button>
-    </div>
-    <p class="tagline">Αναζήτηση ταινιών &amp; σειρών με φίλτρα είδους, χρονιάς και βαθμολογίας IMDb.</p>
-  </header>
-
-  <div class="controls">
-    <div class="field grow">
-      <label for="query">Αναζήτηση τίτλου (προαιρετικό)</label>
-      <input type="text" id="query" placeholder="π.χ. Dune, Breaking Bad...">
-    </div>
-    <div class="field">
-      <label for="mediaType">Τύπος</label>
-      <select id="mediaType">
-        <option value="movie">Ταινίες</option>
-        <option value="tv">Σειρές</option>
-        <option value="person">Ηθοποιοί/Σκηνοθέτες</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Ταξινόμηση</label>
-      <select id="sortBy">
-        <option value="trending" selected>Trending τώρα</option>
-        <option value="imdb_rating">Βαθμολογία IMDb</option>
-        <option value="metascore">Metascore</option>
-        <option value="primary_release_date.desc">Νεότερες</option>
-      </select>
-    </div>
-    <button type="button" id="filtersToggleBtn" class="filters-toggle-btn">
-      <svg class="filter-icon" viewBox="0 0 24 24" width="15" height="15"><line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="7" y1="12" x2="17" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="18" x2="14" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      Φίλτρα
-    </button>
-    <div class="advanced-filters" id="advancedFilters">
-      <div class="field">
-        <label for="yearFrom">Από έτος</label>
-        <input type="number" id="yearFrom" placeholder="π.χ. 2015" min="1900" max="2030">
-      </div>
-      <div class="field">
-        <label for="yearTo">Έως έτος</label>
-        <input type="number" id="yearTo" placeholder="π.χ. 2026" min="1900" max="2030">
-      </div>
-      <div class="field">
-        <label>Ελάχιστο IMDb rating</label>
-        <div class="range-row">
-          <input type="range" id="minRating" min="0" max="10" step="0.5" value="0">
-          <span class="range-val" id="minRatingVal">0.0</span>
-        </div>
-      </div>
-      <div class="field" id="ageLimitField">
-        <label for="ageLimit">Ηλικιακό όριο</label>
-        <select id="ageLimit">
-          <option value="">Χωρίς όριο</option>
-          <option value="12A">Έως 12 ετών</option>
-          <option value="15">Έως 16 ετών</option>
-        </select>
-      </div>
-      <div class="field" style="position:relative;">
-        <button type="button" id="genreFilterBtn" class="genre-filter-btn">Είδη <span id="genreFilterCount"></span> ▾</button>
-        <div class="genre-chips-panel hidden" id="genreChipsPanel">
-          <div class="genre-chips" id="genreChips"></div>
-          <div class="toggle-row panel-toggle">
-            <input type="checkbox" id="showIndianKorean">
-            <label for="showIndianKorean">Εμφάνιση Ινδικών, Κορεατικών, Ιαπωνικών &amp; Κινεζικών τίτλων</label>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button class="go" id="goBtn">Αναζήτηση</button>
-    <button class="clear" id="clearBtn" type="button">Καθαρισμός</button>
-  </div>
-
-  <div class="active-filters-row" id="activeFiltersRow"></div>
-
-  <div class="preview-notice hidden" id="previewNotice">💡 Δείχνει δημοφιλείς τίτλους. Πάτα <strong>Αναζήτηση</strong> για να φορτωθούν τα πραγματικά IMDb ratings.</div>
-
-  <div class="meta-row">
-    <span class="count" id="resultCount"></span>
-    <div style="display:flex;gap:8px;">
-      <button id="watchlistBtn" class="watchlist-toggle-btn">🔖 Watchlist</button>
-      <div class="view-toggle">
-        <button id="viewListBtn" class="active">☰ Λίστα</button>
-        <button id="viewGridBtn">▦ Πλακίδια</button>
-      </div>
+<div id="app">
+  <h1><span style="color:#1a3a8f;font-weight:800;letter-spacing:-1px">Medi</span><span style="color:#cc1a1a;font-weight:800;letter-spacing:-1px">Use</span></h1>
+  <p class="subtitle">Καταγραφή Ιατρικών Επεμβάσεων — Mediterraneo Hospital</p>
+  <div class="sync-bar"><div class="sync-dot loading" id="sync-dot"></div><span id="sync-label">Σύνδεση...</span></div>
+  <div class="cat-tabs" id="cat-tabs" style="position:relative"></div>
+  <div id="add-section"></div>
+  <div class="alert-bar" id="alert-bar"></div>
+  <div class="toolbar">
+    <input class="search-inp" id="search-inp" type="text" placeholder="🔍 Αναζήτηση ασθενή, νοσηλεία..." oninput="render()"/>
+    <div id="df-container"></div>
+    <input type="hidden" id="filter-from"/>
+    <input type="hidden" id="filter-to"/>
+    <div class="sort-row">
+      <button class="sort-btn active" id="sort-date">📅 Ημερομηνία</button>
+      <button class="sort-btn" id="sort-az">🔤 Α-Ω</button>
     </div>
   </div>
-
-  <div id="results" class="grid list-mode"></div>
-
-  <div class="load-more-row" id="loadMoreRow" style="display:none;">
-    <button class="loadmore" id="loadMoreBtn">Φόρτωση περισσότερων</button>
+  <div class="bulk-bar hidden" id="bulk-bar">
+    <span class="bulk-info" id="bulk-info"></span>
+    <span class="bulk-subtotal" id="bulk-subtotal"></span>
+    <button class="bulk-btn bulk-done-btn" onclick="markSelectedDone()">✅ Ολοκλήρωση επιλεγμένων</button>
+    <button class="bulk-btn bulk-clear-btn" onclick="clearSelection()">✕ Αποεπιλογή</button>
   </div>
-
+  <div class="stats-row">
+    <div class="select-all-wrap" id="select-all-wrap">
+      <input type="checkbox" id="select-all-cb" style="width:16px;height:16px;cursor:pointer;accent-color:#4ade80" onchange="toggleSelectAll(this.checked)" title="Επιλογή όλων"/>
+      <label for="select-all-cb" style="font-size:12px;color:#888;cursor:pointer;white-space:nowrap">Όλες</label>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="records" id="records"></div>
 </div>
-
-<div class="modal-overlay hidden" id="modalOverlay">
-  <div class="modal">
-    <button class="modal-close" id="modalClose">✕</button>
-    <div id="modalContent"><div class="modal-loading">Φόρτωση...</div></div>
-  </div>
-</div>
-
-<div class="modal-overlay hidden" id="authOverlay">
-  <div class="modal auth-modal">
-    <button class="modal-close" id="authClose">✕</button>
-    <div id="authContent"></div>
-  </div>
-</div>
-
-<div class="modal-overlay hidden" id="personOverlay">
-  <div class="modal">
-    <button class="modal-close" id="personClose">✕</button>
-    <div id="personContent"><div class="modal-loading">Φόρτωση...</div></div>
-  </div>
-</div>
-
-<footer>CineDanal — δεδομένα από TMDb &amp; OMDb (IMDb ratings). Προσωπικό εργαλείο, όχι επίσημη εφαρμογή.</footer>
 
 <script>
-// Αφαιρούμε εντελώς οποιοδήποτε service worker είχε καταχωρηθεί παλιότερα,
-// ώστε να μην "κολλάει" ποτέ σε παλιά έκδοση. Δεν αγγίζει τίποτα άλλο (δεδομένα, κλειδιά, κλπ).
+// Καθαρίζει τυχόν παλιό service worker (χωρίς να καταχωρεί νέο), ώστε να μην "κολλάει" ποτέ σε παλιά έκδοση.
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs => {
     regs.forEach(reg => reg.unregister());
   }).catch(() => {});
 }
+const SUPA_URL='https://odtbtugzilxsfqxlpofq.supabase.co';
+const SUPA_KEY='sb_publishable_ch-7C1ihpZRrxEhXFqV1xA_hXPwq61S';
+const ROW_ID=1;
 
-const TMDB_API_KEY = '4239ea4fdcba7a007d399f16f3e31207';
-const OMDB_API_KEYS = ['3a059ec3', 'd70891e6', 'f6c514c3', 'c1cfafa6', '9030493e', '7fcc7540']; // πρώτο το Patreon (unlimited), τα υπόλοιπα δωρεάν ως fallback
-let omdbKeyIndex = 0;
-function currentOmdbKey(){ return OMDB_API_KEYS[omdbKeyIndex]; }
-function advanceOmdbKey(){
-  if(omdbKeyIndex < OMDB_API_KEYS.length - 1){
-    omdbKeyIndex++;
-    return true;
-  }
-  return false; // εξαντλήθηκαν όλα τα κλειδιά
+async function supaGet(){
+  const r=await fetch(SUPA_URL+'/rest/v1/mediuse?id=eq.'+ROW_ID+'&select=data',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+  const j=await r.json();return j&&j.length>0?j[0].data:null;
 }
-const WATCHMODE_API_KEY = 'wm_tiO3meyIX-Um4VNrt4OR00aG4gob2_BDMDRrU_S9278';
+async function supaSet(data){
+  const r=await fetch(SUPA_URL+'/rest/v1/mediuse?id=eq.'+ROW_ID,{method:'PATCH',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({data:data})});
+  if(!r.ok){await fetch(SUPA_URL+'/rest/v1/mediuse',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({id:ROW_ID,data:data})});}
+}
 
-const HIDDEN_LANGS = ['hi','ta','te','ml','kn','bn','pa','mr','gu','ko','ja','zh','cn']; // Ινδικές γλώσσες + Κορεατικά + Ιαπωνικά + Κινεζικά
+function pad(n){return String(n).padStart(2,'0');}
+function fmtDate(d){if(!d)return '';const[y,m,dd]=d.split('-');return dd+'/'+m+'/'+y;}
+function today(){const n=new Date();return n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate());}
+function addMonths(dateStr,months){const d=new Date(dateStr);d.setMonth(d.getMonth()+months);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function daysDiff(dateStr){const d=new Date(dateStr),now=new Date();now.setHours(0,0,0,0);d.setHours(0,0,0,0);return Math.round((d-now)/(1000*60*60*24));}
 
-const state = {
-  genres: {},
-  selectedGenres: new Set(),
-  mediaType: 'movie',
-  viewMode: 'list',
-  currentPage: 1,
-  totalPages: 1,
-  lastQuery: '',
-  lastResults: [],
-  omdbLimitReached: false,
-  profileName: null,
-  watchlistItems: [], // [{id, mediaType, title, poster_path, date, vote_average}]
-  watchlistIds: new Set(), // "movie:123" / "tv:456"
-  viewingWatchlist: false,
-  langFilter: null, // π.χ. 'ko' για ρητό φίλτρο Κορεάτικων
+let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:[],tavi_done:[],boston_done:[],evar_done:[],clip_done:[],selected:{},editingId:null,taviFilter:null,addPanelOpen:false};
+
+function setSyncStatus(s,m){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-label').textContent=m;}
+let saveTimeout=null;
+function save(){localStorage.setItem('mediuse_bk',JSON.stringify(state));clearTimeout(saveTimeout);saveTimeout=setTimeout(saveToCloud,400);}
+async function saveToCloud(){
+  saveTimeout=null;
+  setSyncStatus('loading','Αποθήκευση...');
+  try{const s={...state,selected:{},editingId:null,addPanelOpen:false};await supaSet(JSON.stringify(s));setSyncStatus('ok','Συγχρονισμένο ✓');}
+  catch(e){setSyncStatus('err','Σφάλμα αποθήκευσης — δοκίμασε ξανά');}
+}
+// Flush τυχόν εκκρεμούς αποθήκευσης αμέσως όταν η σελίδα κρύβεται/κλείνει
+// (π.χ. κλείδωμα κινητού ή αλλαγή εφαρμογής), ώστε να μη χαθεί καμία εγγραφή
+// λόγω του debounce των 400ms.
+function flushPendingSave(){
+  if(saveTimeout){clearTimeout(saveTimeout);saveToCloud();}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushPendingSave();});
+window.addEventListener('pagehide',flushPendingSave);
+window.addEventListener('beforeunload',flushPendingSave);
+
+async function loadFromCloud(){
+  setSyncStatus('loading','Φόρτωση...');
+  try{
+    const raw=await supaGet();
+    if(raw!==null){
+      let data=raw;try{data=JSON.parse(raw);}catch(e){}
+      if(typeof data==='string'){try{data=JSON.parse(data);}catch(e){data={};}}
+      if(data&&(data.tavi!==undefined||data.boston!==undefined||data.evar!==undefined)){
+        state={...state,...data,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date',addPanelOpen:false};
+      }
+      setSyncStatus('ok','Συγχρονισμένο ✓');
+    } else loadLocal();
+  }catch(e){loadLocal();}
+  render();
+}
+function loadLocal(){
+  try{const b=localStorage.getItem('mediuse_bk');if(b){const d=JSON.parse(b);state={...state,...d,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date',addPanelOpen:false};}setSyncStatus('err','Offline');}
+  catch(e){setSyncStatus('err','Σφάλμα');}
+}
+
+const CATS={
+  tavi:{label:'TAVI',icon:'🫀',hasAmount:false,fields:[
+    {id:'date',label:'Ημερομηνία',type:'date',required:true},
+    {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
+    {id:'patient',label:'Ασθενής',type:'text',required:true},
+    {id:'invoice_no',label:'Αρ. Τιμολογίου',type:'text'},
+    {id:'invoice_date',label:'Ημερ. Τιμολογίου',type:'date'},
+    {id:'valve',label:'Βαλβίδα',type:'text',placeholder:'π.χ. EVPRO PLUS-29'},
+    {id:'company',label:'Εταιρεία',type:'select',options:['Medtronic','Edwards','Flexmed','Abbott','Άλλο']},
+    {id:'notes',label:'Παρατηρήσεις',type:'text'},
+  ]},
+  boston:{label:'Boston ΗΦΕ',icon:'⚡',hasAmount:true,hasCredit:true,fields:[
+    {id:'date',label:'Ημερομηνία',type:'date',required:true},
+    {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
+    {id:'patient',label:'Ασθενής',type:'text',required:true},
+    {id:'inout',label:'Πακέτο/Ασφάλεια',type:'select',options:['Πακέτο','Ασφάλεια']},
+    {id:'therapy',label:'Θεραπεία',type:'text',placeholder:'π.χ. PFA, Ablation'},
+    {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
+    {id:'credit',label:'Πιστωτικό 30% (€)',type:'number',placeholder:'Αυτόματος υπολογισμός',readonly:true},
+    {id:'notes',label:'Παρατηρήσεις',type:'text'},
+  ]},
+  clip:{label:'Clip Abbott',icon:'🩺',hasAmount:true,fields:[
+    {id:'date',label:'Ημερομηνία',type:'date',required:true},
+    {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
+    {id:'patient',label:'Ασθενής',type:'text',required:true},
+    {id:'clip_type',label:'Τύπος Clip',type:'select',options:['MitraClip','TriClip']},
+    {id:'invoice_no',label:'Αρ. Τιμολογίου',type:'text'},
+    {id:'invoice_date',label:'Ημερ. Τιμολογίου',type:'date'},
+    {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
+    {id:'notes',label:'Παρατηρήσεις',type:'text'},
+  ]},
+  evar:{label:'EVAR',icon:'🩸',hasAmount:true,fields:[
+    {id:'date',label:'Ημερομηνία',type:'date',required:true},
+    {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
+    {id:'patient',label:'Ασθενής',type:'text',required:true},
+    {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
+    {id:'notes',label:'Παρατηρήσεις',type:'text'},
+  ]}
 };
 
-const SUPA_URL = 'https://odtbtugzilxsfqxlpofq.supabase.co';
-const SUPA_KEY = 'sb_publishable_ch-7C1ihpZRrxEhXFqV1xA_hXPwq61S';
-const PROFILE_STORAGE_KEY = 'cinedanal_profile';
 
-function wlKey(id, mediaType){ return `${mediaType}:${id}`; }
 
-async function supaWatchlistFetchNames(){
-  try{
-    const r = await fetch(`${SUPA_URL}/rest/v1/cinedanal_watchlist?select=profile_name`, {
-      headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` }
-    });
-    const j = await r.json();
-    return Array.isArray(j) ? j.map(row => row.profile_name) : [];
-  }catch(e){ return []; }
+function getKey(){return state.viewDone?state.cat+'_done':state.cat;}
+function getRecords(){return state[getKey()]||[];}
+
+function getFiltered(){
+  let recs=getRecords();
+  const q=(document.getElementById('search-inp')||{}).value||'';
+  if(q.trim()) recs=recs.filter(r=>(r.patient||'').toLowerCase().includes(q.toLowerCase())||(r.nosileia||'').toLowerCase().includes(q.toLowerCase())||(r.therapy||'').toLowerCase().includes(q.toLowerCase())||(r.valve||'').toLowerCase().includes(q.toLowerCase()));
+  const from=(document.getElementById('filter-from')||{}).value||'';
+  const to=(document.getElementById('filter-to')||{}).value||'';
+  if(from) recs=recs.filter(r=>r.date&&r.date>=from);
+  if(to) recs=recs.filter(r=>r.date&&r.date<=to);
+  if(state.cat==='tavi'&&state.taviFilter) recs=recs.filter(r=>(r.company||'Άλλο')===state.taviFilter);
+  if(state.sort==='date') recs=[...recs].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  else if(state.sort==='date_asc') recs=[...recs].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  else recs=[...recs].sort((a,b)=>(a.patient||'').localeCompare(b.patient||''));
+  return recs;
 }
 
-async function supaWatchlistFetchProfile(name){
-  try{
-    const r = await fetch(`${SUPA_URL}/rest/v1/cinedanal_watchlist?profile_name=eq.${encodeURIComponent(name)}&select=*`, {
-      headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` }
-    });
-    const j = await r.json();
-    return (Array.isArray(j) && j.length) ? j[0] : null;
-  }catch(e){ return null; }
+function getSearchDateFiltered(){
+  let recs=getRecords();
+  const q=(document.getElementById('search-inp')||{}).value||'';
+  if(q.trim()) recs=recs.filter(r=>(r.patient||'').toLowerCase().includes(q.toLowerCase())||(r.nosileia||'').toLowerCase().includes(q.toLowerCase())||(r.therapy||'').toLowerCase().includes(q.toLowerCase())||(r.valve||'').toLowerCase().includes(q.toLowerCase()));
+  const from=(document.getElementById('filter-from')||{}).value||'';
+  const to=(document.getElementById('filter-to')||{}).value||'';
+  if(from) recs=recs.filter(r=>r.date&&r.date>=from);
+  if(to) recs=recs.filter(r=>r.date&&r.date<=to);
+  return recs;
 }
 
-async function supaWatchlistCreate(name, pin){
-  try{
-    const r = await fetch(`${SUPA_URL}/rest/v1/cinedanal_watchlist`, {
-      method: 'POST',
-      headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ profile_name: name, pin: pin, items: '[]' })
-    });
-    return r.ok;
-  }catch(e){ return false; }
+function getSelected(){return Object.keys(state.selected).filter(id=>state.selected[id]);}
+
+function toggleSelectAll(checked){
+  const recs=getFiltered();
+  if(checked){recs.forEach(r=>{state.selected[r.id]=true;});}
+  else{state.selected={};} 
+  renderStats();renderBulkBar();renderRecords();
 }
 
-async function supaWatchlistSave(name, items){
-  try{
-    await fetch(`${SUPA_URL}/rest/v1/cinedanal_watchlist?profile_name=eq.${encodeURIComponent(name)}`, {
-      method: 'PATCH',
-      headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ items: JSON.stringify(items), updated_at: new Date().toISOString() })
-    });
-  }catch(e){}
-}
+function clearSelection(){state.selected={};render();}
 
-const els = {
-  query: document.getElementById('query'),
-  mediaType: document.getElementById('mediaType'),
-  dateFrom: document.getElementById('yearFrom'),
-  dateTo: document.getElementById('yearTo'),
-  minRating: document.getElementById('minRating'),
-  minRatingVal: document.getElementById('minRatingVal'),
-  sortBy: document.getElementById('sortBy'),
-  ageLimit: document.getElementById('ageLimit'),
-  ageLimitField: document.getElementById('ageLimitField'),
-  goBtn: document.getElementById('goBtn'),
-  clearBtn: document.getElementById('clearBtn'),
-  genreChips: document.getElementById('genreChips'),
-  genreFilterBtn: document.getElementById('genreFilterBtn'),
-  genreChipsPanel: document.getElementById('genreChipsPanel'),
-  genreFilterCount: document.getElementById('genreFilterCount'),
-  activeFiltersRow: document.getElementById('activeFiltersRow'),
-  previewNotice: document.getElementById('previewNotice'),
-  results: document.getElementById('results'),
-  resultCount: document.getElementById('resultCount'),
-  showIndianKorean: document.getElementById('showIndianKorean'),
-  viewListBtn: document.getElementById('viewListBtn'),
-  viewGridBtn: document.getElementById('viewGridBtn'),
-  loadMoreRow: document.getElementById('loadMoreRow'),
-  loadMoreBtn: document.getElementById('loadMoreBtn'),
-  modalOverlay: document.getElementById('modalOverlay'),
-  modalContent: document.getElementById('modalContent'),
-  modalClose: document.getElementById('modalClose'),
-  profileBtn: document.getElementById('profileBtn'),
-  authOverlay: document.getElementById('authOverlay'),
-  authContent: document.getElementById('authContent'),
-  authClose: document.getElementById('authClose'),
-  watchlistBtn: document.getElementById('watchlistBtn'),
-  personOverlay: document.getElementById('personOverlay'),
-  personContent: document.getElementById('personContent'),
-  personClose: document.getElementById('personClose'),
-};
-
-function applyViewMode(){
-  if(state.viewMode === 'list'){
-    els.results.classList.add('list-mode');
-    els.viewListBtn.classList.add('active');
-    els.viewGridBtn.classList.remove('active');
-  } else {
-    els.results.classList.remove('list-mode');
-    els.viewGridBtn.classList.add('active');
-    els.viewListBtn.classList.remove('active');
-  }
-}
-els.viewListBtn.addEventListener('click', () => { state.viewMode = 'list'; applyViewMode(); });
-els.viewGridBtn.addEventListener('click', () => { state.viewMode = 'grid'; applyViewMode(); });
-els.genreFilterBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  els.genreChipsPanel.classList.toggle('hidden');
-});
-document.addEventListener('click', (e) => {
-  if(!els.genreChipsPanel.contains(e.target) && e.target !== els.genreFilterBtn){
-    els.genreChipsPanel.classList.add('hidden');
-  }
-});
-function updateGenreFilterCount(){
-  els.genreFilterCount.textContent = state.selectedGenres.size ? `(${state.selectedGenres.size})` : '';
-  renderActiveFilters();
-}
-
-const LANG_FILTER_LABELS = { ko: 'Κορεάτικα' };
-
-function renderActiveFilters(){
-  els.activeFiltersRow.innerHTML = '';
-  state.selectedGenres.forEach(id => {
-    const name = state.genres[id];
-    if(!name) return;
-    const chip = document.createElement('span');
-    chip.className = 'active-filter-chip';
-    chip.innerHTML = `${name} <button title="Αφαίρεση">✕</button>`;
-    chip.querySelector('button').onclick = () => {
-      state.selectedGenres.delete(id);
-      renderGenreChips();
-      updateGenreFilterCount();
-      runSearch();
-    };
-    els.activeFiltersRow.appendChild(chip);
+function markSelectedDone(){
+  const ids=getSelected();if(!ids.length)return;
+  if(!confirm('Μεταφορά '+ids.length+' εγγραφών στα Ολοκληρωμένα;'))return;
+  const src=state[state.cat]||[];
+  const dst=state[state.cat+'_done']||[];
+  ids.forEach(id=>{
+    const i=src.findIndex(r=>String(r.id)===id);
+    if(i>-1){const rec=src.splice(i,1)[0];rec.completedAt=today();dst.unshift(rec);}
   });
-  if(state.langFilter){
-    const chip = document.createElement('span');
-    chip.className = 'active-filter-chip';
-    chip.innerHTML = `${LANG_FILTER_LABELS[state.langFilter] || state.langFilter} <button title="Αφαίρεση">✕</button>`;
-    chip.querySelector('button').onclick = () => {
-      state.langFilter = null;
-      renderGenreChips();
-      renderActiveFilters();
-      runSearch();
-    };
-    els.activeFiltersRow.appendChild(chip);
-  }
+  state[state.cat+'_done']=dst;
+  state.selected={};save();render();
 }
 
-els.showIndianKorean.addEventListener('change', runSearch);
-els.modalClose.addEventListener('click', closeModal);
-els.modalOverlay.addEventListener('click', (e) => { if(e.target === els.modalOverlay) closeModal(); });
-document.addEventListener('keydown', (e) => {
-  if(e.key === 'Escape' && !els.modalOverlay.classList.contains('hidden')) closeModal();
-});
-
-els.minRating.addEventListener('input', () => {
-  els.minRatingVal.textContent = parseFloat(els.minRating.value).toFixed(1);
-});
-
-els.mediaType.addEventListener('change', async () => {
-  state.mediaType = els.mediaType.value;
-  state.selectedGenres.clear();
-  updateAgeLimitAvailability();
-  await loadGenres();
-  runSearch(); // ξανατρέχει αυτόματα την αναζήτηση με τον νέο τύπο, χωρίς να χρειάζεται επιπλέον κλικ
-});
-
-function updateAgeLimitAvailability(){
-  const isMovie = state.mediaType === 'movie';
-  els.ageLimit.disabled = !isMovie;
-  if(!isMovie) els.ageLimit.value = '';
-}
-updateAgeLimitAvailability();
-
-const AGE_ORDER = { 'U':0, 'PG':1, '12A':2, '12':2, '15':3, '16':3, '18':4 };
-async function getMovieCertification(tmdbId){
-  try{
-    const data = await tmdbFetch(`/movie/${tmdbId}/release_dates`);
-    const gb = (data.results || []).find(r => r.country_code === 'GB');
-    if(!gb || !gb.release_dates.length) return null;
-    const withCert = gb.release_dates.find(rd => rd.certification);
-    return withCert ? withCert.certification : null;
-  }catch(e){
-    return null;
-  }
-}
-
-async function tmdbFetch(path, params={}){
-  const url = new URL(`https://api.themoviedb.org/3${path}`);
-  url.searchParams.set('api_key', TMDB_API_KEY);
-  url.searchParams.set('language', params.language || 'el-GR');
-  for(const [k,v] of Object.entries(params)){
-    if(k === 'language') continue;
-    if(v !== '' && v !== undefined && v !== null) url.searchParams.set(k, v);
-  }
-  const res = await fetch(url);
-  if(!res.ok) throw new Error('TMDB_ERROR_' + res.status);
-  return res.json();
-}
-
-async function loadGenres(){
-  els.genreChips.innerHTML = '<span style="color:var(--text-dim);font-size:12px;">Φόρτωση ειδών...</span>';
-  try{
-    const data = await tmdbFetch(`/genre/${state.mediaType}/list`);
-    state.genres = {};
-    data.genres.forEach(g => state.genres[g.id] = g.name);
-    renderGenreChips();
-  }catch(e){
-    els.genreChips.innerHTML = '<span style="color:var(--text-dim);font-size:12px;">Δεν φορτώθηκαν τα είδη — δοκίμασε ανανέωση σελίδας.</span>';
-  }
-}
-
-const EXCLUDED_GENRE_NAMES = ['Επ. Φαντασίας', 'τηλεοπτική ταινία'];
-
-function renderGenreChips(){
-  els.genreChips.innerHTML = '';
-  Object.entries(state.genres).forEach(([id, name]) => {
-    if(EXCLUDED_GENRE_NAMES.includes(name)) return;
-    const chip = document.createElement('div');
-    chip.className = 'chip' + (state.selectedGenres.has(id) ? ' active' : '');
-    chip.textContent = name;
-    chip.setAttribute('tabindex', '0');
-    chip.setAttribute('role', 'button');
-    chip.onclick = () => {
-      if(state.selectedGenres.has(id)) state.selectedGenres.delete(id);
-      else state.selectedGenres.add(id);
-      renderGenreChips();
-      updateGenreFilterCount();
-    };
-    els.genreChips.appendChild(chip);
+function renderCatTabs(){
+  const el=document.getElementById('cat-tabs');el.innerHTML='';
+  const mainTabs=[
+    {cat:'tavi',done:false,label:'TAVI'},
+    {cat:'boston',done:false,label:'Boston ΗΦΕ'},
+    {cat:'evar',done:false,label:'EVAR'},
+    {cat:'clip',done:false,label:'Clip Abbott'},
+    {cat:'pricelist',done:false,label:'Τιμοκατάλογοι'},
+  ];
+  mainTabs.forEach(t=>{
+    const b=document.createElement('button');
+    const active=state.cat===t.cat&&!state.viewDone;
+    b.className='cat-tab '+t.cat+(active?' active':'');
+    b.textContent=t.label;
+    b.onclick=()=>{state.cat=t.cat;state.viewDone=false;state.editingId=null;state.selected={};state.taviFilter=null;document.getElementById('search-inp').value='';render();};
+    el.appendChild(b);
   });
-  const koChip = document.createElement('div');
-  koChip.className = 'chip' + (state.langFilter === 'ko' ? ' active' : '');
-  koChip.textContent = 'Κορεάτικα';
-  koChip.setAttribute('tabindex', '0');
-  koChip.setAttribute('role', 'button');
-  koChip.onclick = () => {
-    state.langFilter = state.langFilter === 'ko' ? null : 'ko';
-    renderGenreChips();
-    renderActiveFilters();
-  };
-  els.genreChips.appendChild(koChip);
-}
 
-function posterUrl(path){
-  return path ? `https://image.tmdb.org/t/p/w342${path}` : null;
-}
-
-function renderResultsSkeleton(items, append=false){
-  if(!append) { els.results.innerHTML = ''; state.rankCounter = (state.currentPage - 1) * 20; }
-  items.forEach(item => {
-    state.rankCounter = (state.rankCounter || 0) + 1;
-    const rank = state.rankCounter;
-    const title = item.title || item.name || 'Άγνωστος τίτλος';
-    const date = item.release_date || item.first_air_date || '';
-    const year = date ? date.slice(0,4) : '—';
-    const poster = posterUrl(item.poster_path);
-    const voteCount = item.vote_count ? formatVoteCount(item.vote_count) : '';
-
-    const hasPreloadedRatings = item._imdbRating !== undefined;
-    const imdbText = hasPreloadedRatings ? (item._imdbRating ? `IMDb ${item._imdbRating}` : 'IMDb —') : 'IMDb …';
-    const metaText = hasPreloadedRatings && item._metascore ? `Metascore ${item._metascore}` : '';
-    const itemMediaType = item._mediaTypeOverride || state.mediaType;
-    const bkKey = wlKey(item.id, itemMediaType);
-    const isSaved = state.watchlistIds.has(bkKey);
-
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.setAttribute('tabindex', '0');
-    card.setAttribute('role', 'button');
-    const stremioUrl = `stremio:///search?search=${encodeURIComponent(title)}`;
-    card.innerHTML = `
-      <div class="poster-wrap">
-        ${poster ? `<img src="${poster}" alt="${title}" loading="lazy">` : `<div class="noimg">Χωρίς αφίσα<br>${title}</div>`}
-        <div class="badges">
-          <span class="badge tmdb" title="Βαθμολογία TMDb">★ ${item.vote_average ? item.vote_average.toFixed(1) : '—'}</span>
-          <span class="badge ${hasPreloadedRatings && item._imdbRating ? 'imdb' : 'pending'}" data-imdb-slot="${item.id}">${imdbText}</span>
-        </div>
-        <button class="bookmark-badge${isSaved ? ' saved' : ''}" data-bookmark-key="${bkKey}" title="Watchlist">${isSaved ? '✓' : '+'}</button>
-      </div>
-      <div class="card-body">
-        <div class="card-main">
-          <div class="card-title"><span class="card-rank">${rank}.</span> ${title}</div>
-          <div class="card-sub">
-            <span>${year}</span>
-            <a href="${stremioUrl}" class="stremio-inline" title="Άνοιγμα στο Stremio" onclick="event.stopPropagation()">▶ Stremio</a>
-          </div>
-          <div class="rating-line imdb-line" data-imdb-line="${item.id}"><span class="star">★</span> ${imdbText}</div>
-          <div class="rating-line meta-line" data-meta-slot="${item.id}">${metaText}</div>
-          <div class="rating-line tmdb-line">TMDb ${item.vote_average ? item.vote_average.toFixed(1) : '—'}${voteCount ? ` · ${voteCount}` : ''}</div>
-        </div>
-      </div>
-    `;
-    card.querySelector('.bookmark-badge').addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleWatchlist({ id: item.id, mediaType: itemMediaType, title, poster_path: item.poster_path || null, date, vote_average: item.vote_average || null });
-    });
-    card.addEventListener('click', () => {
-      state.mediaType = itemMediaType;
-      openModal(item.id, title);
-    });
-    els.results.appendChild(card);
+  // Dropdown for done tabs
+  const doneTabs=[
+    {cat:'tavi',label:'TAVI Ολοκλ.'},
+    {cat:'boston',label:'Boston Ολοκλ.'},
+    {cat:'evar',label:'EVAR Ολοκλ.'},
+    {cat:'clip',label:'Clip Ολοκλ.'},
+  ];
+  const wrap=document.createElement('div');wrap.className='done-dropdown';
+  const btn=document.createElement('button');
+  btn.className='done-dropdown-btn'+(state.viewDone?' active':'');
+  const doneLabel=state.viewDone?({'tavi':'TAVI','boston':'Boston ΗΦΕ','evar':'EVAR','clip':'Clip Abbott'}[state.cat]+' Ολοκλ. ▾'):'Ολοκληρωμένα ▾';
+  btn.textContent=doneLabel;
+  const menu=document.createElement('div');menu.className='done-dropdown-menu';
+  doneTabs.forEach(t=>{
+    const item=document.createElement('button');item.className='done-menu-item'+(state.viewDone&&state.cat===t.cat?' active':'');
+    item.textContent=t.label;
+    item.onclick=(e)=>{e.stopPropagation();state.cat=t.cat;state.viewDone=true;state.editingId=null;state.selected={};document.getElementById('search-inp').value='';menu.classList.remove('open');render();};
+    menu.appendChild(item);
   });
+  btn.onclick=(e)=>{e.stopPropagation();menu.classList.toggle('open');};
+  document.addEventListener('click',()=>menu.classList.remove('open'),{once:false});
+  wrap.appendChild(btn);wrap.appendChild(menu);
+  el.appendChild(wrap);
 }
 
-function formatVoteCount(n){
-  if(n >= 1000000) return (n/1000000).toFixed(1) + 'M';
-  if(n >= 1000) return (n/1000).toFixed(0) + 'K';
-  return String(n);
-}
-
-async function fetchWatchmodeProviders(tmdbId, mediaType){
-  try{
-    const searchField = mediaType === 'movie' ? 'tmdb_movie_id' : 'tmdb_tv_id';
-    const searchRes = await fetch(`https://api.watchmode.com/v1/search/?apiKey=${WATCHMODE_API_KEY}&search_field=${searchField}&search_value=${tmdbId}`);
-    const searchData = await searchRes.json();
-    const match = searchData.title_results && searchData.title_results[0];
-    if(!match) return null;
-    const sourcesRes = await fetch(`https://api.watchmode.com/v1/title/${match.id}/sources/?apiKey=${WATCHMODE_API_KEY}&regions=GR`);
-    const sources = await sourcesRes.json();
-    if(!Array.isArray(sources)) return null;
-    const relevant = sources.filter(s => s.region === 'GR' && (s.type === 'sub' || s.type === 'free'));
-    const seen = new Set();
-    const unique = [];
-    for(const s of relevant){
-      if(!seen.has(s.name)){ seen.add(s.name); unique.push(s.name); }
-    }
-    return unique.length ? unique : null;
-  }catch(e){
-    return null;
-  }
-}
-
-async function omdbFetchJson(urlWithoutKey){
-  for(let attempt = 0; attempt < OMDB_API_KEYS.length; attempt++){
-    try{
-      const res = await fetch(`${urlWithoutKey}&apikey=${currentOmdbKey()}`);
-      const d = await res.json();
-      if(d.Response === 'False' && d.Error && /limit/i.test(d.Error)){
-        // αυτό το κλειδί τελείωσε το ημερήσιο όριό του, πέρνα στο επόμενο
-        if(advanceOmdbKey()) continue;
-        state.omdbLimitReached = true; // εξαντλήθηκαν όλα τα κλειδιά
-        return null;
-      }
-      return d;
-    }catch(e){
-      return null;
-    }
-  }
-  state.omdbLimitReached = true;
-  return null;
-}
-
-async function fetchRatingsByTitleYear(title, year){
-  const d = await omdbFetchJson(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}${year ? `&y=${year}` : ''}`);
-  if(!d || d.Response === 'False') return { imdbRating: null, metascore: null };
-  return {
-    imdbRating: d.imdbRating && d.imdbRating !== 'N/A' ? d.imdbRating : null,
-    metascore: d.Metascore && d.Metascore !== 'N/A' ? d.Metascore : null,
-  };
-}
-
-async function fetchRatings(tmdbId, mediaTypeOverride){
-  try{
-    const mt = mediaTypeOverride || state.mediaType;
-    const extUrl = `https://api.themoviedb.org/3/${mt}/${tmdbId}/external_ids?api_key=${TMDB_API_KEY}`;
-    const extRes = await fetch(extUrl);
-    const ext = await extRes.json();
-    const imdbId = ext.imdb_id;
-    if(!imdbId) return { imdbRating: null, metascore: null };
-    const d = await omdbFetchJson(`https://www.omdbapi.com/?i=${imdbId}`);
-    if(!d || d.Response === 'False') return { imdbRating: null, metascore: null };
-    return {
-      imdbRating: d.imdbRating && d.imdbRating !== 'N/A' ? d.imdbRating : null,
-      metascore: d.Metascore && d.Metascore !== 'N/A' ? d.Metascore : null,
-    };
-  }catch(e){
-    return { imdbRating: null, metascore: null };
-  }
-}
-
-async function enrichWithImdb(items){
-  for(const item of items){
-    if(item._imdbRating !== undefined) continue; // ήδη φορτωμένο (ταξινόμηση IMDb/Metascore)
-    const t = item.title || item.name || '';
-    const y = (item.release_date || item.first_air_date || '').slice(0,4);
-    const itemMediaType = item._mediaTypeOverride || state.mediaType;
-    fetchRatingsByTitleYear(t, y).then(async (result) => {
-      if(!result.imdbRating){
-        // fallback: πιο ακριβής αναζήτηση μέσω πραγματικού IMDb ID (πιο αργό, μόνο όταν χρειάζεται)
-        const fallback = await fetchRatings(item.id, itemMediaType);
-        if(fallback.imdbRating || fallback.metascore) result = fallback;
-      }
-      const { imdbRating, metascore } = result;
-      const slot = document.querySelector(`[data-imdb-slot="${item.id}"]`);
-      const line = document.querySelector(`[data-imdb-line="${item.id}"]`);
-      const metaSlot = document.querySelector(`[data-meta-slot="${item.id}"]`);
-      const text = imdbRating ? `IMDb ${imdbRating}` : 'IMDb —';
-      if(slot){
-        slot.textContent = text;
-        if(imdbRating){ slot.classList.remove('pending'); slot.classList.add('imdb'); }
-      }
-      if(line){
-        line.innerHTML = `<span class="star">★</span> ${text}`;
-      }
-      if(metaSlot){
-        metaSlot.textContent = metascore ? `Metascore ${metascore}` : '';
-      }
-    });
-  }
-}
-
-async function openModal(tmdbId, englishTitle){
-  els.modalOverlay.classList.remove('hidden');
-  if(!(history.state && history.state.cinedanalModal)){
-    history.pushState({ cinedanalModal: true }, '');
-  }
-  els.modalContent.innerHTML = '<div class="modal-loading">Φόρτωση...</div>';
-  try{
-    const details = await tmdbFetch(`/${state.mediaType}/${tmdbId}`, { append_to_response: 'external_ids,credits' });
-    const greekTitle = details.title || details.name;
-    const title = englishTitle || greekTitle;
-    const date = details.release_date || details.first_air_date || '';
-    const year = date ? date.slice(0,4) : '—';
-    const isUpcoming = date && date > new Date().toISOString().slice(0,10);
-    const fmtFullDate = (d) => {
-      if(!d) return '';
-      const [y,m,dd] = d.split('-');
-      const MONTHS = ['Ιαν','Φεβ','Μαρ','Απρ','Μάι','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ'];
-      return `${parseInt(dd)} ${MONTHS[parseInt(m)-1]} ${y}`;
-    };
-    const poster = posterUrl(details.poster_path);
-    const genres = (details.genres || []).map(g => g.name).join(' · ');
-
-    const credits = details.credits || {};
-    const director = state.mediaType === 'movie'
-      ? (credits.crew || []).find(c => c.job === 'Director')
-      : null;
-    const creators = state.mediaType === 'tv' ? (details.created_by || []) : [];
-    const personLink = (id, name) => `<span class="person-link" data-person-id="${id}" data-person-name="${(name||'').replace(/"/g,'&quot;')}">${name}</span>`;
-    const directorNames = director
-      ? personLink(director.id, director.name)
-      : (creators.length ? creators.map(c => personLink(c.id, c.name)).join(', ') : null);
-    const topCast = (credits.cast || []).slice(0, 5).map(c => personLink(c.id, c.name)).join(', ');
-
-    const countries = (details.production_countries || []).map(c => c.name);
-    const langCode = details.original_language;
-    const LANG_NAMES = { en:'Αγγλικά', el:'Ελληνικά', fr:'Γαλλικά', de:'Γερμανικά', es:'Ισπανικά', it:'Ιταλικά', ja:'Ιαπωνικά', ko:'Κορεατικά', zh:'Κινεζικά', ru:'Ρωσικά', hi:'Χίντι', pt:'Πορτογαλικά', tr:'Τουρκικά', sv:'Σουηδικά', da:'Δανικά', no:'Νορβηγικά', pl:'Πολωνικά', nl:'Ολλανδικά' };
-    const langName = LANG_NAMES[langCode] || langCode;
-    const runtime = state.mediaType === 'movie'
-      ? (details.runtime ? `${details.runtime} λεπτά` : '—')
-      : (details.number_of_seasons ? `${details.number_of_seasons} σεζόν, ${details.number_of_episodes || '?'} επεισόδια` : '—');
-    const imdbId = details.external_ids && details.external_ids.imdb_id;
-    const showGreekTitle = greekTitle && greekTitle !== title;
-
-    const videosData = await tmdbFetch(`/${state.mediaType}/${tmdbId}/videos`, { language: 'en-US' }).catch(() => ({ results: [] }));
-    const videos = videosData.results || [];
-    const recsData = await tmdbFetch(`/${state.mediaType}/${tmdbId}/recommendations`, { language: 'en-US' }).catch(() => ({ results: [] }));
-    const recs = filterLanguages((recsData.results || [])).slice(0, 6);
-    const watchmodeProviders = await fetchWatchmodeProviders(tmdbId, state.mediaType);
-    let streamProviders = [];
-    let providerSource = null;
-    if(watchmodeProviders && watchmodeProviders.length){
-      streamProviders = watchmodeProviders;
-      providerSource = 'watchmode';
+function renderAddSection(){
+  const sec=document.getElementById('add-section');
+  if(state.viewDone||state.cat==='pricelist'){sec.innerHTML='';return;}
+  const cat=CATS[state.cat];
+  sec.innerHTML='';
+  const panel=document.createElement('div');panel.className='add-panel';
+  const h3=document.createElement('h3');
+  h3.style.cssText='cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none';
+  h3.innerHTML='<span style="display:inline-block;width:14px;text-align:center;color:#4db6ac;font-weight:800">'+(state.addPanelOpen?'−':'+')+'</span>Νέα Εγγραφή — '+cat.label;
+  h3.onclick=()=>{state.addPanelOpen=!state.addPanelOpen;renderAddSection();};
+  panel.appendChild(h3);
+  if(state.addPanelOpen){
+  const grid=document.createElement('div');grid.className='form-grid';
+  cat.fields.forEach(f=>{
+    const g=document.createElement('div');g.className='form-group';
+    const lbl=document.createElement('label');lbl.textContent=f.label;
+    let inp;
+    if(f.type==='select'){
+      inp=document.createElement('select');inp.className='sel';inp.id='new_'+f.id;
+      f.options.forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;inp.appendChild(opt);});
     } else {
-      const providersData = await tmdbFetch(`/${state.mediaType}/${tmdbId}/watch/providers`).catch(() => ({ results: {} }));
-      const grProviders = (providersData.results && providersData.results.GR) || null;
-      const tmdbProviders = grProviders ? (grProviders.flatrate || grProviders.ads || []) : [];
-      if(tmdbProviders.length){
-        streamProviders = tmdbProviders;
-        providerSource = 'tmdb';
-      }
+      inp=document.createElement('input');inp.className='inp';
+      if(f.type==='date') inp.className+=' inp-date';
+      inp.type=f.type||'text';inp.id='new_'+f.id;
+      if(f.placeholder) inp.placeholder=f.placeholder;
+      if(f.id==='date') inp.value=today();
+      if(f.readonly) inp.readOnly=true;
     }
-    const trailer = videos.find(v => v.site === 'YouTube' && v.type === 'Trailer')
-      || videos.find(v => v.site === 'YouTube' && v.type === 'Teaser')
-      || videos.find(v => v.site === 'YouTube');
-    const trailerUrl = trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
-    const imdbUrl = imdbId ? `https://www.imdb.com/title/${imdbId}/` : null;
-    const shareText = `${title} (${year})${imdbUrl ? ' — ' + imdbUrl : ''}`;
-    const encodedShareText = encodeURIComponent(shareText);
-    const certification = state.mediaType === 'movie' ? await getMovieCertification(tmdbId) : null;
-    const hasNetflix = streamProviders.some(p => {
-      const name = providerSource === 'watchmode' ? p : (p.provider_name || '');
-      return /netflix/i.test(name);
-    });
-    const netflixUrl = `https://www.netflix.com/search?q=${encodeURIComponent(title)}`;
 
-    els.modalContent.innerHTML = `
-      <div class="modal-hero">
-        ${poster ? `<img class="modal-poster-img" src="${poster}" alt="${title}">` : `<div class="noimg">Χωρίς αφίσα</div>`}
-        <div>
-          <div class="modal-title">${title}</div>
-          ${showGreekTitle ? `<div class="modal-greek-title">Ελληνικός τίτλος: ${greekTitle}</div>` : ''}
-          <div class="modal-meta">${year} · ${runtime}</div>
-          ${isUpcoming ? `<div class="modal-upcoming">🗓️ Κυκλοφορεί: ${fmtFullDate(date)}</div>` : ''}
-          <div class="modal-badges">
-            <span class="badge pending" id="modalImdbBadge">IMDb…</span>
-            <span class="badge meta" id="modalMetaBadge"></span>
-            <span class="badge tmdb">TMDb ${details.vote_average ? details.vote_average.toFixed(1) : '—'}</span>
-            ${certification ? `<span class="badge age">${certification}</span>` : ''}
-          </div>
-          <div class="modal-genres">${genres || ''}</div>
-          <div class="modal-credits">
-            ${directorNames ? `<div><span class="credits-label">${state.mediaType === 'movie' ? 'Σκηνοθεσία' : 'Δημιουργία'}:</span> ${directorNames}</div>` : ''}
-            ${topCast ? `<div><span class="credits-label">Πρωταγωνιστούν:</span> ${topCast}</div>` : ''}
-            ${countries.length ? `<div><span class="credits-label">Χώρα:</span> ${countries.join(', ')}</div>` : ''}
-            ${langName ? `<div><span class="credits-label">Γλώσσα:</span> ${langName}</div>` : ''}
-          </div>
-          ${streamProviders.length ? `
-            <div class="modal-providers">
-              <span class="providers-label">Διαθέσιμο σε (GR):</span>
-              ${providerSource === 'watchmode'
-                ? streamProviders.map(name => `<span class="provider-chip">${name}</span>`).join('')
-                : streamProviders.map(p => `<img src="https://image.tmdb.org/t/p/w92${p.logo_path}" alt="${p.provider_name}" title="${p.provider_name}" class="provider-logo">`).join('')}
-            </div>
-          ` : ''}
-        </div>
-      </div>
-      <div class="modal-body">
-        ${trailerUrl ? `<a href="${trailerUrl}" target="_blank" rel="noopener" class="trailer-link">▶ Trailer στο YouTube</a>` : ''}
-        ${hasNetflix ? `<a href="${netflixUrl}" target="_blank" rel="noopener" class="netflix-link">▶ Netflix</a>` : ''}
-        <button class="trailer-link" style="background:var(--bg-raised);color:var(--text);border:1px solid var(--line);" id="modalBookmarkBtn"></button>
-        <div class="modal-share-row">
-          <a href="https://wa.me/?text=${encodedShareText}" target="_blank" rel="noopener" class="share-chip whatsapp" title="WhatsApp">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17.6 6.32A7.85 7.85 0 0 0 12.05 4a7.94 7.94 0 0 0-6.87 11.88L4 20l4.24-1.11a7.9 7.9 0 0 0 3.8.97h.01a7.95 7.95 0 0 0 5.55-13.54zM12.05 18.4a6.6 6.6 0 0 1-3.37-.92l-.24-.14-2.51.66.67-2.45-.16-.25a6.58 6.58 0 0 1-1.01-3.5 6.6 6.6 0 1 1 6.62 6.6zm3.62-4.94c-.2-.1-1.17-.58-1.35-.64s-.31-.1-.44.1-.51.64-.62.77-.23.15-.42.05a5.4 5.4 0 0 1-1.6-.99 6 6 0 0 1-1.1-1.37c-.12-.2 0-.3.09-.4.09-.1.2-.24.3-.36a1.3 1.3 0 0 0 .2-.34.38.38 0 0 0-.02-.35c-.05-.1-.44-1.06-.6-1.45-.16-.38-.32-.33-.44-.33h-.38a.72.72 0 0 0-.52.24 2.2 2.2 0 0 0-.68 1.63 3.8 3.8 0 0 0 .8 2.03 8.7 8.7 0 0 0 3.33 2.94c.47.2.83.32 1.12.41a2.7 2.7 0 0 0 1.24.08 2.03 2.03 0 0 0 1.33-.94 1.65 1.65 0 0 0 .11-.94c-.05-.09-.18-.14-.37-.24z"/></svg>
-          </a>
-          <a href="viber://forward?text=${encodedShareText}" class="share-chip viber" title="Viber">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12.4 2C7.5 2 4.2 5 4 9.5c-.1 2.1.3 3.9 1.4 5.5-.2 1.1-.5 3.1-.5 3.1s1.9-.6 2.7-1c.7.2 1.5.4 2.3.4h.1c4.9 0 8.7-3 8.9-7.5.2-4.7-2.4-7.6-6.5-8zm2.9 10.5c-.1.3-.7.6-1 .7-.3.1-.6.1-1 0-.3-.1-.7-.2-1.2-.5-2-1-3.3-3-3.5-3.3-.1-.2-.8-1.1-.8-2 0-1 .5-1.5.7-1.7.2-.2.4-.2.6-.2h.4c.1 0 .3 0 .5.4l.6 1.5c.1.1.1.3 0 .4l-.3.4c-.1.1-.2.3-.1.5.2.3.7 1.1 1.5 1.7.9.7 1.6.9 1.9 1 .2.1.4.1.5-.1l.5-.6c.2-.2.3-.2.5-.1l1.4.7c.2.1.3.1.4.2.1.2.1.7 0 1zm-2.8-6.8c1.9.1 3.4 1.7 3.5 3.6 0 .2-.1.4-.3.4s-.4-.1-.4-.3c-.1-1.5-1.3-2.7-2.8-2.8-.2 0-.4-.2-.3-.4 0-.3.1-.5.3-.5zm.1-1.9c3.1.1 5.5 2.6 5.7 5.7 0 .2-.1.4-.4.4-.2 0-.4-.2-.4-.4-.2-2.7-2.3-4.8-5-4.9-.2 0-.4-.2-.3-.4 0-.2.2-.4.4-.4z"/></svg>
-          </a>
-        </div>
-        <div class="modal-overview">${details.overview || 'Δεν υπάρχει διαθέσιμη περίληψη.'}</div>
-        ${state.mediaType === 'tv' && details.seasons && details.seasons.length ? `
-          <div class="modal-recs-title">Επεισόδια</div>
-          <select id="seasonSelect" class="season-select">
-            ${details.seasons.filter(s => s.season_number > 0).map(s => `<option value="${s.season_number}">${s.name || 'Σεζόν ' + s.season_number}</option>`).join('')}
-          </select>
-          <div id="episodesList" class="episodes-list"><div class="modal-loading">Φόρτωση επεισοδίων...</div></div>
-        ` : ''}
-        ${recs.length ? `
-          <div class="modal-recs-title">Παρόμοιοι τίτλοι</div>
-          <div class="modal-recs-row">
-            ${recs.map(r => `
-              <div class="rec-card" tabindex="0" role="button" data-rec-id="${r.id}" data-rec-title="${(r.title || r.name || '').replace(/"/g, '&quot;')}">
-                ${r.poster_path ? `<img src="${posterUrl(r.poster_path)}" alt="${r.title || r.name}" loading="lazy">` : `<div class="rec-noimg">${r.title || r.name || ''}</div>`}
-                <div class="rec-title">${r.title || r.name || ''}</div>
-              </div>
-            `).join('')}
-          </div>
-        ` : ''}
-      </div>
-    `;
-
-    const modalBkKey = wlKey(tmdbId, state.mediaType);
-    const modalBkBtn = document.getElementById('modalBookmarkBtn');
-    function updateModalBkBtn(){
-      const saved = state.watchlistIds.has(modalBkKey);
-      modalBkBtn.textContent = saved ? '🔖 Στη Watchlist' : '🏷️ Προσθήκη σε Watchlist';
-      modalBkBtn.setAttribute('data-bookmark-key', modalBkKey);
-    }
-    updateModalBkBtn();
-    modalBkBtn.onclick = async () => {
-      await toggleWatchlist({ id: tmdbId, mediaType: state.mediaType, title, poster_path: details.poster_path || null, date, vote_average: details.vote_average || null });
-      updateModalBkBtn();
-    };
-
-    els.modalContent.querySelectorAll('.rec-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const id = card.getAttribute('data-rec-id');
-        const t = card.getAttribute('data-rec-title');
-        openModal(id, t);
-      });
-    });
-
-    els.modalContent.querySelectorAll('.person-link').forEach(link => {
-      link.addEventListener('click', () => {
-        const pid = link.getAttribute('data-person-id');
-        const pname = link.getAttribute('data-person-name');
-        if(pid) openPersonModal_load(pid, pname);
-      });
-    });
-
-    const seasonSelect = document.getElementById('seasonSelect');
-    if(seasonSelect){
-      const loadSeason = (seasonNumber) => {
-        const listEl = document.getElementById('episodesList');
-        listEl.innerHTML = '<div class="modal-loading">Φόρτωση επεισοδίων...</div>';
-        tmdbFetch(`/tv/${tmdbId}/season/${seasonNumber}`, { language: 'en-US' })
-          .then(seasonData => {
-            const episodes = seasonData.episodes || [];
-            if(!episodes.length){
-              listEl.innerHTML = '<div class="modal-loading">Δεν βρέθηκαν επεισόδια.</div>';
-              return;
-            }
-            listEl.innerHTML = episodes.map(ep => {
-              const epStremioUrl = imdbId
-                ? `stremio:///detail/series/${imdbId}/${imdbId}:${seasonNumber}:${ep.episode_number}`
-                : null;
-              return `
-              <div class="episode-row">
-                <span class="episode-num">Ε${ep.episode_number}</span>
-                <span class="episode-title">${ep.name || ''}</span>
-                ${epStremioUrl ? `<a href="${epStremioUrl}" class="episode-stremio" title="Άνοιγμα στο Stremio">▶ Stremio</a>` : ''}
-                <span class="episode-rating">★ ${ep.vote_average ? ep.vote_average.toFixed(1) : '—'}</span>
-              </div>
-            `;
-            }).join('');
-          })
-          .catch(() => { listEl.innerHTML = '<div class="modal-loading">Δεν φορτώθηκαν τα επεισόδια.</div>'; });
+    // Auto-calculate credit for Boston
+    if(state.cat==='boston'&&f.id==='amount'){
+      inp.oninput=()=>{
+        const v=parseFloat(inp.value)||0;
+        const cEl=document.getElementById('new_credit');
+        if(cEl) cEl.value=v>0?(v*0.3).toFixed(2):'';
       };
-      seasonSelect.addEventListener('change', () => loadSeason(seasonSelect.value));
-      loadSeason(seasonSelect.value);
     }
 
-    if(imdbId){
-      fetchRatings(tmdbId).then(({ imdbRating, metascore }) => {
-        const badge = document.getElementById('modalImdbBadge');
-        const metaBadge = document.getElementById('modalMetaBadge');
-        if(badge){
-          if(imdbRating){
-            badge.textContent = `★ IMDb ${imdbRating}`;
-            badge.classList.remove('pending');
-            badge.classList.add('imdb');
-          } else {
-            badge.textContent = 'IMDb —';
-          }
-        }
-        if(metaBadge && metascore){
-          metaBadge.textContent = `Metascore ${metascore}`;
-        }
-      }).catch(() => {});
+    g.appendChild(lbl);g.appendChild(inp);grid.appendChild(g);
+  });
+  panel.appendChild(grid);
+  const actions=document.createElement('div');actions.className='form-actions';
+  const addBtn=document.createElement('button');addBtn.className='add-btn';addBtn.textContent='+ Προσθήκη';addBtn.onclick=addRecord;
+  const clrBtn=document.createElement('button');clrBtn.className='clear-btn';clrBtn.textContent='✕ Καθαρισμός';
+  clrBtn.onclick=()=>{cat.fields.forEach(f=>{const el=document.getElementById('new_'+f.id);if(el)el.value=f.id==='date'?today():'';});};
+  actions.appendChild(addBtn);actions.appendChild(clrBtn);panel.appendChild(actions);
+  }
+  sec.appendChild(panel);
+}
+
+function addRecord(){
+  const cat=CATS[state.cat];const rec={id:Date.now()};let valid=true;
+  cat.fields.forEach(f=>{
+    const el=document.getElementById('new_'+f.id);
+    if(el) rec[f.id]=el.value.trim();
+    if(f.required&&!rec[f.id]){valid=false;el.style.borderColor='#e74c3c';setTimeout(()=>el.style.borderColor='',2000);}
+  });
+  if(!valid) return;
+  if(!state[state.cat]) state[state.cat]=[];
+  state[state.cat].unshift(rec);
+  cat.fields.forEach(f=>{const el=document.getElementById('new_'+f.id);if(el)el.value=f.id==='date'?today():'';});
+  save();render();
+}
+
+function renderAlertBar(){
+  const bar=document.getElementById('alert-bar');
+  if(state.cat==='clip'&&!state.viewDone){
+    const clips=state.clip||[];
+    const total=clips.length;
+    const free=Math.floor(total/10);
+    const next=10-(total%10);
+    if(total>0){
+      bar.className='alert-bar show';
+      let html='<strong style="font-size:12px;color:#f43f5e;display:block;margin-bottom:6px">🩺 Clip Abbott — Πρόγραμμα Δωρεάν</strong>';
+      html+='<div class="alert-item"><div class="alert-dot" style="background:#f43f5e"></div><span style="color:#fecdd3">Συνολικά clips: <strong>'+total+'</strong>';
+      if(free>0) html+=' | Δωρεάν clips: <strong style="color:#4ade80">'+free+'</strong>';
+      html+=' | Επόμενο δωρεάν σε: <strong>'+next+'</strong> clips</span></div>';
+      bar.innerHTML=html;return;
     }
-  }catch(e){
-    els.modalContent.innerHTML = '<div class="modal-loading">Δεν φορτώθηκαν οι λεπτομέρειες. Δοκίμασε ξανά.</div>';
+    bar.className='alert-bar';return;
   }
+  if(state.cat!=='boston'||state.viewDone){bar.className='alert-bar';return;}
+  const recs=state.boston||[];
+  const overdue=recs.filter(r=>r.date&&daysDiff(addMonths(r.date,3))<0);
+  const soon=recs.filter(r=>r.date&&daysDiff(addMonths(r.date,3))>=0&&daysDiff(addMonths(r.date,3))<=30);
+  if(!overdue.length&&!soon.length){bar.className='alert-bar';return;}
+  bar.className='alert-bar show';
+  let html='<strong style="font-size:12px;color:#f97316;display:block;margin-bottom:6px">⚠️ Πιστωτικά Boston ΗΦΕ</strong>';
+  if(overdue.length) html+='<div class="alert-item"><div class="alert-dot red"></div><span style="color:#f87171">Ληξιπρόθεσμα (>3 μήνες): <strong>'+overdue.length+'</strong> — '+overdue.map(r=>r.patient).join(', ')+'</span></div>';
+  if(soon.length) html+='<div class="alert-item"><div class="alert-dot orange"></div><span style="color:#f97316">Λήγουν σύντομα (εντός 30 ημ.): <strong>'+soon.length+'</strong> — '+soon.map(r=>r.patient).join(', ')+'</span></div>';
+  bar.innerHTML=html;
 }
 
-function closeModal(fromPopState){
-  els.modalOverlay.classList.add('hidden');
-  if(!fromPopState && history.state && history.state.cinedanalModal){
-    history.back();
+function renderStats(){
+  const recs=getFiltered();const sel=getSelected();
+  const el=document.getElementById('stats');
+  html_total=recs.length!==getRecords().length?`<div class="stat">Σύνολο: <span>${recs.length}</span> <span style="color:#555">(από ${getRecords().length})</span></div>`:`<div class="stat">Σύνολο: <span>${recs.length}</span></div>`;
+  let html=html_total;
+  // TAVI company counts
+  if(state.cat==='tavi'&&!state.viewDone){
+    const all=getSearchDateFiltered();
+    const companies=['Medtronic','Edwards','Flexmed','Abbott','Άλλο'];
+    const counts={};
+    all.forEach(r=>{const c=r.company||'Άλλο';counts[c]=(counts[c]||0)+1;});
+    const colors={'Medtronic':'#4db6ac','Edwards':'#4ade80','Flexmed':'#f97316','Abbott':'#c084fc','Άλλο':'#7ab8b8'};
+    companies.forEach(c=>{
+      if(counts[c]){
+        html+=`<div class="stat" style="cursor:pointer;padding:2px 8px;border-radius:6px;border:1px solid ${state.taviFilter===c?colors[c]:'#2e4444'};background:${state.taviFilter===c?'#1a2828':'transparent'}" onclick="state.taviFilter=(state.taviFilter==='${c}'?null:'${c}');renderStats();renderBulkBar();renderRecords();updateSelectAllCb();">`+
+        `<span style="color:${colors[c]};font-weight:600">${c}</span><span style="color:#7ab8b8;margin-left:4px">${counts[c]}</span></div>`;
+      }
+    });
+    if(state.taviFilter) html+=`<div class="stat" style="cursor:pointer;color:#e74c3c;font-size:11px" onclick="state.taviFilter=null;renderStats();renderBulkBar();renderRecords();updateSelectAllCb();">✕ Καθαρισμός</div>`;
   }
+  const cat=CATS[state.cat];
+  if(cat.hasAmount){
+    const useRecs=sel.length>0?recs.filter(r=>state.selected[r.id]):recs;
+    const total=useRecs.reduce((s,r)=>s+parseFloat(r.amount||0),0);
+    const label=sel.length>0?'Υποσύνολο ('+sel.length+')':'Σύνολο ποσό';
+    html+=`<div class="stat highlight"><span>${label}: ${total.toLocaleString('el-GR',{minimumFractionDigits:2})}€</span></div>`;
+    if(cat.hasCredit){
+      const credit=useRecs.reduce((s,r)=>s+parseFloat(r.credit||0),0);
+      html+=`<div class="stat highlight"><span>Πιστωτικά: ${credit.toLocaleString('el-GR',{minimumFractionDigits:2})}€</span></div>`;
+    }
+  }
+
+  el.innerHTML=html;
 }
 
-window.addEventListener('popstate', (e) => {
-  if(!els.modalOverlay.classList.contains('hidden')){
-    closeModal(true);
+function renderBulkBar(){
+  const sel=getSelected();const bar=document.getElementById('bulk-bar');
+  if(!sel.length||state.viewDone){bar.className='bulk-bar hidden';return;}
+  bar.className='bulk-bar';
+  document.getElementById('bulk-info').textContent='Επιλεγμένα: '+sel.length;
+  const cat=CATS[state.cat];
+  const selRecs=getRecords().filter(r=>state.selected[r.id]);
+  let sub='';
+  if(cat.hasAmount){
+    const t=selRecs.reduce((s,r)=>s+parseFloat(r.amount||0),0);
+    sub='Ποσό: '+t.toLocaleString('el-GR',{minimumFractionDigits:2})+'€';
+    if(cat.hasCredit){const c=selRecs.reduce((s,r)=>s+parseFloat(r.credit||0),0);sub+=' | Πιστωτικό: '+c.toLocaleString('el-GR',{minimumFractionDigits:2})+'€';}
   }
-});
-
-function setState(mode, msg){
-  if(mode === 'loading'){
-    els.results.innerHTML = `<div class="state"><div class="icon">🎞️</div>${msg || 'Αναζήτηση...'}</div>`;
-  } else if(mode === 'error'){
-    els.results.innerHTML = `<div class="state error"><div class="icon">⚠️</div>${msg}</div>`;
-  } else if(mode === 'empty'){
-    els.results.innerHTML = `<div class="state"><div class="icon">🔍</div>${msg || 'Δεν βρέθηκαν αποτελέσματα.'}</div>`;
-  }
+  document.getElementById('bulk-subtotal').textContent=sub;
 }
 
-function filterLanguages(results){
-  if(state.langFilter) return results.filter(r => r.original_language === state.langFilter);
-  if(els.showIndianKorean.checked) return results;
-  return results.filter(r => !HIDDEN_LANGS.includes(r.original_language));
+function renderSort(){
+  const cb=document.getElementById('select-all-cb');
+  const cblbl=cb?cb.nextElementSibling:null;
+  if(cb){cb.style.display=state.viewDone?'none':'';if(cblbl)cblbl.style.display=state.viewDone?'none':'';}
+  const sd=document.getElementById('sort-date');
+  const sa=document.getElementById('sort-az');
+  sd.classList.toggle('active',state.sort==='date'||state.sort==='date_asc');
+  sa.classList.toggle('active',state.sort==='az');
+  const arr=(state.sort==='date'||state.sort==='date_asc')?(state.sort==='date'?' ↓':' ↑'):'';
+  sd.textContent='📅 Ημερομηνία'+arr;
+  sa.textContent='🔤 Α-Ω';
+  sd.onclick=()=>{
+    if(state.sort==='date') state.sort='date_asc';
+    else state.sort='date';
+    render();
+  };
+  sa.onclick=()=>{state.sort='az';render();};
 }
 
-async function fetchRawPage(page, overrideSortBy){
-  const q = els.query.value.trim();
-  const sortMode = overrideSortBy || els.sortBy.value;
-  const isRatingSort = sortMode === 'imdb_rating' || sortMode === 'metascore';
-  const isTrending = sortMode === 'trending';
-  const useClientFilters = !!q || isTrending;
-  let data;
-  if(q){
-    data = await tmdbFetch(`/search/${state.mediaType}`, { query: q, page, language: 'en-US' });
-  } else if(isTrending){
-    data = await tmdbFetch(`/trending/${state.mediaType}/week`, { page, language: 'en-US' });
-  } else {
-    const params = {
-      sort_by: isRatingSort ? 'vote_count.desc' : sortMode,
-      page,
-      'vote_count.gte': isRatingSort ? 100 : 20,
-      language: 'en-US',
+function makeEditPanel(rec){
+  const cat=CATS[state.cat];
+  const panel=document.createElement('div');panel.className='edit-panel';
+  const grid=document.createElement('div');grid.className='form-grid';
+  cat.fields.forEach(f=>{
+    const g=document.createElement('div');g.className='form-group';
+    const lbl=document.createElement('label');lbl.textContent=f.label;
+    let inp;
+    if(f.type==='select'){
+      inp=document.createElement('select');inp.className='sel';
+      f.options.forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;if(rec[f.id]===o)opt.selected=true;inp.appendChild(opt);});
+    } else {
+      inp=document.createElement('input');inp.className='inp';
+      if(f.type==='date') inp.className+=' inp-date';
+      inp.type=f.type||'text';inp.value=rec[f.id]||'';
+      if(f.placeholder) inp.placeholder=f.placeholder;
+    }
+    inp.id='edit_'+f.id+'_'+rec.id;
+    if(state.cat==='boston'&&f.id==='amount'){
+      inp.oninput=()=>{
+        const v=parseFloat(inp.value)||0;
+        const cEl=document.getElementById('edit_credit_'+rec.id);
+        if(cEl) cEl.value=v>0?(v*0.3).toFixed(2):'';
+      };
+    }
+
+    g.appendChild(lbl);g.appendChild(inp);grid.appendChild(g);
+  });
+  panel.appendChild(grid);
+  const actions=document.createElement('div');actions.className='form-actions';
+  const saveBtn=document.createElement('button');saveBtn.className='save-btn';saveBtn.textContent='Αποθήκευση';
+  saveBtn.onclick=()=>{
+    const key=getKey();const all=state[key];const idx=all.findIndex(r=>r.id===rec.id);if(idx===-1)return;
+    cat.fields.forEach(f=>{const el=document.getElementById('edit_'+f.id+'_'+rec.id);if(el)all[idx][f.id]=el.value.trim();});
+    state.editingId=null;save();render();
+  };
+  const canBtn=document.createElement('button');canBtn.className='cancel-btn';canBtn.textContent='Ακύρωση';
+  canBtn.onclick=()=>{state.editingId=null;render();};
+  actions.appendChild(saveBtn);actions.appendChild(canBtn);panel.appendChild(actions);
+  return panel;
+}
+
+function renderRecords(){
+  const list=document.getElementById('records');const recs=getFiltered();list.innerHTML='';
+  if(!recs.length){list.innerHTML='<div class="empty">Καμία εγγραφή.</div>';return;}
+  recs.forEach(rec=>{
+    const item=document.createElement('div');
+    item.className='record-item'+(state.selected[rec.id]?' selected':'')+(state.viewDone?' completed-style':'');
+    const top=document.createElement('div');top.className='record-top';
+
+    // Checkbox
+    const cb=document.createElement('input');cb.type='checkbox';cb.className='record-cb';
+    cb.checked=!!state.selected[rec.id];
+    cb.onchange=()=>{if(cb.checked)state.selected[rec.id]=true;else delete state.selected[rec.id];renderStats();renderBulkBar();};
+    if(state.viewDone) cb.style.display='none';
+
+    const main=document.createElement('div');main.className='record-main';
+    const dateEl=document.createElement('div');dateEl.className='record-date';dateEl.textContent='📅 '+fmtDate(rec.date);main.appendChild(dateEl);
+    const patEl=document.createElement('div');patEl.className='record-patient';patEl.textContent=rec.patient||'—';main.appendChild(patEl);
+
+    const tags=document.createElement('div');tags.className='record-tags';
+    if(rec.nosileia){const t=document.createElement('span');t.className='tag blue';t.textContent='🏥 '+rec.nosileia;tags.appendChild(t);}
+
+    if(state.cat==='tavi'){
+      if(rec.valve){const t=document.createElement('span');t.className='tag purple';t.textContent='🫀 '+rec.valve;tags.appendChild(t);}
+      if(rec.company){
+        const t=document.createElement('span');
+        const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange','Abbott':'tag purple'};
+        t.className=cmap[rec.company]||'tag';
+        t.textContent=rec.company;
+        tags.appendChild(t);
+      }
+      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.textContent='📄 '+rec.invoice_no;tags.appendChild(t);}
+
+    }
+    if(state.cat==='boston'){
+      if(rec.inout){const t=document.createElement('span');t.className='tag '+(rec.inout==='Πακέτο'?'green':'yellow');t.textContent=rec.inout;tags.appendChild(t);}
+      if(rec.therapy){const t=document.createElement('span');t.className='tag purple';t.textContent='⚡ '+rec.therapy;tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+      if(rec.credit&&parseFloat(rec.credit)>0){const t=document.createElement('span');t.className='tag orange';t.textContent='🔄 '+parseFloat(rec.credit).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+
+      // Credit due date
+      if(rec.date&&!state.viewDone){
+        const dueDate=addMonths(rec.date,3);const diff=daysDiff(dueDate);
+        const cd=document.createElement('div');
+        if(diff<0){cd.className='credit-due overdue';cd.textContent='⚠️ Πιστωτικό ληξιπρόθεσμο ('+fmtDate(dueDate)+')';}
+        else if(diff<=30){cd.className='credit-due soon';cd.textContent='⏰ Πιστωτικό έως '+fmtDate(dueDate)+' ('+diff+' ημ.)';}
+        else{cd.className='credit-due ok';cd.textContent='📋 Πιστωτικό έως '+fmtDate(dueDate);}
+        main.appendChild(cd);
+      }
+    }
+    if(state.cat==='evar'){
+      if(rec.amount){const t=document.createElement('span');t.className='tag purple';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+    }
+    if(state.cat==='clip'){
+      if(rec.clip_type){const t=document.createElement('span');t.className='tag '+(rec.clip_type==='MitraClip'?'red':'orange');t.textContent='🩺 '+rec.clip_type;tags.appendChild(t);}
+      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.textContent='📄 '+rec.invoice_no;tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+    }
+    main.appendChild(tags);
+
+    if(rec.notes&&state.editingId!==rec.id){const n=document.createElement('div');n.className='record-notes';n.textContent=rec.notes;main.appendChild(n);}
+    if(state.viewDone&&rec.completedAt){const c=document.createElement('div');c.style.cssText='font-size:11px;color:#4ade80;margin-top:4px';c.textContent='✅ Ολοκληρώθηκε: '+fmtDate(rec.completedAt);main.appendChild(c);}
+
+    const actions=document.createElement('div');actions.className='record-actions';
+    const editBtn=document.createElement('button');editBtn.className='icon-btn'+(state.editingId===rec.id?' active':'');
+    editBtn.title='Επεξεργασία';editBtn.textContent='✏️';
+    editBtn.onclick=()=>{state.editingId=state.editingId===rec.id?null:rec.id;render();};
+    const delBtn=document.createElement('button');delBtn.className='icon-btn del';delBtn.title='Διαγραφή';delBtn.textContent='🗑';
+    delBtn.onclick=()=>{
+      if(!confirm('Διαγραφή "'+rec.patient+'"?'))return;
+      const key=getKey();const all=state[key];const i=all.findIndex(r=>r.id===rec.id);if(i>-1)all.splice(i,1);
+      delete state.selected[rec.id];if(state.editingId===rec.id)state.editingId=null;
+      save();render();
     };
-    if(state.selectedGenres.size) params.with_genres = Array.from(state.selectedGenres).join(',');
-    if(state.langFilter) params.with_original_language = state.langFilter;
-    const dateField = state.mediaType === 'movie' ? 'primary_release_date' : 'first_air_date';
-    if(els.dateFrom.value) params[`${dateField}.gte`] = `${els.dateFrom.value}-01-01`;
-    if(els.dateTo.value) params[`${dateField}.lte`] = `${els.dateTo.value}-12-31`;
-    if(state.mediaType === 'movie' && els.ageLimit.value){
-      params.certification_country = 'GB';
-      params['certification.lte'] = els.ageLimit.value;
+    if(state.viewDone){
+      const restoreBtn=document.createElement('button');
+      restoreBtn.className='icon-btn';restoreBtn.title='Επαναφορά στις ενεργές';
+      restoreBtn.textContent='↩️';
+      restoreBtn.style.cssText='background:#1a2a3a;border-color:#1e4d7a;color:#4a9eff';
+      restoreBtn.onclick=()=>{
+        const doneKey=state.cat+'_done';
+        const activeKey=state.cat;
+        const all=state[doneKey];
+        const i=all.findIndex(r=>r.id===rec.id);
+        if(i>-1){
+          const restored=all.splice(i,1)[0];
+          delete restored.completedAt;
+          if(!state[activeKey]) state[activeKey]=[];
+          state[activeKey].unshift(restored);
+        }
+        save();render();
+      };
+      actions.appendChild(restoreBtn);
     }
-    data = await tmdbFetch(`/discover/${state.mediaType}`, params);
-  }
+    actions.appendChild(editBtn);actions.appendChild(delBtn);
+    top.appendChild(cb);top.appendChild(main);top.appendChild(actions);
+    item.appendChild(top);
+    if(state.editingId===rec.id) item.appendChild(makeEditPanel(rec));
+    list.appendChild(item);
+  });
+}
 
-  let results = data.results || [];
-  if(useClientFilters){
-    if(state.selectedGenres.size){
-      results = results.filter(r => (r.genre_ids||[]).some(g => state.selectedGenres.has(String(g))));
+function updateSelectAllCb(){
+  const cb=document.getElementById('select-all-cb');if(!cb)return;
+  const recs=getFiltered();
+  if(!recs.length){cb.checked=false;cb.indeterminate=false;return;}
+  const selCount=recs.filter(r=>state.selected[r.id]).length;
+  if(selCount===0){cb.checked=false;cb.indeterminate=false;}
+  else if(selCount===recs.length){cb.checked=true;cb.indeterminate=false;}
+  else{cb.checked=false;cb.indeterminate=true;}
+}
+
+const addSectionEl=document.getElementById('add-section');
+
+function render(){
+  renderCatTabs();renderAddSection();renderAlertBar();
+  // Hide main toolbar/bulk for pricelist
+  const isPL=state.cat==='pricelist';
+  document.querySelector('.toolbar').style.display=isPL?'none':'';
+  document.getElementById('bulk-bar').style.display=isPL?'none':'';
+  document.querySelector('.stats-row').style.display=isPL?'none':'';
+  dfRender();
+  if(isPL){renderPricelist();return;}
+  renderSort();renderStats();renderBulkBar();renderRecords();
+  updateSelectAllCb();
+}
+
+// ── Τιμοκατάλογος ──────────────────────────────────────────────
+let plState={query:'',supplier:'all',category:'all',implantType:'initial',bundleMode:'out'};
+let plCache=[];
+
+const CAT_LABELS={pacemaker:'Βηματοδότης',icd:'Απινιδωτής',ablation:'Ablation',lead:'Ηλεκτρόδιο/Υλικό',other:'Άλλο'};
+const CAT_COLORS={pacemaker:'#60a5fa',icd:'#f87171',ablation:'#c084fc',lead:'#4ade80',other:'#7ab8b8'};
+
+async function plFetch(q){
+  q=q.trim();
+  if(!q){plCache=[];renderPlResults([]);return;}
+  try{
+    const enc=encodeURIComponent(q.toUpperCase());
+    // search by ref_code (ilike) OR description (ilike)
+    const url=SUPA_URL+'/rest/v1/offers?or=(ref_code.ilike.*'+encodeURIComponent(q)+'*,description.ilike.*'+encodeURIComponent(q)+'*)&limit=30&select=*';
+    const r=await fetch(url,{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    let data=await r.json();
+    // apply filters
+    if(plState.supplier!=='all') data=data.filter(d=>d.supplier===plState.supplier);
+    if(plState.category!=='all') data=data.filter(d=>d.category===plState.category);
+    plCache=data;
+    renderPlResults(data);
+  }catch(e){console.error(e);}
+}
+
+async function plFetchBundles(offerId){
+  try{
+    const r=await fetch(SUPA_URL+'/rest/v1/offer_bundles?offer_id=eq.'+offerId+'&order=sort_order',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    return await r.json();
+  }catch(e){return [];}
+}
+
+function fmtPrice(v){
+  if(v===null||v===undefined||v==='') return null;
+  const n=parseFloat(v);
+  if(isNaN(n)) return null;
+  if(n===0) return 'ΔΩΡΕΑΝ';
+  return n.toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2})+'€';
+}
+
+function renderPlResults(data){
+  const list=document.getElementById('records');
+  list.innerHTML='';
+  if(!data.length){
+    const q=(document.getElementById('pl-search-inp')||{}).value||'';
+    list.innerHTML='<div class="pl-empty">'+(q?'Δεν βρέθηκαν αποτελέσματα για «'+q+'»':'Πληκτρολόγησε REF code ή περιγραφή για αναζήτηση.')+'</div>';
+    return;
+  }
+  data.forEach(item=>{
+    const div=document.createElement('div');div.className='pl-result';
+
+    // Header
+    const hdr=document.createElement('div');hdr.className='pl-result-header';
+    const left=document.createElement('div');left.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    const ref=document.createElement('div');ref.className='pl-ref';ref.textContent=item.ref_code||'—';
+    const badge=document.createElement('span');
+    badge.className='pl-cat-badge';
+    badge.style.color=CAT_COLORS[item.category]||'#7ab8b8';
+    badge.textContent=CAT_LABELS[item.category]||item.category;
+    const supTag=document.createElement('span');
+    supTag.className='pl-supplier-tag '+(item.supplier==='Boston'?'boston':'medtronic');
+    supTag.textContent=item.supplier;
+    left.appendChild(ref);left.appendChild(badge);left.appendChild(supTag);
+    if(item.pt_code){const ptc=document.createElement('span');ptc.style.cssText='font-size:11px;color:#7ab8b8;background:#1a2828;border:1px solid #2e4444;border-radius:6px;padding:2px 8px';ptc.textContent='ΚΩΔ.ΠΤ: '+item.pt_code;left.appendChild(ptc);}
+    if(item.pt_price){const ptp=document.createElement('span');ptp.style.cssText='font-size:11px;color:#fbbf24;background:#2a2a0a;border:1px solid #3a3a0a;border-radius:6px;padding:2px 8px';ptp.textContent='ΤΙΜΗ ΠΤ: '+parseFloat(item.pt_price).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';left.appendChild(ptp);}
+    hdr.appendChild(left);
+    div.appendChild(hdr);
+
+    // Description
+    const desc=document.createElement('div');desc.className='pl-desc';desc.textContent=item.description||'';
+    div.appendChild(desc);
+
+    // Price boxes
+    const prices=document.createElement('div');prices.className='pl-prices';
+
+    const hasTwoImplant=item.price_purchase!==null && item.price_replacement!==null;
+    const hasAblationSell=item.price_sell_insurance!==null || item.price_sell_package!==null;
+
+    if(hasTwoImplant){
+      // Show based on implant toggle
+      const isInitial=plState.implantType==='initial';
+      const box=document.createElement('div');box.className='pl-price-box primary';
+      const lbl=document.createElement('div');lbl.className='pl-price-label';
+      lbl.textContent=isInitial?'Αρχική Εμφύτευση':'Αντικατάσταση';
+      const val=document.createElement('div');val.className='pl-price-val';
+      val.textContent=fmtPrice(isInitial?item.price_purchase:item.price_replacement)||'—';
+      box.appendChild(lbl);box.appendChild(val);prices.appendChild(box);
+    } else if(item.price_purchase!==null){
+      const box=document.createElement('div');box.className='pl-price-box primary';
+      const lbl=document.createElement('div');lbl.className='pl-price-label';lbl.textContent='Τιμή Αγοράς';
+      const val=document.createElement('div');val.className='pl-price-val';val.textContent=fmtPrice(item.price_purchase)||'—';
+      box.appendChild(lbl);box.appendChild(val);prices.appendChild(box);
     }
-    const yFrom = els.dateFrom.value ? parseInt(els.dateFrom.value) : null;
-    const yTo = els.dateTo.value ? parseInt(els.dateTo.value) : null;
-    if(yFrom || yTo){
-      results = results.filter(r => {
-        const d = r.release_date || r.first_air_date || '';
-        if(!d) return false;
-        const y = parseInt(d.slice(0,4));
-        if(yFrom && y < yFrom) return false;
-        if(yTo && y > yTo) return false;
-        return true;
+
+    // CSP pacing
+    if(item.price_purchase_csp!=null && plState.implantType==='initial'){
+      const boxCSP=document.createElement('div');boxCSP.className='pl-price-box';boxCSP.style.cssText='border-color:#f59e0b;background:#2a1a00';
+      const lblCSP=document.createElement('div');lblCSP.className='pl-price-label';lblCSP.textContent='Αρχική με CSP Pacing';
+      const valCSP=document.createElement('div');valCSP.className='pl-price-val';valCSP.style.color='#f59e0b';valCSP.textContent=fmtPrice(item.price_purchase_csp)||'—';
+      boxCSP.appendChild(lblCSP);boxCSP.appendChild(valCSP);prices.appendChild(boxCSP);
+    }
+
+    if(hasAblationSell){
+      if(item.price_sell_insurance!==null){
+        const box=document.createElement('div');box.className='pl-price-box';
+        const lbl=document.createElement('div');lbl.className='pl-price-label';lbl.textContent='Πώληση Ασφάλεια';
+        const val=document.createElement('div');val.className='pl-price-val secondary';val.textContent=fmtPrice(item.price_sell_insurance)||'—';
+        box.appendChild(lbl);box.appendChild(val);prices.appendChild(box);
+      }
+      if(item.price_sell_package!==null){
+        const box=document.createElement('div');box.className='pl-price-box';
+        const lbl=document.createElement('div');lbl.className='pl-price-label';lbl.textContent='Πώληση Πακέτο';
+        const val=document.createElement('div');val.className='pl-price-val secondary';val.textContent=fmtPrice(item.price_sell_package)||'—';
+        box.appendChild(lbl);box.appendChild(val);prices.appendChild(box);
+      }
+    }
+
+    div.appendChild(prices);
+
+    // Bundle για Boston pacemaker/icd αρχική εμφύτευση
+    // ΚΑΙ για Medtronic ablation (3 κύρια πακέτα)
+    // ΚΑΙ για Boston ablation πακέτα (ΗΦΕ, His, Rhythmia A/B, Farapulse)
+    const MEDTRONIC_ABLATION_BUNDLES=['PSCC100','AFAPRO28','AFR-00001'];
+    const MEDTRONIC_ABLATION_NAMES={
+      'PSCC100':'Καθετήρας ηλεκτροδιάτρησης μεμβράνης (PFA)',
+      'AFAPRO28':'Καθετήρας κρυοκατάλυσης',
+      'AFR-00001':'Καθετήρας χαρτογράφησης και κατάλυσης AFFERA'
+    };
+    const BOSTON_ABLATION_BUNDLES=['M0044000040','M004EPM96200','M004EPTR5031TH0','M004RC64S0','41M401'];
+    const BOSTON_ABLATION_NAMES={
+      'M0044000040':'Πακέτο ΗΦΕ',
+      'M004EPM96200':'Πακέτο Κατάλυσης Κολποκοιλιακού Κόμβου (His ablation)',
+      'M004EPTR5031TH0':'Χρέωση Υλικών Rhythmia — Πακέτο Α',
+      'M004RC64S0':'Χρέωση Υλικών Rhythmia — Πακέτο Β',
+      '41M401':'Υλικά Farapulse — Pulsed Field Ablation'
+    };
+    const isMedtronicAblationBundle=item.supplier==='Medtronic' && item.category==='ablation' && MEDTRONIC_ABLATION_BUNDLES.includes(item.ref_code);
+    const isBostonAblationBundle=item.supplier==='Boston' && item.category==='ablation' && BOSTON_ABLATION_BUNDLES.includes(item.ref_code);
+    const showBundle=(item.supplier==='Boston' && (item.category==='pacemaker'||item.category==='icd') && plState.implantType==='initial') || isMedtronicAblationBundle || isBostonAblationBundle;
+    if(showBundle){
+      const bundleWrap=document.createElement('div');
+      div.appendChild(bundleWrap);
+      plFetchBundles(item.id).then(bundles=>{
+        if(!bundles.length) return;
+        const bDiv=document.createElement('div');bDiv.className='pl-bundle';
+
+        let bundleName='📦 Πακέτο Αρχικής Εμφύτευσης';
+        if(isMedtronicAblationBundle) bundleName='📦 Σετ — '+MEDTRONIC_ABLATION_NAMES[item.ref_code];
+        else if(isBostonAblationBundle) bundleName='📦 '+BOSTON_ABLATION_NAMES[item.ref_code];
+
+        const btitle=document.createElement('div');btitle.className='pl-bundle-title';btitle.textContent=bundleName;
+        bDiv.appendChild(btitle);
+
+        // Κύρια γραμμή (μπλε)
+        const mainRow=document.createElement('div');
+        mainRow.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:6px 8px;margin-bottom:4px;background:#1a2a3a;border:1px solid #2a4a6a;border-radius:6px;gap:8px;font-size:12px';
+        const mainCode=document.createElement('span');mainCode.style.cssText='color:#60a5fa;font-family:monospace;font-size:11px;flex-shrink:0';mainCode.textContent=item.ref_code;
+        const mainDesc=document.createElement('span');mainDesc.style.cssText='color:#bfdbfe;flex:1;font-weight:600';mainDesc.textContent=item.description;
+        const mainPrice=document.createElement('span');mainPrice.style.cssText='color:#60a5fa;font-weight:700;flex-shrink:0';mainPrice.textContent=fmtPrice(item.price_purchase)||'—';
+        mainRow.appendChild(mainCode);mainRow.appendChild(mainDesc);mainRow.appendChild(mainPrice);
+        bDiv.appendChild(mainRow);
+
+        let totalActive=parseFloat(item.price_purchase)||0;
+        let totalPassive=parseFloat(item.price_purchase)||0;
+        let hasDual=false;
+
+        bundles.forEach(b=>{
+          const isDual=b.ref_code_alt && b.unit_price_alt;
+          if(isDual) hasDual=true;
+          const inPackage=plState.bundleMode==='in';
+
+          const row=document.createElement('div');
+          row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:#1a2e1a;border:1px solid #2a4a2a;border-radius:6px;margin-bottom:3px;gap:8px;font-size:12px';
+
+          const code=document.createElement('span');code.style.cssText='color:#4ade80;font-family:monospace;font-size:11px;flex-shrink:0';
+          code.textContent=isDual?(b.ref_code+' / '+b.ref_code_alt):b.ref_code||'';
+          const bdesc=document.createElement('span');bdesc.style.cssText='color:#bbf7d0;flex:1';bdesc.textContent=b.description||'';
+          const qty=document.createElement('span');qty.style.cssText='color:#6ee7b7;flex-shrink:0;margin:0 6px';qty.textContent='x'+b.quantity;
+          const priceWrap=document.createElement('span');priceWrap.style.cssText='flex-shrink:0;text-align:right;white-space:nowrap';
+
+          if(b.is_free && inPackage){
+            priceWrap.style.color='#4ade80';priceWrap.style.fontWeight='700';priceWrap.textContent='ΔΩΡΕΑΝ';
+          } else if(isDual){
+            const priceA=(parseFloat(b.unit_price)||0)*b.quantity;
+            const priceP=(parseFloat(b.unit_price_alt)||0)*b.quantity;
+            totalActive+=priceA;
+            totalPassive+=priceP;
+            priceWrap.innerHTML=
+              '<span style="color:#60a5fa;font-size:10px;margin-right:2px">'+(b.label_main||'A')+':</span>'+
+              '<span style="color:#fcd34d;font-weight:700">'+fmtPrice(priceA)+'</span>'+
+              '<span style="color:#7ab8b8;margin:0 4px">|</span>'+
+              '<span style="color:#c084fc;font-size:10px;margin-right:2px">'+(b.label_alt||'P')+':</span>'+
+              '<span style="color:#fcd34d;font-weight:700">'+fmtPrice(priceP)+'</span>';
+          } else {
+            const origPrice=(parseFloat(b.price_original)||parseFloat(b.unit_price)||0)*b.quantity;
+            totalActive+=origPrice;
+            totalPassive+=origPrice;
+            priceWrap.innerHTML='<span style="color:#fcd34d;font-weight:700">'+fmtPrice(origPrice)+'</span>';
+          }
+          row.appendChild(code);row.appendChild(bdesc);row.appendChild(qty);row.appendChild(priceWrap);
+          bDiv.appendChild(row);
+        });
+
+        // Σύνολο — αν υπάρχει dual τότε 2 γραμμές
+        if(hasDual){
+          const totalWrap=document.createElement('div');totalWrap.style.cssText='display:flex;justify-content:flex-end;gap:16px;margin-top:6px;padding-top:6px;border-top:1px solid #f59e0b33;flex-wrap:wrap';
+          totalWrap.innerHTML=
+            '<span style="font-size:12px;color:#7ab8b8">Σύνολο <span style="color:#60a5fa">Active</span>: <strong style="color:#fcd34d">'+fmtPrice(totalActive)+'</strong></span>'+
+            '<span style="font-size:12px;color:#7ab8b8">Σύνολο <span style="color:#c084fc">Passive</span>: <strong style="color:#fcd34d">'+fmtPrice(totalPassive)+'</strong></span>';
+          bDiv.appendChild(totalWrap);
+        } else {
+          if(item.ref_code==='AFR-00001'){
+            const focNote=document.createElement('div');
+            focNote.style.cssText='background:#3a1a1a;border:1px solid #f43f5e;border-radius:6px;padding:8px 10px;margin-top:6px;margin-bottom:2px;font-size:13px;font-weight:800;color:#fecaca;text-align:center;letter-spacing:.3px';
+            focNote.textContent='ΟΛΑ ΤΑ ΥΠΟΛΟΙΠΑ ΥΛΙΚΑ ΕΙΝΑΙ F.O.C.';
+            bDiv.appendChild(focNote);
+          }
+          const totalRow=document.createElement('div');totalRow.className='pl-bundle-total';
+          totalRow.innerHTML='<span style="font-size:12px;color:#7ab8b8;margin-right:8px">Σύνολο πακέτου:</span><span class="pl-bundle-total-val">'+fmtPrice(totalActive)+'</span>';
+          bDiv.appendChild(totalRow);
+        }
+        bundleWrap.appendChild(bDiv);
       });
     }
-  }
-  results = filterLanguages(results);
 
-  if(state.mediaType === 'movie' && els.ageLimit.value && useClientFilters){
-    const threshold = AGE_ORDER[els.ageLimit.value];
-    const certs = await Promise.all(results.map(r => getMovieCertification(r.id)));
-    results = results.filter((r, i) => {
-      const cert = certs[i];
-      if(!cert) return false; // χωρίς γνωστή σήμανση, το αποκλείουμε για ασφάλεια
-      const order = AGE_ORDER[cert];
-      return order !== undefined && order <= threshold;
-    });
-  }
-
-  return { results, totalPages: data.total_pages || 1 };
-}
-
-const RATING_POOL_PAGES = 8; // ~160 πιο γνωστοί τίτλοι — σταθερή δεξαμενή
-
-async function fetchEnrichedPool(){
-  const sortMode = els.sortBy.value;
-  const isRatingSort = sortMode === 'imdb_rating' || sortMode === 'metascore';
-  const key = sortMode === 'imdb_rating' ? '_imdbRating' : '_metascore';
-  const minRating = parseFloat(els.minRating.value) || 0;
-  const q = els.query.value.trim();
-  const pagesToFetch = q ? [1, 2, 3] : Array.from({length: RATING_POOL_PAGES}, (_, i) => i + 1);
-
-  const hasYearFilter = !!(els.dateFrom.value || els.dateTo.value);
-
-  // Λογική δεξαμενής:
-  // - Ταξινόμηση IMDb/Metascore: πάντα σταθερή δεξαμενή γνωστών τίτλων (vote_count.desc),
-  //   απαραίτητο για σωστή global ταξινόμηση.
-  // - Trending τώρα + ελάχιστο rating, ΧΩΡΙΣ φίλτρο ετών: σεβόμαστε το Trending κανονικά,
-  //   απλά φιλτράρουμε τα αποτελέσματά του με το ελάχιστο rating.
-  // - Trending τώρα + φίλτρο ετών: το Trending δεν καλύπτει παλιές χρονιές, οπότε πέφτουμε
-  //   πίσω σε vote_count.desc ώστε να βρίσκει πραγματικά αποτελέσματα.
-  // - Νεότερες: σεβόμαστε την ταξινόμηση όπως είναι (ήδη υποστηρίζει φίλτρο ετών σωστά).
-  let poolSortOverride;
-  if(isRatingSort){
-    poolSortOverride = 'vote_count.desc';
-  } else if(minRating > 0 && sortMode === 'trending' && hasYearFilter){
-    poolSortOverride = 'vote_count.desc';
-  } else {
-    poolSortOverride = undefined; // σεβόμαστε την επιλεγμένη ταξινόμηση (Trending / Νεότερες)
-  }
-  const pageResults = await Promise.all(pagesToFetch.map(p => fetchRawPage(p, poolSortOverride).catch(() => ({ results: [] }))));
-  let pool = [];
-  const seenIds = new Set();
-  for(const pr of pageResults){
-    for(const item of pr.results){
-      if(!seenIds.has(item.id)){
-        seenIds.add(item.id);
-        pool.push(item);
-      }
-    }
-  }
-
-  const ratings = await Promise.all(pool.map(r => {
-    const t = r.title || r.name || '';
-    const y = (r.release_date || r.first_air_date || '').slice(0,4);
-    return fetchRatingsByTitleYear(t, y);
-  }));
-  pool.forEach((r, i) => {
-    r._imdbRating = ratings[i].imdbRating ? parseFloat(ratings[i].imdbRating) : null;
-    r._metascore = ratings[i].metascore ? parseInt(ratings[i].metascore) : null;
+    list.appendChild(div);
   });
+}
 
-  if(minRating > 0){
-    pool = pool.filter(r => r._imdbRating !== null && r._imdbRating >= minRating);
+function renderPricelist(){
+  const sec=document.getElementById('add-section');
+  sec.innerHTML='';
+  const list=document.getElementById('records');
+
+  // Build search UI
+  const wrap=document.createElement('div');
+  // Implant toggle (only relevant for pacemaker/icd)
+  const toggleRow=document.createElement('div');toggleRow.className='pl-implant-toggle';
+  [{v:'initial',l:'Αρχική Εμφύτευση'},{v:'replacement',l:'Αντικατάσταση'}].forEach(t=>{
+    const b=document.createElement('button');b.className='pl-implant-btn'+(plState.implantType===t.v?' active':'');
+    b.textContent=t.l;
+    b.onclick=()=>{plState.implantType=t.v;renderPricelist();};
+    toggleRow.appendChild(b);
+  });
+  wrap.appendChild(toggleRow);
+
+  // Bundle mode toggle
+  const bundleRow=document.createElement('div');bundleRow.className='pl-implant-toggle';bundleRow.style.marginTop='6px';
+  [{v:'out',l:'Ασφάλεια'},{v:'in',l:'Πακέτο'}].forEach(t=>{
+    const b=document.createElement('button');
+    b.className='pl-implant-btn'+(plState.bundleMode===t.v?' active':'');
+    b.style.background=plState.bundleMode===t.v?(t.v==='in'?'#1a3a5f':'#1a2828'):'';
+    b.style.borderColor=plState.bundleMode===t.v?(t.v==='in'?'#60a5fa':'#4ade80'):'';
+    b.style.color=plState.bundleMode===t.v?(t.v==='in'?'#60a5fa':'#4ade80'):'';
+    b.textContent=t.l;
+    b.onclick=()=>{plState.bundleMode=t.v;renderPricelist();};
+    bundleRow.appendChild(b);
+  });
+  wrap.appendChild(bundleRow);
+
+  const hint=document.createElement('div');hint.className='pl-hint';hint.style.color='#b2dfdb';hint.textContent='Αρχική Εμφύτευση/Αντικατάσταση αφορά βηματοδότες & απινιδωτές. Ασφάλεια/Πακέτο αφορά μόνο τα bundles ablation Boston.';
+  wrap.appendChild(hint);
+
+  // Search row
+  const srow=document.createElement('div');srow.className='pl-search-wrap';
+  const sinp=document.createElement('input');sinp.className='pl-search-inp';sinp.id='pl-search-inp';
+  sinp.type='text';sinp.placeholder='🔍 REF code ή περιγραφή...';sinp.autocomplete='off';
+  let searchTimer;
+  sinp.oninput=()=>{clearTimeout(searchTimer);plState.query=sinp.value;searchTimer=setTimeout(()=>plFetch(sinp.value),300);};
+  sinp.onkeydown=(e)=>{if(e.key==='Enter'){clearTimeout(searchTimer);plState.query=sinp.value;plFetch(sinp.value);}};
+  srow.appendChild(sinp);
+  wrap.appendChild(srow);
+
+  sec.appendChild(wrap);
+
+  // Restore query or show empty state
+  if(plState.query){
+    sinp.value=plState.query;
+    list.innerHTML='<div class="pl-empty">Φόρτωση...</div>';
+    setTimeout(()=>plFetch(plState.query),50);
+  } else {
+    list.innerHTML='<div class="pl-empty">Πληκτρολόγησε REF code ή περιγραφή για αναζήτηση.</div>';
+    setTimeout(()=>sinp.focus(),50);
   }
-  if(isRatingSort){
-    pool = pool.filter(r => r[key] !== null).sort((a, b) => b[key] - a[key]);
+}
+
+// ── Smart Date Filter (Y/M/W/D + custom calendar) ──────────────
+const DF={mode:null,offset:0,calOpen:false,calMonth:new Date().getMonth(),calYear:new Date().getFullYear(),rangeFrom:null,rangeTo:null,pickStep:0};
+const DF_DOW=['Δ','Τ','Τ','Π','Π','Σ','Κ'];
+const DF_MONTHS=['Ιανουάριος','Φεβρουάριος','Μάρτιος','Απρίλιος','Μάιος','Ιούνιος','Ιούλιος','Αύγουστος','Σεπτέμβριος','Οκτώβριος','Νοέμβριος','Δεκέμβριος'];
+
+function dfDateStr(y,m,d){return y+'-'+pad(m+1)+'-'+pad(d);}
+
+function dfGetRange(){
+  if(DF.mode==='C'){return {from:DF.rangeFrom||'',to:DF.rangeTo||DF.rangeFrom||''};}
+  if(!DF.mode) return {from:'',to:''};
+  const now=new Date();
+  if(DF.mode==='D'){
+    const d=new Date(now);d.setDate(d.getDate()+DF.offset);
+    const s=dfDateStr(d.getFullYear(),d.getMonth(),d.getDate());
+    return {from:s,to:s};
   }
-  return pool;
+  if(DF.mode==='W'){
+    const d=new Date(now);const dow=d.getDay()||7;
+    d.setDate(d.getDate()-dow+1+DF.offset*7);
+    const f=new Date(d),t=new Date(d);t.setDate(t.getDate()+6);
+    return {from:dfDateStr(f.getFullYear(),f.getMonth(),f.getDate()),to:dfDateStr(t.getFullYear(),t.getMonth(),t.getDate())};
+  }
+  if(DF.mode==='M'){
+    const y=now.getFullYear(),m=now.getMonth()+DF.offset;
+    const fd=new Date(y,m,1),ld=new Date(y,m+1,0);
+    return {from:dfDateStr(fd.getFullYear(),fd.getMonth(),1),to:dfDateStr(ld.getFullYear(),ld.getMonth(),ld.getDate())};
+  }
+  if(DF.mode==='Y'){
+    const y=now.getFullYear()+DF.offset;
+    return {from:y+'-01-01',to:y+'-12-31'};
+  }
+  return {from:'',to:''};
 }
 
-function isRatingSortMode(){
-  return els.sortBy.value === 'imdb_rating' || els.sortBy.value === 'metascore';
-}
-function needsPool(){
-  return isRatingSortMode() || parseFloat(els.minRating.value) > 0;
+function dfLabel(){
+  if(!DF.mode) return 'Όλες οι ημερ.';
+  const {from,to}=dfGetRange();
+  return (from?fmtDate(from):'—')+' - '+(to?fmtDate(to):'—');
 }
 
-async function runSearch(){
-  state.viewingWatchlist = false;
-  updateWatchlistBtn();
-  els.previewNotice.classList.add('hidden');
-  els.goBtn.disabled = true;
-  setState('loading');
-  els.resultCount.textContent = '';
-  els.loadMoreRow.style.display = 'none';
-  state.currentPage = 1;
-  state.ratingPool = null;
-  state.omdbLimitReached = false;
-  state.seenResultIds = new Set();
+function dfApply(){
+  const {from,to}=dfGetRange();
+  document.getElementById('filter-from').value=from;
+  document.getElementById('filter-to').value=to;
+  render();
+}
 
-  if(state.mediaType === 'person'){
-    const q = els.query.value.trim();
-    if(!q){
-      setState('empty', 'Γράψε το όνομα ενός ηθοποιού ή σκηνοθέτη για αναζήτηση.');
-      els.goBtn.disabled = false;
-      return;
-    }
-    try{
-      const data = await searchPeople(q, 1);
-      const people = (data.results || []).filter(p => p.profile_path || (p.known_for && p.known_for.length));
-      if(!people.length){
-        setState('empty', 'Δεν βρέθηκε κανείς με αυτό το όνομα.');
-        els.goBtn.disabled = false;
-        return;
-      }
-      els.resultCount.textContent = `${people.length} αποτελέσματα`;
-      renderPeopleResults(people);
-    }catch(e){
-      setState('error', 'Κάτι πήγε στραβά με την αναζήτηση προσώπου.');
-    }
-    els.goBtn.disabled = false;
+function dfCycleMode(){
+  const seq=[null,'Y','M','W','D'];
+  const idx=seq.indexOf(DF.mode);
+  DF.mode=seq[(idx+1)%seq.length];
+  DF.offset=0;DF.rangeFrom=null;DF.rangeTo=null;DF.pickStep=0;DF.calOpen=false;
+  dfApply();dfRender();
+}
+function dfStep(dir){DF.offset+=dir;DF.calOpen=false;dfApply();dfRender();}
+function dfClear(){DF.mode=null;DF.offset=0;DF.rangeFrom=null;DF.rangeTo=null;DF.pickStep=0;DF.calOpen=false;dfApply();dfRender();}
+
+function dfToggleCal(){
+  DF.calOpen=!DF.calOpen;
+  if(DF.calOpen){
+    DF.pickStep=0;
+    const base=DF.rangeFrom?new Date(DF.rangeFrom):new Date();
+    DF.calMonth=base.getMonth();DF.calYear=base.getFullYear();
+  }
+  dfRender();
+}
+function dfCalNav(dir){
+  DF.calMonth+=dir;
+  if(DF.calMonth<0){DF.calMonth=11;DF.calYear--;}
+  if(DF.calMonth>11){DF.calMonth=0;DF.calYear++;}
+  dfRender();
+}
+function dfPickDay(y,m,d){
+  const ds=dfDateStr(y,m,d);
+  if(DF.pickStep===0){
+    // 1ο κλικ = ΑΠΟ
+    DF.rangeFrom=ds;DF.rangeTo=null;DF.pickStep=1;
+    dfRender();
     return;
   }
+  // 2ο κλικ = ΕΩΣ (αν είναι ίδια ή προγενέστερη ημέρα, γίνεται σωστά η σειρά)
+  let from=DF.rangeFrom,to=ds;
+  if(to<from){const t=from;from=to;to=t;}
+  DF.rangeFrom=from;DF.rangeTo=to;DF.mode='C';DF.pickStep=0;DF.calOpen=false;
+  dfApply();dfRender();
+}
 
-  try{
-    let results, totalPages;
-    if(needsPool()){
-      const pool = await fetchEnrichedPool();
-      state.ratingPool = pool;
-      results = pool.slice(0, 20);
-      totalPages = Math.max(1, Math.ceil(pool.length / 20));
-    } else {
-      ({ results, totalPages } = await fetchRawPage(1));
+function dfRender(){
+  const c=document.getElementById('df-container');if(!c)return;
+  const hasArrows=DF.mode&&DF.mode!=='C';
+  const modeLabel=DF.mode?(DF.mode==='C'?'C':DF.mode):'—';
+  let h='<div class="df-wrap">';
+  h+='<button class="df-mode-btn'+(DF.mode?' active':'')+'" onclick="dfCycleMode()" title="Εναλλαγή: Έτος/Μήνας/Εβδομάδα/Ημέρα">'+modeLabel+'</button>';
+  h+='<button class="df-arrow" onclick="dfStep(-1)" '+(hasArrows?'':'disabled')+'>◀</button>';
+  h+='<span class="df-label">'+dfLabel()+'</span>';
+  h+='<button class="df-arrow" onclick="dfStep(1)" '+(hasArrows?'':'disabled')+'>▶</button>';
+  h+='<button class="df-calbtn'+(DF.calOpen?' open':'')+'" onclick="dfToggleCal()" title="Επιλογή ημερομηνίας">▾</button>';
+  h+='<button class="df-clear" onclick="dfClear()" title="Καθαρισμός" style="visibility:'+(DF.mode?'visible':'hidden')+'">✕</button>';
+  if(DF.calOpen){
+    h+='<div class="df-popup" onclick="event.stopPropagation()">';
+    h+='<div class="df-popup-nav"><button class="df-popup-navbtn" onclick="dfCalNav(-1)">◀</button><span class="df-popup-title">'+DF_MONTHS[DF.calMonth]+' '+DF.calYear+'</span><button class="df-popup-navbtn" onclick="dfCalNav(1)">▶</button></div>';
+    if(DF.pickStep===1) h+='<div style="font-size:11px;color:#f59e0b;text-align:center;margin-bottom:6px">ΑΠΟ: '+fmtDate(DF.rangeFrom)+' — επίλεξε ΕΩΣ</div>';
+    h+='<div class="df-popup-grid">';
+    DF_DOW.forEach(d=>{h+='<div class="df-popup-dow">'+d+'</div>';});
+    const firstOfMonth=new Date(DF.calYear,DF.calMonth,1);
+    let startDow=firstOfMonth.getDay();startDow=startDow===0?6:startDow-1; // Monday=0
+    const daysInMonth=new Date(DF.calYear,DF.calMonth+1,0).getDate();
+    const prevMonthDays=new Date(DF.calYear,DF.calMonth,0).getDate();
+    const todayStr=today();
+    let cellIdx=0;
+    for(let i=0;i<startDow;i++){
+      const dnum=prevMonthDays-startDow+1+i;
+      h+='<div class="df-popup-day other">'+dnum+'</div>';cellIdx++;
     }
-    results = results.filter(r => {
-      if(state.seenResultIds.has(r.id)) return false;
-      state.seenResultIds.add(r.id);
-      return true;
-    });
-    state.totalPages = totalPages;
-    state.lastResults = results;
-
-    if(!results.length){
-      if(state.omdbLimitReached){
-        setState('error', 'Το OMDb (πηγή για IMDb rating/Metascore) έχει φτάσει το ημερήσιο όριο των 1.000 αιτημάτων του δωρεάν πλάνου. Δοκίμασε ξανά αύριο, ή προσωρινά χρησιμοποίησε ταξινόμηση "Δημοφιλία" χωρίς ελάχιστο IMDb rating.');
-      } else {
-        setState('empty', 'Δεν βρέθηκαν αποτελέσματα με αυτά τα φίλτρα. Δοκίμασε να χαλαρώσεις κάποιο φίλτρο.');
-      }
-      return;
+    for(let d=1;d<=daysInMonth;d++){
+      const ds=dfDateStr(DF.calYear,DF.calMonth,d);
+      let cls='df-popup-day';
+      if(ds===todayStr) cls+=' today';
+      if(ds===DF.rangeFrom||ds===DF.rangeTo) cls+=' selected';
+      else if(DF.rangeFrom&&DF.rangeTo&&ds>DF.rangeFrom&&ds<DF.rangeTo) cls+=' in-range';
+      h+='<div class="'+cls+'" onclick="dfPickDay('+DF.calYear+','+DF.calMonth+','+d+')">'+d+'</div>';cellIdx++;
     }
-
-    els.results.innerHTML = '';
-    els.resultCount.textContent = `${results.length} αποτελέσματα (σελίδα 1 από ${totalPages})`;
-    renderResultsSkeleton(results);
-    enrichWithImdb(results);
-
-    if(state.currentPage < state.totalPages){
-      els.loadMoreRow.style.display = 'flex';
-    }
-  }catch(e){
-    setState('error', 'Κάτι πήγε στραβά με το αίτημα. Δοκίμασε ξανά σε λίγο.');
-  } finally {
-    els.goBtn.disabled = false;
+    let nextDay=1;
+    while(cellIdx%7!==0){h+='<div class="df-popup-day other">'+(nextDay++)+'</div>';cellIdx++;}
+    h+='</div></div>';
   }
+  h+='</div>';
+  c.innerHTML=h;
 }
-
-async function loadMore(){
-  els.loadMoreBtn.disabled = true;
-  els.loadMoreBtn.textContent = 'Φόρτωση...';
-  try{
-    state.currentPage += 1;
-    let results;
-    if(needsPool() && state.ratingPool){
-      const start = (state.currentPage - 1) * 20;
-      results = state.ratingPool.slice(start, start + 20);
-    } else {
-      ({ results } = await fetchRawPage(state.currentPage));
-    }
-    results = results.filter(r => {
-      if(state.seenResultIds.has(r.id)) return false;
-      state.seenResultIds.add(r.id);
-      return true;
-    });
-    state.lastResults = state.lastResults.concat(results);
-    renderResultsSkeleton(results, true);
-    enrichWithImdb(results);
-    els.resultCount.textContent = `${state.lastResults.length} αποτελέσματα (σελίδα ${state.currentPage} από ${state.totalPages})`;
-    if(state.currentPage >= state.totalPages){
-      els.loadMoreRow.style.display = 'none';
-    }
-  }catch(e){
-    // αν αποτύχει, απλά άσε το κουμπί ενεργό για νέα προσπάθεια
-  } finally {
-    els.loadMoreBtn.disabled = false;
-    els.loadMoreBtn.textContent = 'Φόρτωση περισσότερων';
-  }
-}
-
-function clearFilters(){
-  els.query.value = '';
-  els.mediaType.value = 'movie';
-  state.mediaType = 'movie';
-  els.dateFrom.value = '';
-  els.dateTo.value = '';
-  els.minRating.value = 0;
-  els.minRatingVal.textContent = '0.0';
-  els.sortBy.value = 'trending';
-  els.ageLimit.value = '';
-  updateAgeLimitAvailability();
-  els.showIndianKorean.checked = false;
-  state.selectedGenres.clear();
-  state.langFilter = null;
-  renderGenreChips();
-  updateGenreFilterCount();
-  els.genreChipsPanel.classList.add('hidden');
-  loadGenres();
-  els.loadMoreRow.style.display = 'none';
-  setState('empty', 'Επίλεξε φίλτρα και πάτα Αναζήτηση για να ξεκινήσεις.');
-  els.resultCount.textContent = '';
-}
-els.clearBtn.addEventListener('click', clearFilters);
-
-const filtersToggleBtn = document.getElementById('filtersToggleBtn');
-const advancedFilters = document.getElementById('advancedFilters');
-if(filtersToggleBtn && advancedFilters){
-  filtersToggleBtn.addEventListener('click', () => {
-    advancedFilters.classList.toggle('open');
-  });
-}
-
-els.goBtn.addEventListener('click', runSearch);
-els.loadMoreBtn.addEventListener('click', loadMore);
-
-async function autoLoadTrendingPreview(){
-  // Δωρεάν προεπισκόπηση: μόνο TMDb δεδομένα, ΚΑΘΟΛΟΥ κλήσεις στο OMDb.
-  // Μόλις ο χρήστης πατήσει "Αναζήτηση", η κανονική ροή (με IMDb) αναλαμβάνει κανονικά.
-  try{
-    const { results } = await fetchRawPage(1);
-    if(!results.length) return;
-    state.currentPage = 1;
-    state.lastResults = results;
-    state.seenResultIds = new Set(results.map(r => r.id));
-    els.results.innerHTML = '';
-    els.resultCount.textContent = `${results.length} αποτελέσματα`;
-    renderResultsSkeleton(results);
-    els.previewNotice.classList.remove('hidden');
-    // Σκόπιμα ΔΕΝ καλούμε enrichWithImdb εδώ.
-  }catch(e){
-    // αν αποτύχει, απλά μένει η αρχική κενή κατάσταση — καμία ζημιά
-  }
-}
-
-// ============================================================
-// Προφίλ & Watchlist
-// ============================================================
-
-function openAuthModal(){ els.authOverlay.classList.remove('hidden'); }
-function closeAuthModal(){ els.authOverlay.classList.add('hidden'); }
-els.authClose.addEventListener('click', closeAuthModal);
-els.authOverlay.addEventListener('click', (e) => { if(e.target === els.authOverlay) closeAuthModal(); });
-
-async function renderAuthScreen(){
-  els.authContent.innerHTML = '<div class="modal-loading">Φόρτωση...</div>';
-  const names = await supaWatchlistFetchNames();
-  els.authContent.innerHTML = `
-    <div class="auth-title">Σύνδεση σε προφίλ</div>
-    ${names.length ? `
-      <div class="auth-section">
-        <span class="auth-label">Υπάρχοντα προφίλ</span>
-        <div class="profile-pill-list" id="profilePillList">
-          ${names.map(n => `<button class="profile-pill" data-name="${n}">${n}</button>`).join('')}
-        </div>
-      </div>
-      <div class="auth-divider">ή</div>
-    ` : ''}
-    <div class="auth-section">
-      <span class="auth-label">Δημιουργία νέου προφίλ</span>
-      <input type="text" class="auth-input" id="newProfileName" placeholder="Όνομα (π.χ. Γιώργος)" maxlength="20">
-      <input type="password" class="auth-input" id="newProfilePin" placeholder="4ψήφιο PIN" maxlength="4" inputmode="numeric">
-      <button class="auth-btn" id="createProfileBtn">Δημιουργία</button>
-      <div class="auth-error" id="authError"></div>
-    </div>
-  `;
-  document.querySelectorAll('.profile-pill').forEach(pill => {
-    pill.addEventListener('click', () => promptPinLogin(pill.dataset.name));
-  });
-  document.getElementById('createProfileBtn').addEventListener('click', handleCreateProfile);
-}
-
-function promptPinLogin(name){
-  els.authContent.innerHTML = `
-    <div class="auth-title">Σύνδεση: ${name}</div>
-    <div class="auth-section">
-      <span class="auth-label">PIN</span>
-      <input type="password" class="auth-input" id="loginPin" placeholder="4ψήφιο PIN" maxlength="4" inputmode="numeric" autofocus>
-      <button class="auth-btn" id="loginBtn">Σύνδεση</button>
-      <button class="auth-btn secondary" id="backToAuthBtn">← Πίσω</button>
-      <div class="auth-error" id="authError"></div>
-    </div>
-  `;
-  document.getElementById('backToAuthBtn').addEventListener('click', renderAuthScreen);
-  document.getElementById('loginBtn').addEventListener('click', async () => {
-    const pin = document.getElementById('loginPin').value.trim();
-    const errEl = document.getElementById('authError');
-    const row = await supaWatchlistFetchProfile(name);
-    if(row && row.pin === pin){
-      loginAs(name, row);
-    } else {
-      errEl.textContent = 'Λάθος PIN.';
-    }
-  });
-  document.getElementById('loginPin').addEventListener('keydown', (e) => {
-    if(e.key === 'Enter') document.getElementById('loginBtn').click();
-  });
-}
-
-async function handleCreateProfile(){
-  const name = document.getElementById('newProfileName').value.trim();
-  const pin = document.getElementById('newProfilePin').value.trim();
-  const errEl = document.getElementById('authError');
-  if(!name || !/^\d{4}$/.test(pin)){
-    errEl.textContent = 'Βάλε όνομα και 4ψήφιο PIN (μόνο αριθμοί).';
-    return;
-  }
-  const existing = await supaWatchlistFetchProfile(name);
-  if(existing){
-    errEl.textContent = 'Υπάρχει ήδη προφίλ με αυτό το όνομα.';
-    return;
-  }
-  const ok = await supaWatchlistCreate(name, pin);
-  if(ok){
-    loginAs(name, { profile_name: name, items: '[]' });
-  } else {
-    errEl.textContent = 'Κάτι πήγε στραβά, δοκίμασε ξανά.';
-  }
-}
-
-function loginAs(name, row){
-  state.profileName = name;
-  localStorage.setItem(PROFILE_STORAGE_KEY, name);
-  try{ state.watchlistItems = JSON.parse(row.items || '[]'); }catch(e){ state.watchlistItems = []; }
-  state.watchlistIds = new Set(state.watchlistItems.map(it => wlKey(it.id, it.mediaType)));
-  updateProfileBtn();
-  closeAuthModal();
-}
-
-function logout(){
-  state.profileName = null;
-  state.watchlistItems = [];
-  state.watchlistIds = new Set();
-  state.viewingWatchlist = false;
-  localStorage.removeItem(PROFILE_STORAGE_KEY);
-  updateProfileBtn();
-  updateWatchlistBtn();
-}
-
-function updateProfileBtn(){
-  els.profileBtn.textContent = state.profileName ? `👤 ${state.profileName} ▾` : '👤 Σύνδεση';
-}
-
-els.profileBtn.addEventListener('click', () => {
-  if(state.profileName){
-    // ήδη συνδεδεμένος: μενού απλό με confirm για αποσύνδεση
-    if(confirm(`Αποσύνδεση από «${state.profileName}»;`)) logout();
-  } else {
-    renderAuthScreen();
-    openAuthModal();
-  }
+document.addEventListener('click',(e)=>{
+  if(DF.calOpen && !e.target.closest('.df-wrap')){DF.calOpen=false;dfRender();}
 });
 
-async function restoreProfileSession(){
-  const savedName = localStorage.getItem(PROFILE_STORAGE_KEY);
-  if(!savedName) return;
-  const row = await supaWatchlistFetchProfile(savedName);
-  if(row){
-    state.profileName = savedName;
-    try{ state.watchlistItems = JSON.parse(row.items || '[]'); }catch(e){ state.watchlistItems = []; }
-    state.watchlistIds = new Set(state.watchlistItems.map(it => wlKey(it.id, it.mediaType)));
-    updateProfileBtn();
-  }
-}
+loadFromCloud();
 
-async function toggleWatchlist(item){
-  if(!state.profileName){
-    renderAuthScreen();
-    openAuthModal();
-    return;
-  }
-  const key = wlKey(item.id, item.mediaType || state.mediaType);
-  if(state.watchlistIds.has(key)){
-    state.watchlistIds.delete(key);
-    state.watchlistItems = state.watchlistItems.filter(it => wlKey(it.id, it.mediaType) !== key);
-  } else {
-    state.watchlistIds.add(key);
-    state.watchlistItems.unshift({
-      id: item.id,
-      mediaType: item.mediaType || state.mediaType,
-      title: item.title,
-      poster_path: item.poster_path || null,
-      date: item.date || '',
-      vote_average: item.vote_average || null,
-    });
-  }
-  await supaWatchlistSave(state.profileName, state.watchlistItems);
-  // ενημέρωση εικονιδίων στην τρέχουσα προβολή
-  document.querySelectorAll(`[data-bookmark-key="${key}"]`).forEach(btn => {
-    btn.classList.toggle('saved', state.watchlistIds.has(key));
-    btn.textContent = state.watchlistIds.has(key) ? '✓' : '+';
-  });
-  if(state.viewingWatchlist) renderWatchlistView();
-}
-
-function updateWatchlistBtn(){
-  els.watchlistBtn.classList.toggle('active', state.viewingWatchlist);
-}
-
-function renderWatchlistView(){
-  state.viewingWatchlist = true;
-  updateWatchlistBtn();
-  els.loadMoreRow.style.display = 'none';
-  if(!state.profileName){
-    setState('empty', 'Συνδέσου σε προφίλ για να δεις τη watchlist σου.');
-    els.resultCount.textContent = '';
-    return;
-  }
-  if(!state.watchlistItems.length){
-    setState('empty', 'Η watchlist σου είναι άδεια — πρόσθεσε τίτλους με το 🔖.');
-    els.resultCount.textContent = '';
-    return;
-  }
-  els.resultCount.textContent = `${state.watchlistItems.length} τίτλοι στη watchlist`;
-  state.lastResults = state.watchlistItems;
-  els.results.innerHTML = '';
-  const mappedItems = state.watchlistItems.map(it => ({
-    id: it.id, title: it.title, name: it.title, poster_path: it.poster_path,
-    release_date: it.mediaType === 'movie' ? it.date : undefined,
-    first_air_date: it.mediaType === 'tv' ? it.date : undefined,
-    vote_average: it.vote_average, _mediaTypeOverride: it.mediaType,
-  }));
-  renderResultsSkeleton(mappedItems);
-  enrichWithImdb(mappedItems);
-}
-
-els.watchlistBtn.addEventListener('click', () => {
-  if(state.viewingWatchlist){
-    state.viewingWatchlist = false;
-    updateWatchlistBtn();
-    runSearch();
-  } else {
-    renderWatchlistView();
-  }
-});
-
-// ============================================================
-// Αναζήτηση Προσώπων (Ηθοποιοί/Σκηνοθέτες) & Φιλμογραφία
-// ============================================================
-
-function openPersonModal(){ els.personOverlay.classList.remove('hidden'); }
-function closePersonModal(){ els.personOverlay.classList.add('hidden'); }
-els.personClose.addEventListener('click', closePersonModal);
-els.personOverlay.addEventListener('click', (e) => { if(e.target === els.personOverlay) closePersonModal(); });
-
-function personPhotoUrl(path){
-  return path ? `https://image.tmdb.org/t/p/w185${path}` : null;
-}
-
-async function searchPeople(query, page){
-  return tmdbFetch('/search/person', { query, page, language: 'en-US' });
-}
-
-function renderPeopleResults(people){
-  els.results.innerHTML = '';
-  people.forEach(person => {
-    const card = document.createElement('div');
-    card.className = 'person-card';
-    card.setAttribute('tabindex', '0');
-    card.setAttribute('role', 'button');
-    const photo = personPhotoUrl(person.profile_path);
-    const known = (person.known_for || []).map(k => k.title || k.name).filter(Boolean).slice(0, 3).join(', ');
-    card.innerHTML = `
-      ${photo ? `<img class="person-photo" src="${photo}" alt="${person.name}" loading="lazy">` : `<div class="person-photo-placeholder">👤</div>`}
-      <div class="person-info">
-        <div class="person-name">${person.name}</div>
-        <div class="person-known">${person.known_for_department === 'Directing' ? 'Σκηνοθέτης/τρια' : person.known_for_department === 'Acting' ? 'Ηθοποιός' : (person.known_for_department || '')}${known ? ' · ' + known : ''}</div>
-      </div>
-    `;
-    card.addEventListener('click', () => openPersonModal_load(person.id, person.name));
-    els.results.appendChild(card);
-  });
-}
-
-async function openPersonModal_load(personId, fallbackName){
-  els.personContent.innerHTML = '<div class="modal-loading">Φόρτωση...</div>';
-  openPersonModal();
-  try{
-    const data = await tmdbFetch(`/person/${personId}`, { append_to_response: 'combined_credits', language: 'en-US' });
-    const photo = personPhotoUrl(data.profile_path);
-    const deptLabel = data.known_for_department === 'Directing' ? 'Σκηνοθέτης/τρια' : data.known_for_department === 'Acting' ? 'Ηθοποιός' : (data.known_for_department || '');
-    const bio = data.biography ? data.biography.slice(0, 400) + (data.biography.length > 400 ? '…' : '') : '';
-
-    const credits = (data.combined_credits && [...(data.combined_credits.cast || []), ...(data.combined_credits.crew || [])]) || [];
-    const seen = new Set();
-    const filmo = credits.filter(c => {
-      const key = c.media_type + ':' + c.id;
-      if(seen.has(key)) return false;
-      seen.add(key);
-      return c.poster_path || c.title || c.name;
-    }).sort((a, b) => {
-      const da = a.release_date || a.first_air_date || '';
-      const db = b.release_date || b.first_air_date || '';
-      return db.localeCompare(da);
-    }).slice(0, 40);
-
-    els.personContent.innerHTML = `
-      <div class="person-header">
-        ${photo ? `<img class="person-header-photo" src="${photo}" alt="${data.name}">` : `<div class="person-header-photo-placeholder">👤</div>`}
-        <div>
-          <div class="person-header-name">${data.name || fallbackName}</div>
-          <div class="person-header-dept">${deptLabel}</div>
-          ${bio ? `<div class="person-header-bio">${bio}</div>` : ''}
-        </div>
-      </div>
-      <div class="person-filmo-title">Φιλμογραφία</div>
-      <div class="person-filmo-list">
-        ${filmo.map(c => {
-          const t = c.title || c.name || '';
-          const d = c.release_date || c.first_air_date || '';
-          const y = d ? d.slice(0,4) : '—';
-          const role = c.character ? `ως ${c.character}` : (c.job || '');
-          const poster = posterUrl(c.poster_path);
-          return `
-            <div class="person-filmo-item" data-filmo-id="${c.id}" data-filmo-type="${c.media_type}" data-filmo-title="${t.replace(/"/g,'&quot;')}">
-              ${poster ? `<img class="person-filmo-poster" src="${poster}" alt="${t}" loading="lazy">` : `<div class="person-filmo-poster-placeholder"></div>`}
-              <div class="person-filmo-info">
-                <div class="person-filmo-title-text">${t}</div>
-                <div class="person-filmo-meta">${y}${role ? ' · ' + role : ''}</div>
-              </div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `;
-
-    els.personContent.querySelectorAll('.person-filmo-item').forEach(el => {
-      el.addEventListener('click', () => {
-        const id = el.getAttribute('data-filmo-id');
-        const mt = el.getAttribute('data-filmo-type');
-        const t = el.getAttribute('data-filmo-title');
-        if(mt !== 'movie' && mt !== 'tv') return;
-        closePersonModal();
-        state.mediaType = mt;
-        openModal(id, t);
-      });
-    });
-  }catch(e){
-    els.personContent.innerHTML = '<div class="modal-loading">Δεν φορτώθηκαν τα στοιχεία. Δοκίμασε ξανά.</div>';
-  }
-}
-
-applyViewMode();
-loadGenres();
-autoLoadTrendingPreview();
-restoreProfileSession();
-
-// ============================================================
-// Πλοήγηση με τηλεκοντρόλ / πληκτρολόγιο (π.χ. Android TV)
-// Γενικό σύστημα: βρίσκει το πλησιέστερο εστιάσιμο στοιχείο προς
-// την κατεύθυνση του βέλους που πατήθηκε, με βάση τη θέση στην οθόνη.
-// ============================================================
-
-function isElementVisible(el){
-  if(el.disabled) return false;
-  const style = getComputedStyle(el);
-  if(style.display === 'none' || style.visibility === 'hidden') return false;
-  const rect = el.getBoundingClientRect();
-  if(rect.width === 0 && rect.height === 0) return false;
-  return true;
-}
-
-function getFocusableElements(){
-  const modalOpen = !els.modalOverlay.classList.contains('hidden');
-  const scope = modalOpen ? els.modalOverlay : document;
-  return Array.from(scope.querySelectorAll('a[href], button:not(:disabled), input:not([type=hidden]), select, [tabindex="0"]'))
-    .filter(el => {
-      if(modalOpen && !el.closest('.modal') && el !== els.modalOverlay) return false;
-      // κρυμμένο genre panel: μην εστιάζεις μέσα του αν είναι κλειστό
-      const chipsPanel = document.getElementById('genreChipsPanel');
-      if(chipsPanel && chipsPanel.classList.contains('hidden') && chipsPanel.contains(el)) return false;
-      // κρυμμένο advanced filters panel σε mobile: μην εστιάζεις μέσα του αν είναι κλειστό
-      const advFilters = document.getElementById('advancedFilters');
-      if(advFilters && !advFilters.classList.contains('open') && getComputedStyle(advFilters).display === 'none' && advFilters.contains(el)) return false;
-      return isElementVisible(el);
-    });
-}
-
-function moveFocus(direction){
-  const current = document.activeElement;
-  const focusables = getFocusableElements();
-  if(!focusables.length) return;
-  if(!current || current === document.body || !focusables.includes(current)){
-    focusables[0].focus();
-    return;
-  }
-  const curRect = current.getBoundingClientRect();
-  const curCenter = { x: curRect.left + curRect.width / 2, y: curRect.top + curRect.height / 2 };
-  let best = null;
-  let bestScore = Infinity;
-  for(const el of focusables){
-    if(el === current) continue;
-    const r = el.getBoundingClientRect();
-    const center = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-    const dx = center.x - curCenter.x;
-    const dy = center.y - curCenter.y;
-    let primary, secondary, valid;
-    if(direction === 'right'){ valid = dx > 4; primary = dx; secondary = Math.abs(dy); }
-    else if(direction === 'left'){ valid = dx < -4; primary = -dx; secondary = Math.abs(dy); }
-    else if(direction === 'down'){ valid = dy > 4; primary = dy; secondary = Math.abs(dx); }
-    else if(direction === 'up'){ valid = dy < -4; primary = -dy; secondary = Math.abs(dx); }
-    if(!valid) continue;
-    const score = primary + secondary * 2.2;
-    if(score < bestScore){ bestScore = score; best = el; }
-  }
-  if(best){
-    best.focus();
-    best.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }
-}
-
-document.addEventListener('keydown', (e) => {
-  const dirMap = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' };
-  const active = document.activeElement;
-  const tag = active ? active.tagName : '';
-
-  if(dirMap[e.key]){
-    // Άσε το native πλοήγηση μέσα σε select/range/text ώστε να μη «κλέβουμε» τα βέλη τους
-    if(tag === 'SELECT') return;
-    if(tag === 'INPUT' && active.type === 'range') return;
-    if(tag === 'INPUT' && (active.type === 'text' || active.type === 'number') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) return;
+// Smart paste για ημερομηνίες (DD/MM/YYYY → YYYY-MM-DD)
+document.addEventListener('paste', function(e){
+  const el = document.activeElement;
+  if(!el || el.type !== 'date') return;
+  const text = (e.clipboardData || window.clipboardData).getData('text').trim();
+  const m = text.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(m){
     e.preventDefault();
-    moveFocus(dirMap[e.key]);
-    return;
-  }
-
-  if(e.key === 'Enter' || e.key === ' '){
-    if(active && (active.classList.contains('card') || active.classList.contains('chip') || active.classList.contains('rec-card'))){
-      e.preventDefault();
-      active.click();
-    }
+    const dd=m[1].padStart(2,'0'), mm=m[2].padStart(2,'0'), yyyy=m[3];
+    el.value = yyyy+'-'+mm+'-'+dd;
+    el.dispatchEvent(new Event('change',{bubbles:true}));
+    el.dispatchEvent(new Event('input',{bubbles:true}));
   }
 });
 </script>
-
 </body>
 </html>
