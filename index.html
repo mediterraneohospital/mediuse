@@ -97,11 +97,12 @@ h1{font-size:24px;font-weight:700;color:#e6e8ec;margin-bottom:.5rem;display:flex
 .record-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
 .tag{font-size:11px;padding:2px 8px;border-radius:12px;background:#2f3542;color:#9aa3b8}
 .tag.green{background:#1a3a2a;color:#4ade80}
-.tag.blue{background:#1a2a3a;color:#6c8cf5}
+.tag.blue{background:#1a2a3a;color:#60a5fa}
 .tag.purple{background:#2a1a3a;color:#c084fc}
 .tag.red{background:#3a1a1a;color:#f87171}
 .tag.yellow{background:#2a2a0a;color:#fbbf24}
 .tag.orange{background:#2a1a0a;color:#f97316}
+.tag.teal{background:#0e2f36;color:#22d3ee}
 .credit-due{font-size:11px;margin-top:3px;padding:3px 8px;border-radius:6px;display:inline-block}
 .credit-due.overdue{background:#3a1a1a;color:#f87171}
 .credit-due.soon{background:#2a1a0a;color:#f97316}
@@ -600,7 +601,7 @@ function renderStats(){
     const companies=['Medtronic','Edwards','Flexmed','Abbott','Άλλο'];
     const counts={};
     all.forEach(r=>{const c=r.company||'Άλλο';counts[c]=(counts[c]||0)+1;});
-    const colors={'Medtronic':'#6c8cf5','Edwards':'#4ade80','Flexmed':'#f97316','Abbott':'#c084fc','Άλλο':'#8891a3'};
+    const colors={'Medtronic':'#60a5fa','Edwards':'#4ade80','Flexmed':'#f97316','Abbott':'#22d3ee','Άλλο':'#8891a3'};
     companies.forEach(c=>{
       if(counts[c]){
         html+=`<div class="stat" style="cursor:pointer;padding:2px 8px;border-radius:6px;border:1px solid ${state.taviFilter===c?colors[c]:'#2f3542'};background:${state.taviFilter===c?'#1e222a':'transparent'}" onclick="state.taviFilter=(state.taviFilter==='${c}'?null:'${c}');renderStats();renderBulkBar();renderRecords();updateSelectAllCb();">`+
@@ -662,6 +663,7 @@ function renderSort(){
 function makeEditPanel(rec){
   const cat=CATS[state.cat];
   const panel=document.createElement('div');panel.className='edit-panel';
+  panel.onclick=e=>e.stopPropagation();
   const grid=document.createElement('div');grid.className='form-grid';
   cat.fields.forEach(f=>{
     const g=document.createElement('div');g.className='form-group';
@@ -720,25 +722,25 @@ function renderRecords(){
     const patEl=document.createElement('div');patEl.className='record-patient';patEl.textContent=rec.patient||'—';main.appendChild(patEl);
 
     const tags=document.createElement('div');tags.className='record-tags';
-    if(rec.nosileia){const t=document.createElement('span');t.className='tag blue';t.innerHTML=ic('hospital')+rec.nosileia;tags.appendChild(t);}
+    if(rec.nosileia){const t=document.createElement('span');t.className='tag blue';t.textContent=rec.nosileia;tags.appendChild(t);}
 
     if(state.cat==='tavi'){
-      if(rec.valve){const t=document.createElement('span');t.className='tag purple';t.innerHTML=ic('heart')+rec.valve;tags.appendChild(t);}
+      if(rec.valve){const t=document.createElement('span');t.className='tag purple';t.textContent=rec.valve;tags.appendChild(t);}
       if(rec.company){
         const t=document.createElement('span');
-        const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange','Abbott':'tag purple'};
+        const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange','Abbott':'tag teal'};
         t.className=cmap[rec.company]||'tag';
         t.textContent=rec.company;
         tags.appendChild(t);
       }
-      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.innerHTML=ic('document')+rec.invoice_no;tags.appendChild(t);}
+      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.textContent=rec.invoice_no;tags.appendChild(t);}
 
     }
     if(state.cat==='boston'){
       if(rec.inout){const t=document.createElement('span');t.className='tag '+(rec.inout==='Πακέτο'?'green':'yellow');t.textContent=rec.inout;tags.appendChild(t);}
-      if(rec.therapy){const t=document.createElement('span');t.className='tag purple';t.innerHTML=ic('bolt')+rec.therapy;tags.appendChild(t);}
-      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.innerHTML=ic('euro')+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
-      if(rec.credit&&parseFloat(rec.credit)>0){const t=document.createElement('span');t.className='tag orange';t.innerHTML=ic('refresh')+parseFloat(rec.credit).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+      if(rec.therapy){const t=document.createElement('span');t.className='tag purple';t.textContent=rec.therapy;tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.textContent=parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+      if(rec.credit&&parseFloat(rec.credit)>0){const t=document.createElement('span');t.className='tag orange';t.textContent=parseFloat(rec.credit).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
 
       // Credit due date
       if(rec.date&&!state.viewDone){
@@ -751,12 +753,12 @@ function renderRecords(){
       }
     }
     if(state.cat==='evar'){
-      if(rec.amount){const t=document.createElement('span');t.className='tag purple';t.innerHTML=ic('euro')+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag purple';t.textContent=parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
     }
     if(state.cat==='clip'){
-      if(rec.clip_type){const t=document.createElement('span');t.className='tag '+(rec.clip_type==='MitraClip'?'red':'orange');t.innerHTML=ic('stethoscope')+rec.clip_type;tags.appendChild(t);}
-      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.innerHTML=ic('document')+rec.invoice_no;tags.appendChild(t);}
-      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.innerHTML=ic('euro')+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+      if(rec.clip_type){const t=document.createElement('span');t.className='tag '+(rec.clip_type==='MitraClip'?'red':'orange');t.textContent=rec.clip_type;tags.appendChild(t);}
+      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.textContent=rec.invoice_no;tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.textContent=parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
     }
     main.appendChild(tags);
 
@@ -764,11 +766,9 @@ function renderRecords(){
     if(state.viewDone&&rec.completedAt){const c=document.createElement('div');c.style.cssText='font-size:11px;color:#4ade80;margin-top:4px';c.innerHTML=ic('check')+'Ολοκληρώθηκε: '+fmtDate(rec.completedAt);main.appendChild(c);}
 
     const actions=document.createElement('div');actions.className='record-actions';
-    const editBtn=document.createElement('button');editBtn.className='icon-btn'+(state.editingId===rec.id?' active':'');
-    editBtn.title='Επεξεργασία';editBtn.innerHTML=ICONS.edit;
-    editBtn.onclick=()=>{state.editingId=state.editingId===rec.id?null:rec.id;render();};
     const delBtn=document.createElement('button');delBtn.className='icon-btn del';delBtn.title='Διαγραφή';delBtn.innerHTML=ICONS.trash;
-    delBtn.onclick=()=>{
+    delBtn.onclick=(e)=>{
+      e.stopPropagation();
       if(!confirm('Διαγραφή "'+rec.patient+'"?'))return;
       const key=getKey();const all=state[key];const i=all.findIndex(r=>r.id===rec.id);if(i>-1)all.splice(i,1);
       delete state.selected[rec.id];if(state.editingId===rec.id)state.editingId=null;
@@ -779,7 +779,8 @@ function renderRecords(){
       restoreBtn.className='icon-btn';restoreBtn.title='Επαναφορά στις ενεργές';
       restoreBtn.innerHTML=ICONS.undo;
       restoreBtn.style.cssText='background:#1a2a3a;border-color:#1e4d7a;color:#4a9eff';
-      restoreBtn.onclick=()=>{
+      restoreBtn.onclick=(e)=>{
+        e.stopPropagation();
         const doneKey=state.cat+'_done';
         const activeKey=state.cat;
         const all=state[doneKey];
@@ -794,7 +795,11 @@ function renderRecords(){
       };
       actions.appendChild(restoreBtn);
     }
-    actions.appendChild(editBtn);actions.appendChild(delBtn);
+    actions.appendChild(delBtn);
+    cb.onclick=(e)=>e.stopPropagation();
+    item.style.cursor='pointer';
+    item.title='Κλικ για επεξεργασία';
+    item.onclick=()=>{state.editingId=state.editingId===rec.id?null:rec.id;render();};
     top.appendChild(cb);top.appendChild(main);top.appendChild(actions);
     item.appendChild(top);
     if(state.editingId===rec.id) item.appendChild(makeEditPanel(rec));
