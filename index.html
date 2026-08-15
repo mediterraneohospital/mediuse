@@ -5,7 +5,7 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1e2a2a">
+<meta name="theme-color" content="#1a1d24">
 <meta property="og:title" content="MediUse">
 <meta property="og:description" content="Καταγραφή Ιατρικών Επεμβάσεων — Mediterraneo Hospital">
 <meta property="og:image" content="icon-512.png">
@@ -14,60 +14,60 @@
 <title>MediUse</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#1e2a2a;color:#e0f0f0;font-family:Arial,sans-serif;min-height:100vh}
+body{background:#1a1d24;color:#e6e8ec;font-family:Arial,sans-serif;min-height:100vh}
 #app{max-width:1200px;margin:0 auto;padding:1.5rem}
-h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex;align-items:center;gap:0}
-.subtitle{font-size:13px;color:#7ab8b8;margin-bottom:1.5rem}
-.sync-bar{display:flex;align-items:center;gap:10px;background:#243333;border:1px solid #2e4444;border-radius:10px;padding:8px 14px;margin-bottom:1.25rem;font-size:12px;color:#7ab8b8}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:#446666;flex-shrink:0}
+h1{font-size:24px;font-weight:700;color:#e6e8ec;margin-bottom:.5rem;display:flex;align-items:center;gap:0}
+.subtitle{font-size:13px;color:#8891a3;margin-bottom:1.5rem}
+.sync-bar{display:flex;align-items:center;gap:10px;background:#232730;border:1px solid #2f3542;border-radius:10px;padding:8px 14px;margin-bottom:1.25rem;font-size:12px;color:#8891a3}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#565f70;flex-shrink:0}
 .sync-dot.ok{background:#4ade80}
 .sync-dot.err{background:#e74c3c}
 .sync-dot.loading{background:#f0c040;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 .cat-tabs{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
-.cat-tab{padding:8px 20px;border-radius:8px;border:2px solid #2e4444;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.cat-tab{padding:8px 20px;border-radius:8px;border:2px solid #2f3542;background:#1e222a;color:#8891a3;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
 .cat-tab.active.tavi{background:#1e4d7a;border-color:#60a5fa;color:#bfdbfe}
 .cat-tab.active.boston{background:#14532d;border-color:#4ade80;color:#bbf7d0}
 .cat-tab.active.evar{background:#3b0764;border-color:#c084fc;color:#e9d5ff}
 .cat-tab.active.clip{background:#7a1a3a;border-color:#f43f5e;color:#fecdd3}
-.cat-tab:hover:not(.active){background:#243333;color:#e0f0f0;border-color:#4db6ac}
+.cat-tab:hover:not(.active){background:#232730;color:#e6e8ec;border-color:#6c8cf5}
 
-.add-panel{background:#243333;border:1px solid #2e4444;border-radius:10px;padding:16px;margin-bottom:1.25rem}
-.add-panel h3{font-size:12px;color:#80cbc4;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.add-panel{background:#232730;border:1px solid #2f3542;border-radius:10px;padding:16px;margin-bottom:1.25rem}
+.add-panel h3{font-size:12px;color:#9aa3b8;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px}
 .form-group{display:flex;flex-direction:column;gap:4px}
-.form-group label{font-size:11px;color:#80cbc4;text-transform:uppercase;letter-spacing:.3px}
-.inp{background:#1a2828;border:1px solid #2e4444;border-radius:6px;padding:8px 12px;color:#e0f0f0;font-size:14px;outline:none;width:100%}
-.inp:focus{border-color:#4db6ac}
-.inp::placeholder{color:#446666}
-.inp-date{color:#e0f0f0}
-.sel{background:#1a2828;border:1px solid #2e4444;border-radius:6px;padding:8px 10px;color:#e0f0f0;font-size:13px;outline:none;cursor:pointer;width:100%}
-.sel option{background:#1e2a2a;color:#e0f0f0}
+.form-group label{font-size:11px;color:#9aa3b8;text-transform:uppercase;letter-spacing:.3px}
+.inp{background:#1e222a;border:1px solid #2f3542;border-radius:6px;padding:8px 12px;color:#e6e8ec;font-size:14px;outline:none;width:100%}
+.inp:focus{border-color:#6c8cf5}
+.inp::placeholder{color:#565f70}
+.inp-date{color:#e6e8ec}
+.sel{background:#1e222a;border:1px solid #2f3542;border-radius:6px;padding:8px 10px;color:#e6e8ec;font-size:13px;outline:none;cursor:pointer;width:100%}
+.sel option{background:#1a1d24;color:#e6e8ec}
 .form-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.add-btn{background:#00897b;color:#fff;border:none;border-radius:6px;padding:9px 20px;font-size:14px;font-weight:600;cursor:pointer}
-.add-btn:hover{background:#00796b}
-.clear-btn{background:transparent;border:1px solid #2e4444;border-radius:6px;padding:9px 14px;font-size:13px;color:#7ab8b8;cursor:pointer}
-.clear-btn:hover{border-color:#4db6ac;color:#e0f0f0}
+.add-btn{background:#6c8cf5;color:#fff;border:none;border-radius:6px;padding:9px 20px;font-size:14px;font-weight:600;cursor:pointer}
+.add-btn:hover{background:#5776dc}
+.clear-btn{background:transparent;border:1px solid #2f3542;border-radius:6px;padding:9px 14px;font-size:13px;color:#8891a3;cursor:pointer}
+.clear-btn:hover{border-color:#6c8cf5;color:#e6e8ec}
 
 .toolbar{display:flex;gap:8px;margin-bottom:.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
-.search-inp{background:#1a2828;border:1px solid #2e4444;border-radius:6px;padding:7px 12px;color:#e0f0f0;font-size:13px;outline:none;flex:1;min-width:180px}
-.search-inp:focus{border-color:#4db6ac}
-.search-inp::placeholder{color:#446666}
+.search-inp{background:#1e222a;border:1px solid #2f3542;border-radius:6px;padding:7px 12px;color:#e6e8ec;font-size:13px;outline:none;flex:1;min-width:180px}
+.search-inp:focus{border-color:#6c8cf5}
+.search-inp::placeholder{color:#565f70}
 .sort-row{display:flex;gap:6px}
-.sort-btn{padding:4px 12px;border-radius:6px;border:1px solid #2e4444;background:#243333;color:#7ab8b8;cursor:pointer;font-size:12px;transition:all .15s}
-.sort-btn.active{background:#00897b;color:#fff;border-color:#00796b}
-.sort-btn:hover:not(.active){color:#b2dfdb;border-color:#4db6ac}
+.sort-btn{padding:4px 12px;border-radius:6px;border:1px solid #2f3542;background:#232730;color:#8891a3;cursor:pointer;font-size:12px;transition:all .15s}
+.sort-btn.active{background:#6c8cf5;color:#fff;border-color:#5776dc}
+.sort-btn:hover:not(.active){color:#b7c0d6;border-color:#6c8cf5}
 
-.bulk-bar{display:flex;align-items:center;gap:10px;background:#1a3333;border:1px solid #00897b;border-radius:10px;padding:10px 14px;margin-bottom:.75rem;flex-wrap:wrap}
+.bulk-bar{display:flex;align-items:center;gap:10px;background:#1a3333;border:1px solid #6c8cf5;border-radius:10px;padding:10px 14px;margin-bottom:.75rem;flex-wrap:wrap}
 .bulk-bar.hidden{display:none}
-.bulk-info{font-size:13px;color:#80cbc4;flex:1}
-.bulk-subtotal{font-size:13px;color:#e0f0f0;font-weight:600}
+.bulk-info{font-size:13px;color:#9aa3b8;flex:1}
+.bulk-subtotal{font-size:13px;color:#e6e8ec;font-weight:600}
 .bulk-btn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:500}
-.bulk-done-btn{background:#00897b;color:#fff}
-.bulk-done-btn:hover{background:#00796b}
-.bulk-clear-btn{background:#2e4444;color:#7ab8b8;border:1px solid #446666}
-.bulk-clear-btn:hover{color:#e0f0f0}
+.bulk-done-btn{background:#6c8cf5;color:#fff}
+.bulk-done-btn:hover{background:#5776dc}
+.bulk-clear-btn{background:#2f3542;color:#8891a3;border:1px solid #565f70}
+.bulk-clear-btn:hover{color:#e6e8ec}
 
 .alert-bar{background:#2a1a0a;border:1px solid #7a4a1a;border-radius:10px;padding:10px 14px;margin-bottom:.75rem;font-size:12px;display:none}
 .alert-bar.show{display:block}
@@ -80,24 +80,24 @@ h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex
 .stats-row{display:flex;align-items:center;gap:12px;margin-bottom:.75rem;flex-wrap:wrap}
 .stats{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .select-all-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.stat{font-size:12px;color:#7ab8b8}
-.stat span{color:#b2dfdb;font-weight:500}
-.stat.highlight span{color:#4db6ac}
+.stat{font-size:12px;color:#8891a3}
+.stat span{color:#b7c0d6;font-weight:500}
+.stat.highlight span{color:#6c8cf5}
 
 .records{display:flex;flex-direction:column;gap:6px}
-.record-item{background:#243333;border:1px solid #2e4444;border-radius:10px;padding:12px 14px;transition:border-color .15s}
-.record-item:hover{border-color:#4db6ac}
-.record-item.selected{border-color:#00897b;background:#1a3333}
+.record-item{background:#232730;border:1px solid #2f3542;border-radius:10px;padding:12px 14px;transition:border-color .15s}
+.record-item:hover{border-color:#6c8cf5}
+.record-item.selected{border-color:#6c8cf5;background:#1a3333}
 .record-item.completed-style{opacity:.6}
 .record-top{display:flex;align-items:flex-start;gap:10px}
-.record-cb{width:16px;height:16px;cursor:pointer;accent-color:#00897b;flex-shrink:0;margin-top:3px}
+.record-cb{width:16px;height:16px;cursor:pointer;accent-color:#6c8cf5;flex-shrink:0;margin-top:3px}
 .record-main{flex:1;min-width:0}
-.record-date{font-size:11px;color:#4db6ac;margin-bottom:2px}
-.record-patient{font-size:15px;font-weight:600;color:#e0f0f0;margin-bottom:4px}
+.record-date{font-size:11px;color:#6c8cf5;margin-bottom:2px}
+.record-patient{font-size:15px;font-weight:600;color:#e6e8ec;margin-bottom:4px}
 .record-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
-.tag{font-size:11px;padding:2px 8px;border-radius:12px;background:#2e4444;color:#80cbc4}
+.tag{font-size:11px;padding:2px 8px;border-radius:12px;background:#2f3542;color:#9aa3b8}
 .tag.green{background:#1a3a2a;color:#4ade80}
-.tag.blue{background:#1a2a3a;color:#4db6ac}
+.tag.blue{background:#1a2a3a;color:#6c8cf5}
 .tag.purple{background:#2a1a3a;color:#c084fc}
 .tag.red{background:#3a1a1a;color:#f87171}
 .tag.yellow{background:#2a2a0a;color:#fbbf24}
@@ -106,19 +106,19 @@ h1{font-size:24px;font-weight:700;color:#e0f0f0;margin-bottom:.5rem;display:flex
 .credit-due.overdue{background:#3a1a1a;color:#f87171}
 .credit-due.soon{background:#2a1a0a;color:#f97316}
 .credit-due.ok{background:#1a3a2a;color:#6ee7b7}
-.record-notes{font-size:12px;color:#b2dfdb;margin-top:4px;border-left:2px solid #2e4444;padding-left:8px}
+.record-notes{font-size:12px;color:#b7c0d6;margin-top:4px;border-left:2px solid #2f3542;padding-left:8px}
 .record-actions{display:flex;gap:5px;flex-shrink:0}
-.icon-btn{background:#2e4444;border:1px solid #3a5555;border-radius:6px;padding:6px 8px;color:#80cbc4;cursor:pointer;font-size:14px;line-height:1;transition:all .15s}
-.icon-btn:hover{background:#3a5555;color:#e0f0f0}
+.icon-btn{background:#2f3542;border:1px solid #3a4152;border-radius:6px;padding:6px 8px;color:#9aa3b8;cursor:pointer;font-size:14px;line-height:1;transition:all .15s;display:inline-flex;align-items:center;justify-content:center}
+.icon-btn:hover{background:#3a4152;color:#e6e8ec}
 .icon-btn.del:hover{background:#3a1a1a;border-color:#7a1e1e;color:#e74c3c}
-.empty{text-align:center;padding:3rem;color:#446666;font-size:14px}
+.empty{text-align:center;padding:3rem;color:#565f70;font-size:14px}
 
-.edit-panel{background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:14px;margin-top:10px}
+.edit-panel{background:#1e222a;border:1px solid #2f3542;border-radius:8px;padding:14px;margin-top:10px}
 .edit-panel .form-grid{margin-bottom:10px}
-.save-btn{background:#00897b;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer}
-.save-btn:hover{background:#00796b}
-.cancel-btn{background:transparent;border:1px solid #2e4444;border-radius:6px;padding:7px 14px;font-size:13px;color:#7ab8b8;cursor:pointer}
-.cancel-btn:hover{border-color:#4db6ac}
+.save-btn{background:#6c8cf5;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer}
+.save-btn:hover{background:#5776dc}
+.cancel-btn{background:transparent;border:1px solid #2f3542;border-radius:6px;padding:7px 14px;font-size:13px;color:#8891a3;cursor:pointer}
+.cancel-btn:hover{border-color:#6c8cf5}
 
 input[type=date]{color-scheme:dark}
 @media(max-width:600px){.form-grid{grid-template-columns:1fr 1fr}}
@@ -126,86 +126,86 @@ input[type=date]{color-scheme:dark}
 /* ── Τιμοκατάλογος Tab ── */
 .cat-tab.active.pricelist{background:#3a1f00;border-color:#f59e0b;color:#fcd34d}
 .pl-search-wrap{display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
-.pl-search-inp{background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:10px 16px;color:#e0f0f0;font-size:15px;outline:none;flex:1;min-width:220px}
+.pl-search-inp{background:#1e222a;border:1px solid #2f3542;border-radius:8px;padding:10px 16px;color:#e6e8ec;font-size:15px;outline:none;flex:1;min-width:220px}
 .pl-search-inp:focus{border-color:#f59e0b;box-shadow:0 0 0 2px rgba(245,158,11,.15)}
-.pl-search-inp::placeholder{color:#446666}
+.pl-search-inp::placeholder{color:#565f70}
 .pl-filter-row{display:flex;gap:6px;flex-wrap:wrap}
-.pl-filter-btn{padding:6px 14px;border-radius:6px;border:1px solid #2e4444;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.pl-filter-btn{padding:6px 14px;border-radius:6px;border:1px solid #2f3542;background:#1e222a;color:#8891a3;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
 .pl-filter-btn.active{background:#3a1f00;border-color:#f59e0b;color:#fcd34d}
-.pl-filter-btn:hover:not(.active){background:#243333;color:#e0f0f0}
-.pl-result{background:#243333;border:1px solid #2e4444;border-radius:10px;padding:14px 16px;margin-bottom:8px;transition:border-color .15s}
-.pl-result:hover{border-color:#4db6ac}
+.pl-filter-btn:hover:not(.active){background:#232730;color:#e6e8ec}
+.pl-result{background:#232730;border:1px solid #2f3542;border-radius:10px;padding:14px 16px;margin-bottom:8px;transition:border-color .15s}
+.pl-result:hover{border-color:#6c8cf5}
 .pl-result-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
 .pl-ref{font-size:15px;color:#f59e0b;font-weight:700;letter-spacing:.5px;font-family:monospace}
 .pl-supplier-tag{font-size:13px;padding:3px 10px;border-radius:10px;font-weight:600}
 .pl-supplier-tag.boston{background:#14532d;color:#4ade80}
 .pl-supplier-tag.medtronic{background:#1e3a5f;color:#60a5fa}
-.pl-desc{font-size:14px;color:#e0f0f0;font-weight:500;margin-bottom:10px}
+.pl-desc{font-size:14px;color:#e6e8ec;font-weight:500;margin-bottom:10px}
 .pl-prices{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
-.pl-price-box{background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:8px 14px;text-align:center;min-width:130px}
+.pl-price-box{background:#1e222a;border:1px solid #2f3542;border-radius:8px;padding:8px 14px;text-align:center;min-width:130px}
 .pl-price-box.primary{border-color:#f59e0b;background:#2a1a00}
-.pl-price-label{font-size:10px;color:#7ab8b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.pl-price-label{font-size:10px;color:#8891a3;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
 .pl-price-val{font-size:17px;font-weight:700;color:#fcd34d}
-.pl-price-val.secondary{color:#b2dfdb;font-size:15px}
+.pl-price-val.secondary{color:#b7c0d6;font-size:15px}
 .pl-price-val.free{color:#4ade80;font-size:14px}
-.pl-cat-badge{font-size:12px;padding:3px 9px;border-radius:8px;background:#2e4444;color:#80cbc4;margin-top:0;display:inline-block}
-.pl-bundle{background:#1a2828;border:1px solid #2e3d3d;border-radius:8px;padding:10px 14px;margin-top:8px}
+.pl-cat-badge{font-size:12px;padding:3px 9px;border-radius:8px;background:#2f3542;color:#9aa3b8;margin-top:0;display:inline-block}
+.pl-bundle{background:#1e222a;border:1px solid #2e3d3d;border-radius:8px;padding:10px 14px;margin-top:8px}
 .pl-bundle-title{font-size:11px;color:#f59e0b;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
 .pl-bundle-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #2e3d3d;font-size:12px;gap:8px}
 .pl-bundle-row:last-child{border-bottom:none}
-.pl-bundle-code{color:#7ab8b8;font-family:monospace;font-size:11px;flex-shrink:0}
-.pl-bundle-desc{color:#b2dfdb;flex:1}
-.pl-bundle-qty{color:#80cbc4;flex-shrink:0}
+.pl-bundle-code{color:#8891a3;font-family:monospace;font-size:11px;flex-shrink:0}
+.pl-bundle-desc{color:#b7c0d6;flex:1}
+.pl-bundle-qty{color:#9aa3b8;flex-shrink:0}
 .pl-bundle-price{font-weight:600;flex-shrink:0}
 .pl-bundle-price.free{color:#4ade80}
 .pl-bundle-price.normal{color:#fcd34d}
 .pl-bundle-total{display:flex;justify-content:flex-end;margin-top:6px;padding-top:6px;border-top:1px solid #f59e0b33}
 .pl-bundle-total-val{font-size:13px;font-weight:700;color:#fcd34d}
-.pl-empty{text-align:center;padding:3rem;color:#446666;font-size:14px}
+.pl-empty{text-align:center;padding:3rem;color:#565f70;font-size:14px}
 .pl-implant-toggle{display:flex;gap:6px;margin-bottom:10px}
-.pl-implant-btn{padding:6px 16px;border-radius:6px;border:1px solid #2e4444;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.pl-implant-btn{padding:6px 16px;border-radius:6px;border:1px solid #2f3542;background:#1e222a;color:#8891a3;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
 .pl-implant-btn.active{background:#1a3a2a;border-color:#4ade80;color:#4ade80}
-.pl-implant-btn:hover:not(.active){background:#243333;color:#e0f0f0}
-.pl-hint{font-size:12px;color:#446666;margin-bottom:1rem}
+.pl-implant-btn:hover:not(.active){background:#232730;color:#e6e8ec}
+.pl-hint{font-size:12px;color:#565f70;margin-bottom:1rem}
 
 .done-dropdown{position:relative;display:inline-block}
-.done-dropdown-btn{padding:7px 16px;border-radius:6px;border:2px solid transparent;background:#1a2828;color:#7ab8b8;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.done-dropdown-btn{padding:7px 16px;border-radius:6px;border:2px solid transparent;background:#1e222a;color:#8891a3;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
 .done-dropdown-btn.active{background:#302000;border-color:#f59e0b;color:#fcd34d}
-.done-dropdown-btn:hover{background:#243333;color:#b2dfdb;border-color:#4db6ac}
-.done-dropdown-menu{position:absolute;top:110%;left:0;background:#243333;border:1px solid #2e4444;border-radius:8px;padding:4px;z-index:100;min-width:160px;display:none;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.6)}
+.done-dropdown-btn:hover{background:#232730;color:#b7c0d6;border-color:#6c8cf5}
+.done-dropdown-menu{position:absolute;top:110%;left:0;background:#232730;border:1px solid #2f3542;border-radius:8px;padding:4px;z-index:100;min-width:160px;display:none;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.6)}
 .done-dropdown-menu.open{display:flex}
-.done-menu-item{padding:8px 12px;border-radius:6px;border:none;background:transparent;color:#7ab8b8;cursor:pointer;font-size:13px;text-align:left;transition:all .15s}
-.done-menu-item:hover{background:#2e4444;color:#e0f0f0}
+.done-menu-item{padding:8px 12px;border-radius:6px;border:none;background:transparent;color:#8891a3;cursor:pointer;font-size:13px;text-align:left;transition:all .15s}
+.done-menu-item:hover{background:#2f3542;color:#e6e8ec}
 .done-menu-item.active{background:#302000;border:1px solid #f59e0b;color:#fcd34d}
 
 /* ── Smart Date Filter (Y/M/W/D + custom calendar) ── */
-.df-wrap{position:relative;display:flex;align-items:center;gap:2px;background:#1a2828;border:1px solid #2e4444;border-radius:8px;padding:4px 6px;flex-shrink:0}
-.df-mode-btn{background:transparent;border:1px solid #2e4444;border-radius:5px;color:#7ab8b8;cursor:pointer;font-size:12px;font-weight:800;padding:3px 0;transition:all .12s;width:26px;flex-shrink:0;text-align:center}
-.df-mode-btn.active{background:#00897b;border-color:#00796b;color:#fff}
-.df-mode-btn:hover:not(.active){background:#2e4444;color:#e0f0f0}
-.df-arrow{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;line-height:1}
-.df-arrow:hover{background:#2e4444;color:#e0f0f0}
+.df-wrap{position:relative;display:flex;align-items:center;gap:2px;background:#1e222a;border:1px solid #2f3542;border-radius:8px;padding:4px 6px;flex-shrink:0}
+.df-mode-btn{background:transparent;border:1px solid #2f3542;border-radius:5px;color:#8891a3;cursor:pointer;font-size:12px;font-weight:800;padding:3px 0;transition:all .12s;width:26px;flex-shrink:0;text-align:center}
+.df-mode-btn.active{background:#6c8cf5;border-color:#5776dc;color:#fff}
+.df-mode-btn:hover:not(.active){background:#2f3542;color:#e6e8ec}
+.df-arrow{background:transparent;border:none;color:#8891a3;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;line-height:1}
+.df-arrow:hover{background:#2f3542;color:#e6e8ec}
 .df-arrow:disabled{opacity:.25;cursor:default}
 .df-arrow:disabled:hover{background:transparent}
-.df-label{font-size:12px;color:#e0f0f0;font-weight:600;min-width:150px;text-align:center;white-space:nowrap;padding:2px 4px}
-.df-calbtn{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px}
-.df-calbtn:hover{background:#2e4444;color:#e0f0f0}
-.df-calbtn.open{background:#00897b;color:#fff}
-.df-clear{background:transparent;border:none;color:#446666;cursor:pointer;font-size:13px;padding:2px 4px;width:20px;flex-shrink:0}
+.df-label{font-size:12px;color:#e6e8ec;font-weight:600;min-width:150px;text-align:center;white-space:nowrap;padding:2px 4px}
+.df-calbtn{background:transparent;border:none;color:#8891a3;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px}
+.df-calbtn:hover{background:#2f3542;color:#e6e8ec}
+.df-calbtn.open{background:#6c8cf5;color:#fff}
+.df-clear{background:transparent;border:none;color:#565f70;cursor:pointer;font-size:13px;padding:2px 4px;width:20px;flex-shrink:0}
 .df-clear:hover{color:#e74c3c}
-.df-popup{position:absolute;top:calc(100% + 6px);left:0;background:#1a2828;border:1px solid #2e4444;border-radius:10px;padding:12px;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.6);width:260px}
+.df-popup{position:absolute;top:calc(100% + 6px);left:0;background:#1e222a;border:1px solid #2f3542;border-radius:10px;padding:12px;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.6);width:260px}
 .df-popup-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.df-popup-navbtn{background:transparent;border:none;color:#7ab8b8;cursor:pointer;font-size:14px;padding:2px 8px;border-radius:4px}
-.df-popup-navbtn:hover{background:#2e4444;color:#e0f0f0}
-.df-popup-title{font-size:13px;font-weight:700;color:#e0f0f0}
+.df-popup-navbtn{background:transparent;border:none;color:#8891a3;cursor:pointer;font-size:14px;padding:2px 8px;border-radius:4px}
+.df-popup-navbtn:hover{background:#2f3542;color:#e6e8ec}
+.df-popup-title{font-size:13px;font-weight:700;color:#e6e8ec}
 .df-popup-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
-.df-popup-dow{font-size:11px;color:#7ab8b8;font-weight:700;padding:4px 0}
-.df-popup-day{font-size:12px;color:#e0f0f0;padding:6px 0;border-radius:6px;cursor:pointer;background:transparent}
-.df-popup-day:hover{background:#2e4444}
+.df-popup-dow{font-size:11px;color:#8891a3;font-weight:700;padding:4px 0}
+.df-popup-day{font-size:12px;color:#e6e8ec;padding:6px 0;border-radius:6px;cursor:pointer;background:transparent}
+.df-popup-day:hover{background:#2f3542}
 .df-popup-day.other{color:#3a4a4a}
 .df-popup-day.today{color:#f59e0b;font-weight:700}
-.df-popup-day.selected{background:#00897b;color:#fff;font-weight:700}
-.df-popup-day.in-range{background:#00897b40}
+.df-popup-day.selected{background:#6c8cf5;color:#fff;font-weight:700}
+.df-popup-day.in-range{background:#6c8cf540}
 
 /* ── Collapsible add-panel για κινητό ── */
 @media(max-width:640px){
@@ -245,19 +245,19 @@ input[type=date]{color-scheme:dark}
   <div id="add-section"></div>
   <div class="alert-bar" id="alert-bar"></div>
   <div class="toolbar">
-    <input class="search-inp" id="search-inp" type="text" placeholder="🔍 Αναζήτηση ασθενή, νοσηλεία..." oninput="render()"/>
+    <input class="search-inp" id="search-inp" type="text" placeholder="Αναζήτηση ασθενή, νοσηλεία..." oninput="render()"/>
     <div id="df-container"></div>
     <input type="hidden" id="filter-from"/>
     <input type="hidden" id="filter-to"/>
     <div class="sort-row">
-      <button class="sort-btn active" id="sort-date">📅 Ημερομηνία</button>
+      <button class="sort-btn active" id="sort-date">Ημερομηνία</button>
       <button class="sort-btn" id="sort-az">🔤 Α-Ω</button>
     </div>
   </div>
   <div class="bulk-bar hidden" id="bulk-bar">
     <span class="bulk-info" id="bulk-info"></span>
     <span class="bulk-subtotal" id="bulk-subtotal"></span>
-    <button class="bulk-btn bulk-done-btn" onclick="markSelectedDone()">✅ Ολοκλήρωση επιλεγμένων</button>
+    <button class="bulk-btn bulk-done-btn" onclick="markSelectedDone()">Ολοκλήρωση επιλεγμένων</button>
     <button class="bulk-btn bulk-clear-btn" onclick="clearSelection()">✕ Αποεπιλογή</button>
   </div>
   <div class="stats-row">
@@ -291,6 +291,27 @@ async function supaSet(data){
 }
 
 function pad(n){return String(n).padStart(2,'0');}
+// ── Line icons (μονόχρωμα SVG, αντικαθιστούν τα emoji) ──
+const ICONS={
+  calendar:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><line x1="16" y1="2.5" x2="16" y2="6.5"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="3" y1="9.5" x2="21" y2="9.5"/></svg>',
+  hospital:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v15"/><line x1="2" y1="21" x2="22" y2="21"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="8" y1="17" x2="16" y2="17"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+  document:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  euro:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 5.5a6 6 0 1 0 0 13"/><line x1="3" y1="10" x2="14" y2="10"/><line x1="3" y1="14" x2="12" y2="14"/></svg>',
+  refresh:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.5 9A9 9 0 0 0 4.9 5.6L1 10m22 4-3.9 4.4A9 9 0 0 1 3.5 15"/></svg>',
+  warning:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>',
+  check:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  undo:'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></svg>',
+  search:'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  stethoscope:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.5v6a4.7 4.7 0 0 0 9.4 0v-6"/><path d="M9.5 15.5v2a5 5 0 0 0 10 0v-2.3"/><circle cx="19.5" cy="14.5" r="1.7"/><line x1="4.8" y1="2.5" x2="4.8" y2="2.5"/></svg>',
+  bolt:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+  file:'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>',
+  info:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="16" x2="12" y2="11.5"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+};
+function ic(name){return '<span style="display:inline-flex;vertical-align:-2px;margin-right:4px">'+(ICONS[name]||'')+'</span>';}
 function fmtDate(d){if(!d)return '';const[y,m,dd]=d.split('-');return dd+'/'+m+'/'+y;}
 function today(){const n=new Date();return n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate());}
 function addMonths(dateStr,months){const d=new Date(dateStr);d.setMonth(d.getMonth()+months);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
@@ -338,7 +359,7 @@ function loadLocal(){
 }
 
 const CATS={
-  tavi:{label:'TAVI',icon:'🫀',hasAmount:false,fields:[
+  tavi:{label:'TAVI',hasAmount:false,fields:[
     {id:'date',label:'Ημερομηνία',type:'date',required:true},
     {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
     {id:'patient',label:'Ασθενής',type:'text',required:true},
@@ -348,7 +369,7 @@ const CATS={
     {id:'company',label:'Εταιρεία',type:'select',options:['Medtronic','Edwards','Flexmed','Abbott','Άλλο']},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]},
-  boston:{label:'Boston ΗΦΕ',icon:'⚡',hasAmount:true,hasCredit:true,fields:[
+  boston:{label:'Boston ΗΦΕ',hasAmount:true,hasCredit:true,fields:[
     {id:'date',label:'Ημερομηνία',type:'date',required:true},
     {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
     {id:'patient',label:'Ασθενής',type:'text',required:true},
@@ -358,7 +379,7 @@ const CATS={
     {id:'credit',label:'Πιστωτικό 30% (€)',type:'number',placeholder:'Αυτόματος υπολογισμός',readonly:true},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]},
-  clip:{label:'Clip Abbott',icon:'🩺',hasAmount:true,fields:[
+  clip:{label:'Clip Abbott',hasAmount:true,fields:[
     {id:'date',label:'Ημερομηνία',type:'date',required:true},
     {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
     {id:'patient',label:'Ασθενής',type:'text',required:true},
@@ -483,7 +504,7 @@ function renderAddSection(){
   const panel=document.createElement('div');panel.className='add-panel';
   const h3=document.createElement('h3');
   h3.style.cssText='cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none';
-  h3.innerHTML='<span style="display:inline-block;width:14px;text-align:center;color:#4db6ac;font-weight:800">'+(state.addPanelOpen?'−':'+')+'</span>Νέα Εγγραφή — '+cat.label;
+  h3.innerHTML='<span style="display:inline-block;width:14px;text-align:center;color:#6c8cf5;font-weight:800">'+(state.addPanelOpen?'−':'+')+'</span>Νέα Εγγραφή — '+cat.label;
   h3.onclick=()=>{state.addPanelOpen=!state.addPanelOpen;renderAddSection();};
   panel.appendChild(h3);
   if(state.addPanelOpen){
@@ -548,7 +569,7 @@ function renderAlertBar(){
     const next=10-(total%10);
     if(total>0){
       bar.className='alert-bar show';
-      let html='<strong style="font-size:12px;color:#f43f5e;display:block;margin-bottom:6px">🩺 Clip Abbott — Πρόγραμμα Δωρεάν</strong>';
+      let html='<strong style="font-size:12px;color:#f43f5e;display:flex;align-items:center;gap:5px;margin-bottom:6px">'+ICONS.stethoscope+'Clip Abbott — Πρόγραμμα Δωρεάν</strong>';
       html+='<div class="alert-item"><div class="alert-dot" style="background:#f43f5e"></div><span style="color:#fecdd3">Συνολικά clips: <strong>'+total+'</strong>';
       if(free>0) html+=' | Δωρεάν clips: <strong style="color:#4ade80">'+free+'</strong>';
       html+=' | Επόμενο δωρεάν σε: <strong>'+next+'</strong> clips</span></div>';
@@ -562,7 +583,7 @@ function renderAlertBar(){
   const soon=recs.filter(r=>r.date&&daysDiff(addMonths(r.date,3))>=0&&daysDiff(addMonths(r.date,3))<=30);
   if(!overdue.length&&!soon.length){bar.className='alert-bar';return;}
   bar.className='alert-bar show';
-  let html='<strong style="font-size:12px;color:#f97316;display:block;margin-bottom:6px">⚠️ Πιστωτικά Boston ΗΦΕ</strong>';
+  let html='<strong style="font-size:12px;color:#f97316;display:flex;align-items:center;gap:5px;margin-bottom:6px">'+ICONS.warning+'Πιστωτικά Boston ΗΦΕ</strong>';
   if(overdue.length) html+='<div class="alert-item"><div class="alert-dot red"></div><span style="color:#f87171">Ληξιπρόθεσμα (>3 μήνες): <strong>'+overdue.length+'</strong> — '+overdue.map(r=>r.patient).join(', ')+'</span></div>';
   if(soon.length) html+='<div class="alert-item"><div class="alert-dot orange"></div><span style="color:#f97316">Λήγουν σύντομα (εντός 30 ημ.): <strong>'+soon.length+'</strong> — '+soon.map(r=>r.patient).join(', ')+'</span></div>';
   bar.innerHTML=html;
@@ -579,11 +600,11 @@ function renderStats(){
     const companies=['Medtronic','Edwards','Flexmed','Abbott','Άλλο'];
     const counts={};
     all.forEach(r=>{const c=r.company||'Άλλο';counts[c]=(counts[c]||0)+1;});
-    const colors={'Medtronic':'#4db6ac','Edwards':'#4ade80','Flexmed':'#f97316','Abbott':'#c084fc','Άλλο':'#7ab8b8'};
+    const colors={'Medtronic':'#6c8cf5','Edwards':'#4ade80','Flexmed':'#f97316','Abbott':'#c084fc','Άλλο':'#8891a3'};
     companies.forEach(c=>{
       if(counts[c]){
-        html+=`<div class="stat" style="cursor:pointer;padding:2px 8px;border-radius:6px;border:1px solid ${state.taviFilter===c?colors[c]:'#2e4444'};background:${state.taviFilter===c?'#1a2828':'transparent'}" onclick="state.taviFilter=(state.taviFilter==='${c}'?null:'${c}');renderStats();renderBulkBar();renderRecords();updateSelectAllCb();">`+
-        `<span style="color:${colors[c]};font-weight:600">${c}</span><span style="color:#7ab8b8;margin-left:4px">${counts[c]}</span></div>`;
+        html+=`<div class="stat" style="cursor:pointer;padding:2px 8px;border-radius:6px;border:1px solid ${state.taviFilter===c?colors[c]:'#2f3542'};background:${state.taviFilter===c?'#1e222a':'transparent'}" onclick="state.taviFilter=(state.taviFilter==='${c}'?null:'${c}');renderStats();renderBulkBar();renderRecords();updateSelectAllCb();">`+
+        `<span style="color:${colors[c]};font-weight:600">${c}</span><span style="color:#8891a3;margin-left:4px">${counts[c]}</span></div>`;
       }
     });
     if(state.taviFilter) html+=`<div class="stat" style="cursor:pointer;color:#e74c3c;font-size:11px" onclick="state.taviFilter=null;renderStats();renderBulkBar();renderRecords();updateSelectAllCb();">✕ Καθαρισμός</div>`;
@@ -628,7 +649,7 @@ function renderSort(){
   sd.classList.toggle('active',state.sort==='date'||state.sort==='date_asc');
   sa.classList.toggle('active',state.sort==='az');
   const arr=(state.sort==='date'||state.sort==='date_asc')?(state.sort==='date'?' ↓':' ↑'):'';
-  sd.textContent='📅 Ημερομηνία'+arr;
+  sd.innerHTML=ic('calendar')+'Ημερομηνία'+arr;
   sa.textContent='🔤 Α-Ω';
   sd.onclick=()=>{
     if(state.sort==='date') state.sort='date_asc';
@@ -695,14 +716,14 @@ function renderRecords(){
     if(state.viewDone) cb.style.display='none';
 
     const main=document.createElement('div');main.className='record-main';
-    const dateEl=document.createElement('div');dateEl.className='record-date';dateEl.textContent='📅 '+fmtDate(rec.date);main.appendChild(dateEl);
+    const dateEl=document.createElement('div');dateEl.className='record-date';dateEl.innerHTML=ic('calendar')+fmtDate(rec.date);main.appendChild(dateEl);
     const patEl=document.createElement('div');patEl.className='record-patient';patEl.textContent=rec.patient||'—';main.appendChild(patEl);
 
     const tags=document.createElement('div');tags.className='record-tags';
-    if(rec.nosileia){const t=document.createElement('span');t.className='tag blue';t.textContent='🏥 '+rec.nosileia;tags.appendChild(t);}
+    if(rec.nosileia){const t=document.createElement('span');t.className='tag blue';t.innerHTML=ic('hospital')+rec.nosileia;tags.appendChild(t);}
 
     if(state.cat==='tavi'){
-      if(rec.valve){const t=document.createElement('span');t.className='tag purple';t.textContent='🫀 '+rec.valve;tags.appendChild(t);}
+      if(rec.valve){const t=document.createElement('span');t.className='tag purple';t.innerHTML=ic('heart')+rec.valve;tags.appendChild(t);}
       if(rec.company){
         const t=document.createElement('span');
         const cmap={'Medtronic':'tag blue','Edwards':'tag green','Flexmed':'tag orange','Abbott':'tag purple'};
@@ -710,43 +731,43 @@ function renderRecords(){
         t.textContent=rec.company;
         tags.appendChild(t);
       }
-      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.textContent='📄 '+rec.invoice_no;tags.appendChild(t);}
+      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.innerHTML=ic('document')+rec.invoice_no;tags.appendChild(t);}
 
     }
     if(state.cat==='boston'){
       if(rec.inout){const t=document.createElement('span');t.className='tag '+(rec.inout==='Πακέτο'?'green':'yellow');t.textContent=rec.inout;tags.appendChild(t);}
-      if(rec.therapy){const t=document.createElement('span');t.className='tag purple';t.textContent='⚡ '+rec.therapy;tags.appendChild(t);}
-      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
-      if(rec.credit&&parseFloat(rec.credit)>0){const t=document.createElement('span');t.className='tag orange';t.textContent='🔄 '+parseFloat(rec.credit).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+      if(rec.therapy){const t=document.createElement('span');t.className='tag purple';t.innerHTML=ic('bolt')+rec.therapy;tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.innerHTML=ic('euro')+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+      if(rec.credit&&parseFloat(rec.credit)>0){const t=document.createElement('span');t.className='tag orange';t.innerHTML=ic('refresh')+parseFloat(rec.credit).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
 
       // Credit due date
       if(rec.date&&!state.viewDone){
         const dueDate=addMonths(rec.date,3);const diff=daysDiff(dueDate);
         const cd=document.createElement('div');
-        if(diff<0){cd.className='credit-due overdue';cd.textContent='⚠️ Πιστωτικό ληξιπρόθεσμο ('+fmtDate(dueDate)+')';}
-        else if(diff<=30){cd.className='credit-due soon';cd.textContent='⏰ Πιστωτικό έως '+fmtDate(dueDate)+' ('+diff+' ημ.)';}
-        else{cd.className='credit-due ok';cd.textContent='📋 Πιστωτικό έως '+fmtDate(dueDate);}
+        if(diff<0){cd.className='credit-due overdue';cd.innerHTML=ic('warning')+'Πιστωτικό ληξιπρόθεσμο ('+fmtDate(dueDate)+')';}
+        else if(diff<=30){cd.className='credit-due soon';cd.innerHTML=ic('clock')+'Πιστωτικό έως '+fmtDate(dueDate)+' ('+diff+' ημ.)';}
+        else{cd.className='credit-due ok';cd.innerHTML=ic('file')+'Πιστωτικό έως '+fmtDate(dueDate);}
         main.appendChild(cd);
       }
     }
     if(state.cat==='evar'){
-      if(rec.amount){const t=document.createElement('span');t.className='tag purple';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag purple';t.innerHTML=ic('euro')+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
     }
     if(state.cat==='clip'){
-      if(rec.clip_type){const t=document.createElement('span');t.className='tag '+(rec.clip_type==='MitraClip'?'red':'orange');t.textContent='🩺 '+rec.clip_type;tags.appendChild(t);}
-      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.textContent='📄 '+rec.invoice_no;tags.appendChild(t);}
-      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.textContent='💶 '+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
+      if(rec.clip_type){const t=document.createElement('span');t.className='tag '+(rec.clip_type==='MitraClip'?'red':'orange');t.innerHTML=ic('stethoscope')+rec.clip_type;tags.appendChild(t);}
+      if(rec.invoice_no){const t=document.createElement('span');t.className='tag green';t.innerHTML=ic('document')+rec.invoice_no;tags.appendChild(t);}
+      if(rec.amount){const t=document.createElement('span');t.className='tag blue';t.innerHTML=ic('euro')+parseFloat(rec.amount).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';tags.appendChild(t);}
     }
     main.appendChild(tags);
 
     if(rec.notes&&state.editingId!==rec.id){const n=document.createElement('div');n.className='record-notes';n.textContent=rec.notes;main.appendChild(n);}
-    if(state.viewDone&&rec.completedAt){const c=document.createElement('div');c.style.cssText='font-size:11px;color:#4ade80;margin-top:4px';c.textContent='✅ Ολοκληρώθηκε: '+fmtDate(rec.completedAt);main.appendChild(c);}
+    if(state.viewDone&&rec.completedAt){const c=document.createElement('div');c.style.cssText='font-size:11px;color:#4ade80;margin-top:4px';c.innerHTML=ic('check')+'Ολοκληρώθηκε: '+fmtDate(rec.completedAt);main.appendChild(c);}
 
     const actions=document.createElement('div');actions.className='record-actions';
     const editBtn=document.createElement('button');editBtn.className='icon-btn'+(state.editingId===rec.id?' active':'');
-    editBtn.title='Επεξεργασία';editBtn.textContent='✏️';
+    editBtn.title='Επεξεργασία';editBtn.innerHTML=ICONS.edit;
     editBtn.onclick=()=>{state.editingId=state.editingId===rec.id?null:rec.id;render();};
-    const delBtn=document.createElement('button');delBtn.className='icon-btn del';delBtn.title='Διαγραφή';delBtn.textContent='🗑';
+    const delBtn=document.createElement('button');delBtn.className='icon-btn del';delBtn.title='Διαγραφή';delBtn.innerHTML=ICONS.trash;
     delBtn.onclick=()=>{
       if(!confirm('Διαγραφή "'+rec.patient+'"?'))return;
       const key=getKey();const all=state[key];const i=all.findIndex(r=>r.id===rec.id);if(i>-1)all.splice(i,1);
@@ -756,7 +777,7 @@ function renderRecords(){
     if(state.viewDone){
       const restoreBtn=document.createElement('button');
       restoreBtn.className='icon-btn';restoreBtn.title='Επαναφορά στις ενεργές';
-      restoreBtn.textContent='↩️';
+      restoreBtn.innerHTML=ICONS.undo;
       restoreBtn.style.cssText='background:#1a2a3a;border-color:#1e4d7a;color:#4a9eff';
       restoreBtn.onclick=()=>{
         const doneKey=state.cat+'_done';
@@ -811,7 +832,7 @@ let plState={query:'',supplier:'all',category:'all',implantType:'initial',bundle
 let plCache=[];
 
 const CAT_LABELS={pacemaker:'Βηματοδότης',icd:'Απινιδωτής',ablation:'Ablation',lead:'Ηλεκτρόδιο/Υλικό',other:'Άλλο'};
-const CAT_COLORS={pacemaker:'#60a5fa',icd:'#f87171',ablation:'#c084fc',lead:'#4ade80',other:'#7ab8b8'};
+const CAT_COLORS={pacemaker:'#60a5fa',icd:'#f87171',ablation:'#c084fc',lead:'#4ade80',other:'#8891a3'};
 
 async function plFetch(q){
   q=q.trim();
@@ -862,13 +883,13 @@ function renderPlResults(data){
     const ref=document.createElement('div');ref.className='pl-ref';ref.textContent=item.ref_code||'—';
     const badge=document.createElement('span');
     badge.className='pl-cat-badge';
-    badge.style.color=CAT_COLORS[item.category]||'#7ab8b8';
+    badge.style.color=CAT_COLORS[item.category]||'#8891a3';
     badge.textContent=CAT_LABELS[item.category]||item.category;
     const supTag=document.createElement('span');
     supTag.className='pl-supplier-tag '+(item.supplier==='Boston'?'boston':'medtronic');
     supTag.textContent=item.supplier;
     left.appendChild(ref);left.appendChild(badge);left.appendChild(supTag);
-    if(item.pt_code){const ptc=document.createElement('span');ptc.style.cssText='font-size:11px;color:#7ab8b8;background:#1a2828;border:1px solid #2e4444;border-radius:6px;padding:2px 8px';ptc.textContent='ΚΩΔ.ΠΤ: '+item.pt_code;left.appendChild(ptc);}
+    if(item.pt_code){const ptc=document.createElement('span');ptc.style.cssText='font-size:11px;color:#8891a3;background:#1e222a;border:1px solid #2f3542;border-radius:6px;padding:2px 8px';ptc.textContent='ΚΩΔ.ΠΤ: '+item.pt_code;left.appendChild(ptc);}
     if(item.pt_price){const ptp=document.createElement('span');ptp.style.cssText='font-size:11px;color:#fbbf24;background:#2a2a0a;border:1px solid #3a3a0a;border-radius:6px;padding:2px 8px';ptp.textContent='ΤΙΜΗ ΠΤ: '+parseFloat(item.pt_price).toLocaleString('el-GR',{minimumFractionDigits:2})+'€';left.appendChild(ptp);}
     hdr.appendChild(left);
     div.appendChild(hdr);
@@ -995,7 +1016,7 @@ function renderPlResults(data){
             priceWrap.innerHTML=
               '<span style="color:#60a5fa;font-size:10px;margin-right:2px">'+(b.label_main||'A')+':</span>'+
               '<span style="color:#fcd34d;font-weight:700">'+fmtPrice(priceA)+'</span>'+
-              '<span style="color:#7ab8b8;margin:0 4px">|</span>'+
+              '<span style="color:#8891a3;margin:0 4px">|</span>'+
               '<span style="color:#c084fc;font-size:10px;margin-right:2px">'+(b.label_alt||'P')+':</span>'+
               '<span style="color:#fcd34d;font-weight:700">'+fmtPrice(priceP)+'</span>';
           } else {
@@ -1012,8 +1033,8 @@ function renderPlResults(data){
         if(hasDual){
           const totalWrap=document.createElement('div');totalWrap.style.cssText='display:flex;justify-content:flex-end;gap:16px;margin-top:6px;padding-top:6px;border-top:1px solid #f59e0b33;flex-wrap:wrap';
           totalWrap.innerHTML=
-            '<span style="font-size:12px;color:#7ab8b8">Σύνολο <span style="color:#60a5fa">Active</span>: <strong style="color:#fcd34d">'+fmtPrice(totalActive)+'</strong></span>'+
-            '<span style="font-size:12px;color:#7ab8b8">Σύνολο <span style="color:#c084fc">Passive</span>: <strong style="color:#fcd34d">'+fmtPrice(totalPassive)+'</strong></span>';
+            '<span style="font-size:12px;color:#8891a3">Σύνολο <span style="color:#60a5fa">Active</span>: <strong style="color:#fcd34d">'+fmtPrice(totalActive)+'</strong></span>'+
+            '<span style="font-size:12px;color:#8891a3">Σύνολο <span style="color:#c084fc">Passive</span>: <strong style="color:#fcd34d">'+fmtPrice(totalPassive)+'</strong></span>';
           bDiv.appendChild(totalWrap);
         } else {
           if(item.ref_code==='AFR-00001'){
@@ -1023,7 +1044,7 @@ function renderPlResults(data){
             bDiv.appendChild(focNote);
           }
           const totalRow=document.createElement('div');totalRow.className='pl-bundle-total';
-          totalRow.innerHTML='<span style="font-size:12px;color:#7ab8b8;margin-right:8px">Σύνολο πακέτου:</span><span class="pl-bundle-total-val">'+fmtPrice(totalActive)+'</span>';
+          totalRow.innerHTML='<span style="font-size:12px;color:#8891a3;margin-right:8px">Σύνολο πακέτου:</span><span class="pl-bundle-total-val">'+fmtPrice(totalActive)+'</span>';
           bDiv.appendChild(totalRow);
         }
         bundleWrap.appendChild(bDiv);
@@ -1056,7 +1077,7 @@ function renderPricelist(){
   [{v:'out',l:'Ασφάλεια'},{v:'in',l:'Πακέτο'}].forEach(t=>{
     const b=document.createElement('button');
     b.className='pl-implant-btn'+(plState.bundleMode===t.v?' active':'');
-    b.style.background=plState.bundleMode===t.v?(t.v==='in'?'#1a3a5f':'#1a2828'):'';
+    b.style.background=plState.bundleMode===t.v?(t.v==='in'?'#1a3a5f':'#1e222a'):'';
     b.style.borderColor=plState.bundleMode===t.v?(t.v==='in'?'#60a5fa':'#4ade80'):'';
     b.style.color=plState.bundleMode===t.v?(t.v==='in'?'#60a5fa':'#4ade80'):'';
     b.textContent=t.l;
@@ -1065,13 +1086,13 @@ function renderPricelist(){
   });
   wrap.appendChild(bundleRow);
 
-  const hint=document.createElement('div');hint.className='pl-hint';hint.style.color='#b2dfdb';hint.textContent='Αρχική Εμφύτευση/Αντικατάσταση αφορά βηματοδότες & απινιδωτές. Ασφάλεια/Πακέτο αφορά μόνο τα bundles ablation Boston.';
+  const hint=document.createElement('div');hint.className='pl-hint';hint.style.color='#b7c0d6';hint.textContent='Αρχική Εμφύτευση/Αντικατάσταση αφορά βηματοδότες & απινιδωτές. Ασφάλεια/Πακέτο αφορά μόνο τα bundles ablation Boston.';
   wrap.appendChild(hint);
 
   // Search row
   const srow=document.createElement('div');srow.className='pl-search-wrap';
   const sinp=document.createElement('input');sinp.className='pl-search-inp';sinp.id='pl-search-inp';
-  sinp.type='text';sinp.placeholder='🔍 REF code ή περιγραφή...';sinp.autocomplete='off';
+  sinp.type='text';sinp.placeholder='REF code ή περιγραφή...';sinp.autocomplete='off';
   let searchTimer;
   sinp.oninput=()=>{clearTimeout(searchTimer);plState.query=sinp.value;searchTimer=setTimeout(()=>plFetch(sinp.value),300);};
   sinp.onkeydown=(e)=>{if(e.key==='Enter'){clearTimeout(searchTimer);plState.query=sinp.value;plFetch(sinp.value);}};
