@@ -568,6 +568,26 @@ function addRecord(){
 
 function renderAlertBar(){
   const bar=document.getElementById('alert-bar');
+  if(state.cat==='evar'){
+    const CONTRACT_FROM='2026-05-01',CONTRACT_TO='2027-04-30';
+    const TIERS=[{max:96000,rate:20},{max:144000,rate:25},{max:Infinity,rate:30}];
+    const all=(state.evar||[]).concat(state.evar_done||[]);
+    const inContract=all.filter(r=>r.date&&r.date>=CONTRACT_FROM&&r.date<=CONTRACT_TO&&r.amount);
+    const total=inContract.reduce((s,r)=>s+parseFloat(r.amount||0),0);
+    if(total>0){
+      const tier=TIERS.find(t=>total<=t.max);
+      const discountAmt=total*tier.rate/100;
+      const nextTier=TIERS[TIERS.indexOf(tier)+1];
+      bar.className='alert-bar show';
+      let html='<strong style="font-size:12px;color:#c084fc;display:flex;align-items:center;gap:5px;margin-bottom:6px">'+ICONS.euro+'Σύμβαση Medtronic EVAR — Έκπτωση Επίτευξης Στόχου</strong>';
+      html+='<div class="alert-item"><div class="alert-dot" style="background:#c084fc"></div><span style="color:#e9d5ff">Όγκος πωλήσεων ('+fmtDate(CONTRACT_FROM)+' – '+fmtDate(CONTRACT_TO)+'): <strong>'+total.toLocaleString('el-GR',{minimumFractionDigits:2})+'€</strong>';
+      html+=' | Τρέχουσα έκπτωση: <strong style="color:#4ade80">'+tier.rate+'%</strong> ('+discountAmt.toLocaleString('el-GR',{minimumFractionDigits:2})+'€)';
+      if(nextTier){const remaining=tier.max-total;html+=' | Επόμενη κλίμακα ('+nextTier.rate+'%) σε: <strong>'+remaining.toLocaleString('el-GR',{minimumFractionDigits:2})+'€</strong> ακόμα';}
+      html+='</span></div>';
+      bar.innerHTML=html;return;
+    }
+    bar.className='alert-bar';return;
+  }
   if(state.cat==='clip'&&!state.viewDone){
     const clips=state.clip||[];
     const total=clips.length;
