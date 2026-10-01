@@ -56,5 +56,20 @@ body{font-family:"Segoe UI",Arial,sans-serif;background:#f4f7fa;line-height:1.45
 .record-financial .credit-due{grid-column:1;grid-row:auto;background:none;padding:0;margin:0;font-size:10.8px;line-height:1.4;text-align:right;justify-self:end;color:#758398;white-space:nowrap}
 .record-financial .credit-due.soon{color:#a7782c}.record-financial .credit-due.overdue{color:#ac5454}
 /* Shared start position follows the marked inset on wide desktop screens. */
+.records{background:transparent;border:0;border-radius:0;overflow:visible;gap:8px}
+.record-item,.record-item:last-child{border:1px solid #cbd6e0;border-radius:9px;background:#fff;box-shadow:0 1px 3px #23364b08}
+.record-item:hover{border-color:#8aa6bb;background:#fafcfd}
+.record-item.selected{border-color:#285776;background:#eaf2f6}
+.record-item.completed-style{border-color:#d0d9e2;background:#f8fafc}
+.edit-panel{border-color:#cbd6e0}
+.proposal-metric,.add-panel,.pl-result{border-color:#cbd6e0;box-shadow:0 1px 3px #23364b08}
+.proposal-metric.accent{border-color:#285776}
+.tavi-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:22px}
+.tavi-card{appearance:none;display:flex;flex-direction:column;align-items:flex-start;gap:11px;background:#fff;border:1px solid #cbd6e0;border-top:3px solid var(--company-color);border-radius:9px;padding:19px 20px;min-height:132px;box-shadow:0 1px 3px #23364b08;text-align:left;color:#23364b;font-family:inherit;cursor:pointer}
+.tavi-card span{font-size:13px;color:#597085}.tavi-card strong{font-size:32px;line-height:1;font-weight:650;color:var(--company-color)}.tavi-card small{font-size:11px;color:#758398}
+.tavi-card.total{background:#285776;border-color:#285776;color:#fff}.tavi-card.total span,.tavi-card.total small{color:#d4e2ec}.tavi-card.total strong{color:#fff}
+.tavi-card:hover{box-shadow:0 2px 7px #23364b18}.tavi-card.active:not(.total){border-color:var(--company-color);box-shadow:0 0 0 1px var(--company-color)}
+.record-tags .tag{font-size:13px;padding:5px 8px;line-height:1.45}.company-filter{cursor:pointer}.company-filter:hover{outline:1px solid currentColor}
+@media(max-width:600px){.tavi-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.tavi-card{padding:15px;min-height:115px}.tavi-card strong{font-size:28px}.record-tags .tag{font-size:12.5px}}
 @media(min-width:851px){#app{margin-left:clamp(0px,calc((100vw - 1440px)*.195),216px);margin-right:0}.app-footer{margin-left:clamp(0px,calc((100vw - 1440px)*.195),216px);margin-right:0}}
 @media(max-width:600px){.proposal-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.proposal-metric{min-height:105px;padding:14px}.proposal-metric:first-child{grid-column:1/-1}.proposal-metric strong{font-size:22px}.record-financial .credit-due{white-space:normal}}
