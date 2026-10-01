@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"><script>try{document.documentElement.dataset.theme=localStorage.getItem('mediuse-theme')==='dark'?'dark':'light';}catch{}</script>
 <link rel="icon" type="image/png" href="icon-192.png?v=20261001b">
 <link rel="apple-touch-icon" href="icon-192.png?v=20261001b">
 <link rel="manifest" href="manifest.json?v=20261001b">
@@ -242,7 +242,7 @@ input[type=date]{color-scheme:light}
   .df-popup-dow{font-size:12.96px;padding:6px 0}
 }
 </style>
-<link rel="stylesheet" href="modern.css?v=20261001secure">
+<link rel="stylesheet" href="modern.css?v=20261001-theme1">
 </head>
 <body>
 <section id="auth-loading" class="login-screen"><div class="login-card"><h1>MediUse</h1><p>Άνοιγμα εφαρμογής…</p></div></section><section hidden id="login-screen" class="login-screen">
@@ -257,7 +257,7 @@ input[type=date]{color-scheme:light}
   <div class="sidebar-tools"><button id="archive-btn">Διαγραμμένες εγγραφές</button><button id="history-btn">Ιστορικό αλλαγών</button><button id="logout-btn">Αποσύνδεση</button></div><div class="sidebar-foot">Mediterraneo Hospital<small>Καταγραφή & παρακολούθηση επεμβάσεων</small></div>
 </aside>
 <div hidden class="main-shell">
-<header class="topbar"><span>Mediterraneo <b>/ MediUse</b></span><div class="sync-bar" role="status" aria-live="polite"><div class="sync-dot loading" id="sync-dot"></div><span id="sync-label">Σύνδεση...</span></div></header>
+<header class="topbar"><span>Mediterraneo <b>/ MediUse</b></span><div class="topbar-actions"><button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">Σκοτεινό θέμα</button><div class="sync-bar" role="status" aria-live="polite"><div class="sync-dot loading" id="sync-dot"></div><span id="sync-label">Σύνδεση...</span></div></div></header>
 <main id="app">
   <div class="page-heading"><div><p class="eyebrow">ΔΙΑΧΕΙΡΙΣΗ ΕΠΕΜΒΑΣΕΩΝ</p><h1 id="page-title">TAVI</h1><p class="subtitle" id="page-subtitle">Καταγραφή και παρακολούθηση ενεργών επεμβάσεων</p></div><span class="page-badge" id="page-badge">Ενεργές εγγραφές</span></div>
   <div class="alert-bar" id="alert-bar"></div>
@@ -1329,7 +1329,7 @@ document.addEventListener('paste', function(e){
   }
 });
 </script>
-<script src="secure-ui.js?v=20261001-auth3"></script>
+<script src="secure-ui.js?v=20261001-theme1"></script>
 </body>
 </html>
 
