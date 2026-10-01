@@ -17,3 +17,8 @@ startSecureApp();
 
 
 
+const themeToggle=document.getElementById('theme-toggle');
+function updateThemeButton(){const dark=document.documentElement.dataset.theme==='dark';themeToggle.textContent=dark?'Φωτεινό θέμα':'Σκοτεινό θέμα';themeToggle.setAttribute('aria-pressed',String(dark));document.querySelector('meta[name="theme-color"]').content=dark?'#111b27':'#f4f7fa';}
+themeToggle.onclick=()=>{const theme=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=theme;try{localStorage.setItem('mediuse-theme',theme);}catch{}updateThemeButton();};
+updateThemeButton();
+
