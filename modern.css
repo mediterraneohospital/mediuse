@@ -77,3 +77,25 @@ body{font-family:"Segoe UI",Arial,sans-serif;background:#f4f7fa;line-height:1.45
 @media(min-width:851px){#app{margin-left:clamp(0px,calc((100vw - 1440px)*.195),216px);margin-right:0}.app-footer{margin-left:clamp(0px,calc((100vw - 1440px)*.195),216px);margin-right:0}}
 @media(max-width:600px){.proposal-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.proposal-metric{min-height:105px;padding:14px}.proposal-metric:first-child{grid-column:1/-1}.proposal-metric strong{font-size:22px}.record-financial .credit-due{white-space:normal}}
 
+.topbar-actions{display:flex;align-items:center;gap:16px}.theme-toggle{background:transparent;border:1px solid #cbd6e0;border-radius:7px;color:#395067;padding:7px 11px;font:inherit;cursor:pointer;white-space:nowrap}.theme-toggle:hover{background:#eaf1f6}
+html[data-theme="dark"]{color-scheme:dark;--border:#34475b;--muted:#a3b4c7;--blue:#77b7e2;background:#111b27;color:#e1ebf5}
+html[data-theme="dark"] body{background:#111b27;color:#e1ebf5}
+html[data-theme="dark"] :is(.sidebar,.topbar,.record-item,.add-panel,.proposal-metric,.tavi-card,.pl-result,.login-card,#secure-dialog,.done-dropdown-menu,.df-popup,.conflict-row){background:#1b2939;color:#e1ebf5;border-color:#34475b;box-shadow:none}
+html[data-theme="dark"] :is(h1,h2,.record-patient,.topbar b,.bulk-subtotal,.stat span){color:#e1ebf5}
+html[data-theme="dark"] :is(.subtitle,.eyebrow,.record-date,.financial-label,.stat,.form-group label,.add-panel h3,.cat-tab,.done-dropdown-btn,.proposal-metric span,.proposal-metric small,.tavi-card span,.tavi-card small,.login-card p,.login-card label,.sidebar-tools button,.app-footer,.sync-bar){color:#a3b4c7}
+html[data-theme="dark"] :is(.inp,.sel,.search-inp,.sort-btn,.pl-search-inp,.login-card input,.df-wrap,.df-btn,.df-label,.clear-btn,.cancel-btn,.theme-toggle){background:#152231;color:#dce8f4;border-color:#40566d}
+html[data-theme="dark"] :is(input,select)::placeholder{color:#96aabe}
+html[data-theme="dark"] .sel option{background:#152231;color:#dce8f4}
+html[data-theme="dark"] :is(.record-item:hover,.record-item.selected,.record-item.completed-style,.edit-panel,.bulk-bar,.cat-tab.active,.done-dropdown-btn.active,.page-badge,.sidebar-tools button:hover,.theme-toggle:hover){background:#243a4e;border-color:#50728f;color:#dce8f4}
+html[data-theme="dark"] :is(.cat-tab:hover,.done-dropdown-btn:hover){background:#243a4e;color:#dce8f4}
+html[data-theme="dark"] :is(.proposal-metric.accent,.tavi-card.total){background:#285776;color:#fff;border-color:#5483a3}
+html[data-theme="dark"] :is(.proposal-metric.accent span,.proposal-metric.accent small,.tavi-card.total span,.tavi-card.total small){color:#d4e2ec}
+html[data-theme="dark"] :is(.add-btn,.save-btn,.sort-btn.active){background:#356e94;color:#fff;border-color:#5483a3}
+html[data-theme="dark"] .tag{background:#293f54;color:#bedaf0}
+html[data-theme="dark"] .credit-due{color:#a3b4c7}
+html[data-theme="dark"] .credit-due.soon{color:#e9bd78}html[data-theme="dark"] .credit-due.overdue{color:#f19595}
+html[data-theme="dark"] :is(.alert-bar,.pl-price-box){background:#293749;border-color:#52687e;color:#dce8f4}
+html[data-theme="dark"] .brand-mark{background:white;border-color:#dce4eb}
+@media(max-width:520px){.topbar-actions{gap:8px}.theme-toggle{font-size:11px;padding:6px 8px}.topbar{gap:8px}.topbar-actions .sync-bar{font-size:10px}}
+html[data-theme="dark"] .tavi-card strong{color:color-mix(in srgb,var(--company-color,#77b7e2) 50%,white)}html[data-theme="dark"] .tavi-card.total strong{color:white}html[data-theme="dark"] .add-panel summary{color:#b9d5eb}
+
