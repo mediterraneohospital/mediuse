@@ -242,7 +242,7 @@ input[type=date]{color-scheme:light}
   .df-popup-dow{font-size:12.96px;padding:6px 0}
 }
 </style>
-<link rel="stylesheet" href="modern.css?v=20261001-theme1">
+<link rel="stylesheet" href="modern.css?v=20261001-mobile2">
 </head>
 <body>
 <section id="auth-loading" class="login-screen"><div class="login-card"><h1>MediUse</h1><p>Άνοιγμα εφαρμογής…</p></div></section><section hidden id="login-screen" class="login-screen">
@@ -251,6 +251,7 @@ input[type=date]{color-scheme:light}
  <button type="button" class="login-link" id="register-btn">Δημιουργία λογαριασμού</button><p id="login-error" role="status" aria-live="polite"></p></div>
 </section>
 <aside hidden class="sidebar" aria-label="Κύρια πλοήγηση">
+  <button type="button" id="mobile-menu-toggle" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-options">Επιλογές</button><div id="mobile-options" class="mobile-options" hidden></div>
   <div class="brand"><img class="brand-mark" src="logo.svg?v=20261001b" alt=""><div>MediUse<small>MEDITERRANEO HOSPITAL</small></div></div>
   <p class="nav-label">ΙΑΤΡΙΚΕΣ ΕΠΕΜΒΑΣΕΙΣ</p>
   <nav class="cat-tabs" id="cat-tabs" aria-label="Ενότητες"></nav>
@@ -1329,7 +1330,7 @@ document.addEventListener('paste', function(e){
   }
 });
 </script>
-<script src="secure-ui.js?v=20261001-theme1"></script>
+<script src="secure-ui.js?v=20261001-mobile2"></script>
 </body>
 </html>
 
