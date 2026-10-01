@@ -242,7 +242,7 @@ input[type=date]{color-scheme:light}
   .df-popup-dow{font-size:12.96px;padding:6px 0}
 }
 </style>
-<link rel="stylesheet" href="modern.css?v=20261001final">
+<link rel="stylesheet" href="modern.css?v=20261001align">
 </head>
 <body>
 <aside class="sidebar" aria-label="Κύρια πλοήγηση">
@@ -602,6 +602,11 @@ function renderAlertBar(){
     const tiers=[{max:96000,rate:20},{max:144000,rate:25},{max:Infinity,rate:30}];
     const index=tiers.findIndex(t=>total<=t.max),tier=tiers[index],next=tiers[index+1];
     show([['accent','Όγκος σύμβασης',money(total),'Ενεργές και ολοκληρωμένες επεμβάσεις'],['green','Τρέχουσα έκπτωση',tier.rate+'%','Εκτιμώμενη έκπτωση '+money(total*tier.rate/100)],[next?'amber':'green',next?'Έως την επόμενη κλίμακα':'Ανώτατη κλίμακα',next?money(tier.max-total):'30%',next?'Επόμενη έκπτωση '+next.rate+'%':'Έχει επιτευχθεί η ανώτατη έκπτωση']],'Medtronic EVAR · Σύμβαση 01/05/2026 – 30/04/2027');return;
+  }
+  if(state.cat==='clip'&&!state.viewDone){
+    const total=(state.clip||[]).length;
+    const free=Math.floor(total/10),remaining=10-(total%10);
+    show([['accent','Συνολικά clips',String(total),'Ενεργές εγγραφές Clip Abbott'],['green','Δωρεάν clips',String(free),'1 δωρεάν ανά 10 clips'],['amber','Έως το επόμενο δωρεάν',String(remaining),remaining===1?'Απομένει 1 clip':'Απομένουν '+remaining+' clips']],'Clip Abbott · Πρόγραμμα δωρεάν clips');return;
   }
   renderLegacyAlerts();
 }
@@ -1348,6 +1353,8 @@ document.addEventListener('paste', function(e){
 </script>
 </body>
 </html>
+
+
 
 
 
