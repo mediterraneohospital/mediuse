@@ -242,7 +242,7 @@ input[type=date]{color-scheme:light}
   .df-popup-dow{font-size:12.96px;padding:6px 0}
 }
 </style>
-<link rel="stylesheet" href="modern.css?v=20261001-mobile2">
+<link rel="stylesheet" href="modern.css?v=20261001-mobile3">
 </head>
 <body>
 <section id="auth-loading" class="login-screen"><div class="login-card"><h1>MediUse</h1><p>Άνοιγμα εφαρμογής…</p></div></section><section hidden id="login-screen" class="login-screen">
@@ -665,10 +665,10 @@ function renderStats(){
     const useRecs=sel.length>0?recs.filter(r=>state.selected[r.id]):recs;
     const total=useRecs.reduce((s,r)=>s+parseFloat(r.amount||0),0);
     const label=sel.length>0?'Υποσύνολο ('+sel.length+')':'Σύνολο ποσό';
-    html+=`<div class="stat highlight"><span>${label}: ${total.toLocaleString('el-GR',{minimumFractionDigits:2})}€</span></div>`;
+    html+=`<div class="stat highlight financial-stat"><span class="stat-label">${label}</span><span class="stat-value">${total.toLocaleString('el-GR',{minimumFractionDigits:2})} €</span></div>`;
     if(cat.hasCredit){
       const credit=useRecs.reduce((s,r)=>s+parseFloat(r.credit||0),0);
-      html+=`<div class="stat highlight"><span>Πιστωτικά: ${credit.toLocaleString('el-GR',{minimumFractionDigits:2})}€</span></div>`;
+      html+=`<div class="stat highlight financial-stat"><span class="stat-label">Πιστωτικά</span><span class="stat-value">${credit.toLocaleString('el-GR',{minimumFractionDigits:2})} €</span></div>`;
     }
   }
 
