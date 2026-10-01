@@ -22,3 +22,16 @@ function updateThemeButton(){const dark=document.documentElement.dataset.theme==
 themeToggle.onclick=()=>{const theme=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=theme;try{localStorage.setItem('mediuse-theme',theme);}catch{}updateThemeButton();};
 updateThemeButton();
 
+const mobileLayout=matchMedia('(max-width:850px)');
+const mobileToggle=document.getElementById('mobile-menu-toggle'),mobileOptions=document.getElementById('mobile-options');
+const sidebarTools=document.querySelector('.sidebar-tools'),headerActions=document.querySelector('.topbar-actions'),sortControls=document.querySelector('.sort-row'),mobileStats=document.querySelector('.stats-row');
+const toolsAnchor=document.createComment('sidebar tools'),headerAnchor=document.createComment('header actions'),sortAnchor=document.createComment('sort controls');
+sidebarTools.before(toolsAnchor);headerActions.before(headerAnchor);sortControls.before(sortAnchor);
+function closeMobileMenu(){mobileOptions.hidden=true;mobileToggle.setAttribute('aria-expanded','false');}
+function compactMobileLayout(){closeMobileMenu();if(mobileLayout.matches){mobileOptions.append(headerActions,sidebarTools);mobileStats.prepend(sortControls);}else{toolsAnchor.after(sidebarTools);headerAnchor.after(headerActions);sortAnchor.after(sortControls);}}
+mobileToggle.onclick=()=>{mobileOptions.hidden=!mobileOptions.hidden;mobileToggle.setAttribute('aria-expanded',String(!mobileOptions.hidden));};
+document.addEventListener('click',e=>{if(!mobileOptions.contains(e.target)&&!mobileToggle.contains(e.target))closeMobileMenu();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMobileMenu();mobileToggle.focus();}});
+mobileOptions.addEventListener('click',e=>{if(e.target.closest('#archive-btn,#history-btn,#logout-btn'))closeMobileMenu();});
+mobileLayout.addEventListener('change',compactMobileLayout);compactMobileLayout();
+
