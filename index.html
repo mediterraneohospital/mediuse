@@ -245,7 +245,7 @@ input[type=date]{color-scheme:light}
 <link rel="stylesheet" href="modern.css?v=20261001secure">
 </head>
 <body>
-<section id="login-screen" class="login-screen">
+<section id="auth-loading" class="login-screen"><div class="login-card"><h1>MediUse</h1><p>Άνοιγμα εφαρμογής…</p></div></section><section hidden id="login-screen" class="login-screen">
  <div class="login-card"><img src="logo.svg" width="52" height="52" alt="MU"><h1>MediUse</h1><p>Συνδεθείτε με τον λογαριασμό σας.</p>
  <form id="login-form"><label for="login-email">Email</label><input id="login-email" type="email" autocomplete="username" required><label for="login-password">Κωδικός</label><input id="login-password" type="password" autocomplete="current-password" required><button class="save-btn" id="login-submit">Σύνδεση</button></form>
  <button type="button" class="login-link" id="register-btn">Δημιουργία λογαριασμού</button><p id="login-error" role="status" aria-live="polite"></p></div>
@@ -1329,7 +1329,7 @@ document.addEventListener('paste', function(e){
   }
 });
 </script>
-<script src="secure-ui.js?v=20261001"></script>
+<script src="secure-ui.js?v=20261001-auth3"></script>
 </body>
 </html>
 
