@@ -242,16 +242,21 @@ input[type=date]{color-scheme:light}
   .df-popup-dow{font-size:12.96px;padding:6px 0}
 }
 </style>
-<link rel="stylesheet" href="modern.css?v=20261001tavi">
+<link rel="stylesheet" href="modern.css?v=20261001secure">
 </head>
 <body>
-<aside class="sidebar" aria-label="Κύρια πλοήγηση">
+<section id="login-screen" class="login-screen">
+ <div class="login-card"><img src="logo.svg" width="52" height="52" alt="MU"><h1>MediUse</h1><p>Συνδεθείτε με τον λογαριασμό σας.</p>
+ <form id="login-form"><label for="login-email">Email</label><input id="login-email" type="email" autocomplete="username" required><label for="login-password">Κωδικός</label><input id="login-password" type="password" autocomplete="current-password" required><button class="save-btn" id="login-submit">Σύνδεση</button></form>
+ <button type="button" class="login-link" id="register-btn">Δημιουργία λογαριασμού</button><p id="login-error" role="status" aria-live="polite"></p></div>
+</section>
+<aside hidden class="sidebar" aria-label="Κύρια πλοήγηση">
   <div class="brand"><img class="brand-mark" src="logo.svg?v=20261001b" alt=""><div>MediUse<small>MEDITERRANEO HOSPITAL</small></div></div>
   <p class="nav-label">ΙΑΤΡΙΚΕΣ ΕΠΕΜΒΑΣΕΙΣ</p>
   <nav class="cat-tabs" id="cat-tabs" aria-label="Ενότητες"></nav>
-  <div class="sidebar-foot">Mediterraneo Hospital<small>Καταγραφή & παρακολούθηση επεμβάσεων</small></div>
+  <div class="sidebar-tools"><button id="archive-btn">Διαγραμμένες εγγραφές</button><button id="history-btn">Ιστορικό αλλαγών</button><button id="logout-btn">Αποσύνδεση</button></div><div class="sidebar-foot">Mediterraneo Hospital<small>Καταγραφή & παρακολούθηση επεμβάσεων</small></div>
 </aside>
-<div class="main-shell">
+<div hidden class="main-shell">
 <header class="topbar"><span>Mediterraneo <b>/ MediUse</b></span><div class="sync-bar" role="status" aria-live="polite"><div class="sync-dot loading" id="sync-dot"></div><span id="sync-label">Σύνδεση...</span></div></header>
 <main id="app">
   <div class="page-heading"><div><p class="eyebrow">ΔΙΑΧΕΙΡΙΣΗ ΕΠΕΜΒΑΣΕΩΝ</p><h1 id="page-title">TAVI</h1><p class="subtitle" id="page-subtitle">Καταγραφή και παρακολούθηση ενεργών επεμβάσεων</p></div><span class="page-badge" id="page-badge">Ενεργές εγγραφές</span></div>
@@ -283,6 +288,8 @@ input[type=date]{color-scheme:light}
   <div class="records" id="records"></div>
 </main><footer class="app-footer">MediUse · Mediterraneo Hospital</footer></div>
 
+<script src="vendor/supabase-2.117.2.js"></script>
+<script src="secure-store.js?v=20261001"></script>
 <script>
 // Καθαρίζει τυχόν παλιό service worker (χωρίς να καταχωρεί νέο), ώστε να μην "κολλάει" ποτέ σε παλιά έκδοση.
 if('serviceWorker' in navigator){
@@ -292,17 +299,9 @@ if('serviceWorker' in navigator){
 }
 const SUPA_URL='https://odtbtugzilxsfqxlpofq.supabase.co';
 const SUPA_KEY='sb_publishable_ch-7C1ihpZRrxEhXFqV1xA_hXPwq61S';
-const ROW_ID=1;
-
-async function supaGet(){
-  const r=await fetch(SUPA_URL+'/rest/v1/mediuse?id=eq.'+ROW_ID+'&select=data',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
-  const j=await r.json();return j&&j.length>0?j[0].data:null;
-}
-async function supaSet(data){
-  const r=await fetch(SUPA_URL+'/rest/v1/mediuse?id=eq.'+ROW_ID,{method:'PATCH',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({data:data})});
-  if(!r.ok){await fetch(SUPA_URL+'/rest/v1/mediuse',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({id:ROW_ID,data:data})});}
-}
-
+const db=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'mediuse-auth-v2'}});
+const store=new MediUseStore(db,(status,text)=>setSyncStatus(status,text));
+async function authHeaders(){const {data:{session},error}=await db.auth.getSession();if(error||!session)throw Error('login_required');return {'apikey':SUPA_KEY,'Authorization':'Bearer '+session.access_token};}
 function pad(n){return String(n).padStart(2,'0');}
 // ── Line icons (μονόχρωμα SVG, αντικαθιστούν τα emoji) ──
 const ICONS={
@@ -333,44 +332,15 @@ function daysDiff(dateStr){const d=new Date(dateStr),now=new Date();now.setHours
 let state={cat:'tavi',viewDone:false,sort:'date',tavi:[],boston:[],evar:[],clip:[],tavi_done:[],boston_done:[],evar_done:[],clip_done:[],selected:{},editingId:null,taviFilter:null,addPanelOpen:false};
 
 function setSyncStatus(s,m){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-label').textContent=m;}
-let saveTimeout=null;
-function save(){localStorage.setItem('mediuse_bk',JSON.stringify(state));clearTimeout(saveTimeout);saveTimeout=setTimeout(saveToCloud,400);}
-async function saveToCloud(){
-  saveTimeout=null;
-  setSyncStatus('loading','Αποθήκευση...');
-  try{const s={...state,selected:{},editingId:null,addPanelOpen:false};await supaSet(JSON.stringify(s));setSyncStatus('ok','Συγχρονισμένο ✓');}
-  catch(e){setSyncStatus('err','Σφάλμα αποθήκευσης — δοκίμασε ξανά');}
-}
-// Flush τυχόν εκκρεμούς αποθήκευσης αμέσως όταν η σελίδα κρύβεται/κλείνει
-// (π.χ. κλείδωμα κινητού ή αλλαγή εφαρμογής), ώστε να μη χαθεί καμία εγγραφή
-// λόγω του debounce των 400ms.
-function flushPendingSave(){
-  if(saveTimeout){clearTimeout(saveTimeout);saveToCloud();}
-}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushPendingSave();});
-window.addEventListener('pagehide',flushPendingSave);
-window.addEventListener('beforeunload',flushPendingSave);
-
-async function loadFromCloud(){
-  setSyncStatus('loading','Φόρτωση...');
-  try{
-    const raw=await supaGet();
-    if(raw!==null){
-      let data=raw;try{data=JSON.parse(raw);}catch(e){}
-      if(typeof data==='string'){try{data=JSON.parse(data);}catch(e){data={};}}
-      if(data&&(data.tavi!==undefined||data.boston!==undefined||data.evar!==undefined)){
-        state={...state,...data,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date',addPanelOpen:false};
-      }
-      setSyncStatus('ok','Συγχρονισμένο ✓');
-    } else loadLocal();
-  }catch(e){loadLocal();}
-  render();
-}
-function loadLocal(){
-  try{const b=localStorage.getItem('mediuse_bk');if(b){const d=JSON.parse(b);state={...state,...d,selected:{},editingId:null,cat:'tavi',viewDone:false,sort:'date',addPanelOpen:false};}setSyncStatus('err','Offline');}
-  catch(e){setSyncStatus('err','Σφάλμα');}
-}
-
+function save(){store.capture(state);}
+async function saveToCloud(){return store.flush();}
+function flushPendingSave(){store.flush();}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')store.flush();});
+window.addEventListener('pagehide',()=>store.flush());
+window.addEventListener('online',()=>store.flush());
+window.addEventListener('beforeunload',e=>{if(store.ready&&(store.request||store.build().length)){e.preventDefault();e.returnValue='';}});
+function applyRemote(data){state={...state,...data,selected:{},editingId:null,addPanelOpen:false};render();}
+async function loadFromCloud(){applyRemote(await store.load());}
 const CATS={
   tavi:{label:'TAVI',hasAmount:false,fields:[
     {id:'date',label:'Ημερομηνία',type:'date',required:true},
@@ -937,7 +907,7 @@ async function plFetch(q){
     const enc=encodeURIComponent(q.toUpperCase());
     // search by ref_code (ilike) OR description (ilike)
     const url=SUPA_URL+'/rest/v1/offers?or=(ref_code.ilike.*'+encodeURIComponent(q)+'*,description.ilike.*'+encodeURIComponent(q)+'*)&limit=30&select=*';
-    const r=await fetch(url,{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    const r=await fetch(url,{headers:await authHeaders()});
     let data=await r.json();
     // apply filters
     if(plState.supplier!=='all') data=data.filter(d=>d.supplier===plState.supplier);
@@ -949,7 +919,7 @@ async function plFetch(q){
 
 async function plFetchBundles(offerId){
   try{
-    const r=await fetch(SUPA_URL+'/rest/v1/offer_bundles?offer_id=eq.'+offerId+'&order=sort_order',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    const r=await fetch(SUPA_URL+'/rest/v1/offer_bundles?offer_id=eq.'+offerId+'&order=sort_order',{headers:await authHeaders()});
     return await r.json();
   }catch(e){return [];}
 }
@@ -1341,7 +1311,8 @@ document.addEventListener('click',(e)=>{
   if(DF.calOpen && !e.target.closest('.df-wrap')){DF.calOpen=false;dfRender();}
 });
 
-loadFromCloud();
+// Startup is handled by secure-ui.js.
+
 
 // Smart paste για ημερομηνίες (DD/MM/YYYY → YYYY-MM-DD)
 document.addEventListener('paste', function(e){
@@ -1358,8 +1329,11 @@ document.addEventListener('paste', function(e){
   }
 });
 </script>
+<script src="secure-ui.js?v=20261001"></script>
 </body>
 </html>
+
+
 
 
 
