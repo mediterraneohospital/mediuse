@@ -30,6 +30,7 @@ with parameters as (
  when strpos(public.mediuse_catalog_normalize(i.description),p.q)>0 then 70 else 50 end relevance
  from public.mediuse_catalog_items i cross join parameters p
  where not exists(select 1 from tokens t where case
+ when t.token ~ '^[0-9]+(\.[0-9]+)+$' then public.mediuse_catalog_compact(coalesce(i.observatory_code,'')) <> public.mediuse_catalog_compact(t.token)
  when t.token='καθετ' then not(i.search_text ~ '\mκαθετ' or i.search_text ~ '\mcath')
  when t.token='γαντ' then not(i.search_text ~ '\mγαντ' or i.search_text ~ '\mglove')
  else strpos(i.search_text,t.token)=0 and strpos(public.mediuse_catalog_normalize(i.observatory_code),t.token)=0

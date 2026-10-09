@@ -5,6 +5,7 @@ insert into public.mediuse_catalog_items(code,ref,description,purchase_qty,price
 ('__sort_test_3','TEST3','Βήτα',20,null,0,'998877.66','SortTest Supplier'),
 ('__sort_test_4','TEST4','Γάμμα',30,15,10,'998877.66','SortTest Supplier'),
 ('__sort_test_5','TEST5','Δέλτα',40,5,20,'998877.66','SortTest Supplier');
+insert into public.mediuse_catalog_items(code,ref,description,purchase_qty,observatory_code,supplier) values ('__collision_99887766','OTHER','Unrelated item',1,'123.45','Other Supplier');
 insert into public.mediuse_catalog_items(code,ref,description,purchase_qty,price_purchase,price_observatory,observatory_code,supplier)
 select '__sort_page_'||lpad(n::text,3,'0'),'PAGE'||n,'Είδος '||n,n,46-n,46-n,'998877.77',case when n<=30 then 'SortPage A' else 'SortPage B' end from generate_series(1,45) n;
 do $$
@@ -14,7 +15,7 @@ begin
  perform set_config('request.jwt.claim.sub',member_id::text,true);execute 'set local role authenticated';
  r:=public.mediuse_catalog_search_v2('998877.66');
  if (r->>'total')::int<>5 or r->'items'->0->>'observatory_code'<>'998877.66' then raise exception 'Dotted observatory search failed';end if;
- if (public.mediuse_catalog_search_v2('99887766')->>'total')::int<>5 then raise exception 'Compact observatory search failed';end if;
+ if (public.mediuse_catalog_search_v2('99887766')->>'total')::int<>6 then raise exception 'Compact observatory search failed';end if;
  if (public.mediuse_catalog_search_v2('SortTest 998877.66')->>'total')::int<>5 then raise exception 'Supplier + observatory failed';end if;
  foreach mode in array array['relevance','alpha','purchase_asc','purchase_desc','observatory_asc','observatory_desc'] loop
   r:=public.mediuse_catalog_search_v2('998877.66','',0,mode);
