@@ -59,7 +59,7 @@ window.MediUseWarehouse=(()=>{
    if(id!==request||!active()||target!==results)return;
    if(error)throw error;if(!data?.meta)throw Error('access_denied');
    facets=data.suppliers||[];drawFilters();document.getElementById('page-badge').textContent=number(data.meta.row_count)+' είδη';
-   document.getElementById('wh-updated').textContent=data.meta.updated_at?'Ενημέρωση: '+new Date(data.meta.updated_at).toLocaleDateString('el-GR'):'Δεν έχει εισαχθεί κατάλογος';
+   document.getElementById('wh-updated').textContent=data.meta.updated_at?'Τελευταία εισαγωγή Excel: '+new Date(data.meta.updated_at).toLocaleDateString('el-GR'):'Δεν έχει εισαχθεί κατάλογος';
    if(!query.trim()||tooShort){status.textContent='';target.replaceChildren(el('div','wh-empty',tooShort?'Γράψε τουλάχιστον 2 χαρακτήρες.':'Αναζήτησε με κωδικό, περιγραφή, προμηθευτή ή συνδυασμό τους.'));return;}
    status.textContent=number(data.total)+' '+(data.total===1?'είδος':'είδη')+(supplier?' · '+shortSupplier(supplier):'');
    if(!data.items.length&&!append){const empty=el('div','wh-empty','Δεν βρέθηκαν είδη που να ταιριάζουν σε όλους τους όρους.');if(supplier)empty.append(button('Αναζήτηση σε όλους τους προμηθευτές',()=>{supplier='';offset=0;search();}));if(query.trim().split(/\s+/).length>1)empty.append(el('p','','Δοκίμασε λιγότερες λέξεις ή μέρος της περιγραφής / του κωδικού.'));target.append(empty);return;}
@@ -80,7 +80,7 @@ window.MediUseWarehouse=(()=>{
  function parseWorkbook(workbook,XLSX){
   const expected=['REF','Κωδικός','Περιγραφή','Ποσ.1','ΤΕΛ.ΑΓΟΡΑ','Τιμή','Τιμή Παρατ.','ΚΩΔ.ΠΑΡΑΤ.','ΕΚΑΠΤΥ','Συνήθης Προμηθευτής'];
   let sheet,header,columns;
-  for(const name of workbook.SheetNames){const candidate=workbook.Sheets[name];const matrix=XLSX.utils.sheet_to_json(candidate,{header:1,raw:true,defval:null});for(let i=0;i<Math.min(matrix.length,30);i++){const vals=matrix[i].map(v=>normalize(v).replace(/\s+/g,''));const cols=expected.map(e=>vals.indexOf(normalize(e).replace(/\s+/g,'')));if(cols.every(c=>c>=0)){if(sheet)throw Error('Βρέθηκαν περισσότερα από ένα φύλλα ειδών.');sheet=candidate;header=i;columns=cols;break;}}}
+  for(const name of workbook.SheetNames){const candidate=workbook.Sheets[name];const matrix=XLSX.utils.sheet_to_json(candidate,{header:1,raw:true,defval:null});for(let i=0;i<Math.min(matrix.length,30);i++){const vals=matrix[i].map(v=>normalize(v).replace(/\s+/g,''));const cols=expected.map(e=>vals.indexOf(normalize(e).replace(/\s+/g,'')));if(cols.every(c=>c>=0)){const prices=vals.map((v,n)=>v===normalize('Τιμή')?n:-1).filter(n=>n>=0);if(prices.length>1){if(prices.length!==2||prices[0]>cols[4]||prices[1]<cols[4])throw Error('Δεν αναγνωρίζονται οι δύο στήλες Τιμή.');cols[5]=prices[1];}if(sheet)throw Error('Βρέθηκαν περισσότερα από ένα φύλλα ειδών.');sheet=candidate;header=i;columns=cols;break;}}}
   if(!sheet)throw Error('Δεν βρέθηκαν οι αναμενόμενες στήλες της εξαγωγής αποθήκης.');
   const range=XLSX.utils.decode_range(sheet['!ref']);const rows=[],seen=new Set();
   const text=(r,c)=>{const cell=sheet[XLSX.utils.encode_cell({r,c})];return cell?String(XLSX.utils.format_cell(cell)).trim():'';};
@@ -94,7 +94,7 @@ window.MediUseWarehouse=(()=>{
  }
  async function importExcel(){
   if(loading)return;const {d,body}=dialog('Ενημέρωση καταλόγου από Excel');d.id='wh-import-dialog';
-  body.append(el('p','','Επίλεξε την πλήρη εξαγωγή ειδών. Θα δεις τις αλλαγές πριν ενημερωθεί ο κατάλογος.'));
+  body.append(el('p','','Επίλεξε την εξαγωγή νέων αγορών από την τελευταία εισαγωγή Excel. Θα δεις τις αλλαγές πριν αποθηκευτούν. Τα υπόλοιπα είδη διατηρούνται.'));
   const file=el('input','inp');file.type='file';file.accept='.xlsx';file.setAttribute('aria-label','Αρχείο Excel ειδών');body.append(file);
   const progress=el('p');progress.setAttribute('role','status');body.append(progress);
   file.onchange=async()=>{
@@ -102,14 +102,14 @@ window.MediUseWarehouse=(()=>{
    try{
     const selected=file.files[0];if(selected.size>15*1024*1024)throw Error('Το αρχείο ξεπερνά τα 15 MB.');const XLSX=await loadExcel();const rows=parseWorkbook(XLSX.read(await selected.arrayBuffer(),{type:'array'}),XLSX);
     const {data,error}=await client.rpc('mediuse_catalog_preview',{p_rows:rows});if(error)throw Error('Δεν ήταν δυνατή η προεπισκόπηση. Δοκίμασε ξανά.');if(!d.isConnected||!d.open)return;
-    progress.textContent='';const list=el('div','wh-import-summary');for(const [label,key] of [['Είδη στο αρχείο','total'],['Νέα είδη','added'],['Ενημερωμένα είδη','changed'],['Είδη που θα αφαιρεθούν','removed'],['Είδη με ελλιπείς τιμές','missing_prices']]){const line=el('p');line.append(el('span','',label),el('strong','',number(data[key])));list.append(line);}body.append(list);
-    body.append(el('p','',data.removed?'Τα είδη που λείπουν από αυτή την εξαγωγή θα αφαιρεθούν από τον κατάλογο.':'Η εξαγωγή θα αντικαταστήσει τις προηγούμενες τιμές του καταλόγου.'));
-    if(data.missing_prices)body.append(el('p','','Οι κενές τιμές θα παραμείνουν κενές.'));
+    progress.textContent='';const list=el('div','wh-import-summary');for(const [label,key] of [['Είδη στο αρχείο','total'],['Νέα είδη','added'],['Ενημερωμένα είδη','changed'],['Είδη με ελλιπείς τιμές','missing_prices']]){const line=el('p');line.append(el('span','',label),el('strong','',number(data[key])));list.append(line);}body.append(list);
+    body.append(el('p','','Τα είδη που λείπουν από το Excel διατηρούνται. Οι ποσότητες προστίθενται στο σύνολο για την αναζήτηση.'));if(data.duplicate_at)body.append(el('p','','Το ίδιο περιεχόμενο εισήχθη στις '+new Date(data.duplicate_at).toLocaleDateString('el-GR')+'. Οι ποσότητες δεν θα προστεθούν ξανά. Τα στοιχεία θα ελεγχθούν για ενημέρωση.'));
+    if(data.missing_prices)body.append(el('p','','Οι κενές τιμές δεν διαγράφουν υπάρχουσες τιμές.'));
     const confirm=button('Ενημέρωση καταλόγου',async()=>{
      loading=true;confirm.disabled=true;file.disabled=true;progress.textContent='Αποθήκευση…';const close=d.querySelector('.cancel-btn');close.disabled=true;const prevent=e=>e.preventDefault();d.addEventListener('cancel',prevent);
      try{
       const result=await client.rpc('mediuse_catalog_import',{p_rows:rows,p_source:selected.name,p_expected_version:data.version});if(result.error)throw result.error;
-      progress.textContent='Ο κατάλογος ενημερώθηκε: '+number(result.data.row_count)+' είδη.';confirm.remove();if(active()){offset=0;search();}
+      document.getElementById('wh-updated').textContent='Τελευταία εισαγωγή Excel: '+new Date(result.data.updated_at||Date.now()).toLocaleDateString('el-GR');progress.textContent='Ο κατάλογος ενημερώθηκε: '+number(result.data.row_count)+' είδη.';confirm.remove();if(active()){offset=0;search();}
      }catch(e){progress.textContent=e.message?.includes('catalog_conflict')?'Ο κατάλογος ενημερώθηκε από άλλον χρήστη. Κλείσε και κάνε νέα προεπισκόπηση.':'Δεν επιβεβαιώθηκε η αποθήκευση. Κλείσε και κάνε νέα προεπισκόπηση για να ελέγξεις την κατάσταση.';}
      finally{loading=false;close.disabled=false;d.removeEventListener('cancel',prevent);}
     },'save-btn');body.append(confirm);

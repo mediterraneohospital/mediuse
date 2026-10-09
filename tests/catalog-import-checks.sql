@@ -1,0 +1,21 @@
+begin;
+insert into public.mediuse_catalog_items(code,ref,description,purchase_qty,price_purchase,price_package,price_observatory,observatory_code,supplier) values ('__increment_test','REF','Test',100,10,20,30,'1.2.3','Supplier');
+do $$ declare member_id uuid; rows jsonb; v int; r jsonb; n int; begin
+select user_id into member_id from public.mediuse_members limit 1; perform set_config('request.jwt.claim.sub',member_id::text,true);set local role authenticated;
+select count(*) into n from public.mediuse_catalog_items;
+rows:='[{"code":"__increment_test","ref":"REF","description":"Test","purchase_qty":2,"price_purchase":0,"price_package":null,"price_observatory":35,"observatory_code":"1.2.4","supplier":""},{"code":"__increment_new","ref":"NEW","description":"New","purchase_qty":3}]';
+select version into v from public.mediuse_catalog_meta where id;
+r:=public.mediuse_catalog_preview(rows);if (r->>'added')::int<>1 or(r->>'changed')::int<>1 or(r->>'removed')::int<>0 then raise exception 'preview failed';end if;
+r:=public.mediuse_catalog_import(rows,'test.xlsx',v);
+if(select count(*) from public.mediuse_catalog_items)<>n+1 then raise exception 'lost items';end if;
+if not exists(select 1 from public.mediuse_catalog_items where code='__increment_test' and purchase_qty=102 and price_purchase=0 and price_package=20 and price_observatory=35 and observatory_code='1.2.4' and supplier='Supplier') then raise exception 'merge failed';end if;
+select version into v from public.mediuse_catalog_meta where id;
+rows:=(select jsonb_agg(value order by value->>'code' desc) from jsonb_array_elements(rows));
+r:=public.mediuse_catalog_preview(rows);if r->>'duplicate_at' is null then raise exception 'duplicate detection failed';end if;
+r:=public.mediuse_catalog_import(rows,'renamed.xlsx',v);
+if(select purchase_qty from public.mediuse_catalog_items where code='__increment_test')<>102 then raise exception 'duplicate counted';end if;
+if not(r->>'duplicate')::boolean or r->>'updated_at' is null then raise exception 'date failed';end if;
+perform set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000000000',true);
+begin perform public.mediuse_catalog_import(rows,'unauthorized',v+1);raise exception 'unauthorized allowed';exception when others then if sqlerrm<>'access_denied' then raise;end if;end;
+end $$;
+rollback;select 'PASS: merge, new items, zero/blank prices, observatory changes, preserved items, reordered duplicate, quantities, date and authorization; no live data changed' result;
