@@ -14,9 +14,50 @@ grant select,update on public.mediuse_catalog_meta to authenticated;
 create policy mediuse_catalog_members on public.mediuse_catalog_items for all to authenticated using(exists(select 1 from public.mediuse_members where user_id=(select auth.uid())) and exists(select 1 from public.mediuse_config where active)) with check(exists(select 1 from public.mediuse_members where user_id=(select auth.uid())) and exists(select 1 from public.mediuse_config where active));
 create policy mediuse_catalog_meta_read on public.mediuse_catalog_meta for select to authenticated using(exists(select 1 from public.mediuse_members where user_id=(select auth.uid())) and exists(select 1 from public.mediuse_config where active));
 create policy mediuse_catalog_meta_update on public.mediuse_catalog_meta for update to authenticated using(exists(select 1 from public.mediuse_members where user_id=(select auth.uid())) and exists(select 1 from public.mediuse_config where active)) with check(exists(select 1 from public.mediuse_members where user_id=(select auth.uid())) and exists(select 1 from public.mediuse_config where active));
-create function public.mediuse_catalog_search(p_query text default '',p_supplier text default '',p_offset integer default 0) returns jsonb language sql stable security invoker set search_path=pg_catalog,public as $$
-with parameters as(select left(public.mediuse_catalog_normalize(trim(coalesce(p_query,''))),160) q,public.mediuse_catalog_compact(left(trim(coalesce(p_query,'')),160)) compact),tokens as(select case when token like 'καθετ%' or token like 'cath%' then 'καθετ' when token like 'γαντ%' then 'γαντ' else token end token from parameters,unnest(regexp_split_to_array(q,'\s+')) token where token<>''),matched as materialized(select i.*,case when public.mediuse_catalog_normalize(i.ref)=p.q or public.mediuse_catalog_normalize(i.code)=p.q then 100 when public.mediuse_catalog_compact(i.ref)=p.compact or public.mediuse_catalog_compact(i.code)=p.compact then 95 when exists(select 1 from tokens t where public.mediuse_catalog_compact(t.token) in(public.mediuse_catalog_compact(i.ref),public.mediuse_catalog_compact(i.code))) then 90 when strpos(public.mediuse_catalog_normalize(i.description),p.q)>0 then 70 else 50 end relevance from public.mediuse_catalog_items i cross join parameters p where not exists(select 1 from tokens t where case when t.token='καθετ' then not(i.search_text ~ '\mκαθετ' or i.search_text ~ '\mcath') when t.token='γαντ' then not(i.search_text ~ '\mγαντ' or i.search_text ~ '\mglove') else strpos(i.search_text,t.token)=0 and(public.mediuse_catalog_compact(t.token)='' or strpos(i.search_compact,public.mediuse_catalog_compact(t.token))=0) end)),filtered as materialized(select * from matched where coalesce(p_supplier,'')='' or coalesce(supplier,'')=p_supplier),page as(select code,ref,description,price_purchase,price_package,price_observatory,observatory_code,ekapty,supplier,relevance,purchase_qty from filtered where(select q<>'' from parameters) order by relevance desc,purchase_qty desc,code limit 20 offset greatest(coalesce(p_offset,0),0))
-select jsonb_build_object('items',coalesce((select jsonb_agg(to_jsonb(page)-'purchase_qty' order by relevance desc,purchase_qty desc,code) from page),'[]'::jsonb),'total',(select count(*) from filtered),'suppliers',coalesce((select jsonb_agg(jsonb_build_object('supplier',supplier,'count',n) order by n desc,supplier) from(select supplier,count(*) n from matched where coalesce(supplier,'')<>'' group by supplier) f),'[]'::jsonb),'meta',(select to_jsonb(m)-'updated_by' from public.mediuse_catalog_meta m where id)) $$;
+create function public.mediuse_catalog_search_v2(p_query text default '',p_supplier text default '',p_offset integer default 0,p_sort text default 'relevance') returns jsonb language sql stable security invoker set search_path=pg_catalog,public as $$
+with parameters as (
+ select left(public.mediuse_catalog_normalize(trim(coalesce(p_query,''))),160) q,
+ public.mediuse_catalog_compact(left(trim(coalesce(p_query,'')),160)) compact,
+ case when p_sort in ('alpha','purchase_asc','purchase_desc','observatory_asc','observatory_desc') then p_sort else 'relevance' end sorting
+),tokens as (
+ select case when token like 'καθετ%' or token like 'cath%' then 'καθετ' when token like 'γαντ%' then 'γαντ' else token end token
+ from parameters,unnest(regexp_split_to_array(q,'\s+')) token where token<>''
+),matched as materialized (
+ select i.*,case
+ when public.mediuse_catalog_normalize(i.ref)=p.q or public.mediuse_catalog_normalize(i.code)=p.q or (coalesce(i.observatory_code,'')<>'' and public.mediuse_catalog_normalize(i.observatory_code)=p.q) then 100
+ when public.mediuse_catalog_compact(i.ref)=p.compact or public.mediuse_catalog_compact(i.code)=p.compact or (coalesce(i.observatory_code,'')<>'' and public.mediuse_catalog_compact(i.observatory_code)=p.compact) then 95
+ when exists(select 1 from tokens t where public.mediuse_catalog_compact(t.token) in(public.mediuse_catalog_compact(i.ref),public.mediuse_catalog_compact(i.code),nullif(public.mediuse_catalog_compact(i.observatory_code),''))) then 90
+ when strpos(public.mediuse_catalog_normalize(i.description),p.q)>0 then 70 else 50 end relevance
+ from public.mediuse_catalog_items i cross join parameters p
+ where not exists(select 1 from tokens t where case
+ when t.token='καθετ' then not(i.search_text ~ '\mκαθετ' or i.search_text ~ '\mcath')
+ when t.token='γαντ' then not(i.search_text ~ '\mγαντ' or i.search_text ~ '\mglove')
+ else strpos(i.search_text,t.token)=0 and strpos(public.mediuse_catalog_normalize(i.observatory_code),t.token)=0
+ and (public.mediuse_catalog_compact(t.token)='' or (strpos(i.search_compact,public.mediuse_catalog_compact(t.token))=0 and strpos(public.mediuse_catalog_compact(i.observatory_code),public.mediuse_catalog_compact(t.token))=0)) end)
+),filtered as materialized (
+ select * from matched where coalesce(p_supplier,'')='' or coalesce(supplier,'')=p_supplier
+),ranked as (
+ select f.*,row_number() over(order by
+ case when p.sorting='relevance' then relevance end desc,
+ case when p.sorting='alpha' then public.mediuse_catalog_normalize(description) end collate "el-x-icu" asc,
+ case when p.sorting='purchase_asc' then price_purchase end asc nulls last,
+ case when p.sorting='purchase_desc' then price_purchase end desc nulls last,
+ case when p.sorting='observatory_asc' then price_observatory end asc nulls last,
+ case when p.sorting='observatory_desc' then price_observatory end desc nulls last,
+ case when p.sorting='relevance' then purchase_qty end desc,
+ case when p.sorting='relevance' then code end asc,
+ public.mediuse_catalog_normalize(description) collate "el-x-icu" asc,code asc) position
+ from filtered f cross join parameters p
+),page as (
+ select code,ref,description,price_purchase,price_package,price_observatory,observatory_code,ekapty,supplier,relevance,position
+ from ranked where(select q<>'' from parameters) order by position limit 20 offset greatest(coalesce(p_offset,0),0)
+)
+select jsonb_build_object(
+ 'items',coalesce((select jsonb_agg(to_jsonb(page)-'position' order by position) from page),'[]'::jsonb),
+ 'total',(select count(*) from filtered),
+ 'suppliers',coalesce((select jsonb_agg(jsonb_build_object('supplier',supplier,'count',n) order by n desc,supplier) from(select supplier,count(*) n from matched where coalesce(supplier,'')<>'' group by supplier) f),'[]'::jsonb),
+ 'meta',(select to_jsonb(m)-'updated_by' from public.mediuse_catalog_meta m where id)) $$;
+create function public.mediuse_catalog_search(p_query text default '',p_supplier text default '',p_offset integer default 0) returns jsonb language sql stable security invoker set search_path=pg_catalog,public as $$ select public.mediuse_catalog_search_v2(p_query,p_supplier,p_offset,'relevance') $$;
 create function public.mediuse_catalog_validate(p_rows jsonb) returns void language plpgsql security invoker set search_path=pg_catalog,public as $$ begin
 if jsonb_typeof(p_rows) is distinct from 'array' or jsonb_array_length(p_rows) not between 1 and 50000 then raise exception 'invalid_catalog'; end if;
 if exists(select 1 from jsonb_array_elements(p_rows) r where jsonb_typeof(r) is distinct from 'object' or jsonb_typeof(r->'code') is distinct from 'string' or trim(r->>'code')='' or jsonb_typeof(r->'ref') is distinct from 'string' or trim(r->>'ref')='' or jsonb_typeof(r->'description') is distinct from 'string' or trim(r->>'description')='' or jsonb_typeof(r->'purchase_qty') is distinct from 'number' or(r->>'purchase_qty')::numeric<0 or exists(select 1 from unnest(array['price_purchase','price_package','price_observatory']) k where r->k is not null and r->k<>'null'::jsonb and(jsonb_typeof(r->k)<>'number' or(r->>k)::numeric<0))) then raise exception 'invalid_catalog_row'; end if;
@@ -35,3 +76,6 @@ update public.mediuse_catalog_meta set version=v+1,updated_at=clock_timestamp(),
 end $$;
 revoke all on function public.mediuse_catalog_normalize(text),public.mediuse_catalog_compact(text),public.mediuse_catalog_terms(text),public.mediuse_catalog_search(text,text,integer),public.mediuse_catalog_validate(jsonb),public.mediuse_catalog_preview(jsonb),public.mediuse_catalog_import(jsonb,text,integer) from public,anon;
 grant execute on function public.mediuse_catalog_normalize(text),public.mediuse_catalog_compact(text),public.mediuse_catalog_terms(text),public.mediuse_catalog_search(text,text,integer),public.mediuse_catalog_validate(jsonb),public.mediuse_catalog_preview(jsonb),public.mediuse_catalog_import(jsonb,text,integer) to authenticated;
+
+revoke all on function public.mediuse_catalog_search_v2(text,text,integer,text) from public,anon;
+grant execute on function public.mediuse_catalog_search_v2(text,text,integer,text) to authenticated;

@@ -6,10 +6,10 @@ const fs=require('fs');const path=require('path');const assert=require('assert/s
  await context.route('**/*.supabase.co/**',r=>r.abort());const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('file:///'+path.join(app,'index.html').replace(/\\/g,'/'));await page.locator('#login-screen').waitFor({state:'visible'});
  await page.evaluate(f=>{
-  window.fixture=f;window.failSearch=false;window.delaySearch=0;window.previewCalls=0;window.importCalls=0;
+  window.searchCalls=[];window.fixture=f;window.failSearch=false;window.delaySearch=0;window.previewCalls=0;window.importCalls=0;
   db.rpc=async(name,args)=>{
-   if(name==='mediuse_catalog_search'){
-    const delay=window.delaySearch;if(delay)await new Promise(r=>setTimeout(r,delay));if(window.failSearch)return {error:{message:'offline'}};
+   if(name==='mediuse_catalog_search_v2'){
+    window.searchCalls.push({...args});const delay=window.delaySearch;if(delay)await new Promise(r=>setTimeout(r,delay));if(window.failSearch)return {error:{message:'offline'}};
     let data=structuredClone(!args.p_query?fixture.blank:args.p_query==='183466'?fixture.exact:args.p_offset?fixture.next_page:fixture.combined);
     if(args.p_query==='no-match')data={...data,items:[],total:0};return {data,error:null};
    }
@@ -24,6 +24,12 @@ const fs=require('fs');const path=require('path');const assert=require('assert/s
  assert(!/purchase_qty|Ποσότητα|Συνολικές αγορές/.test(await page.locator('#app').innerText()));
  await page.evaluate(()=>{render();});assert.equal(await page.locator('#wh-search').inputValue(),'medtronic καθετήρας');
  await page.locator('#wh-more').click();await page.waitForFunction(()=>document.querySelectorAll('.wh-item').length===40);
+ await page.locator('#wh-sort').selectOption('purchase_asc');await page.waitForFunction(()=>document.querySelectorAll('.wh-item').length===20);
+ assert.deepEqual(await page.evaluate(()=>({sort:searchCalls.at(-1).p_sort,offset:searchCalls.at(-1).p_offset})),{sort:'purchase_asc',offset:0});
+ await page.locator('#wh-more').click();await page.waitForFunction(()=>document.querySelectorAll('.wh-item').length===40);assert.equal(await page.evaluate(()=>searchCalls.at(-1).p_sort),'purchase_asc');
+ await page.locator('#wh-sort').selectOption('observatory_desc');await page.waitForFunction(()=>document.querySelectorAll('.wh-item').length===20);assert.equal(await page.evaluate(()=>searchCalls.at(-1).p_offset),0);
+ await page.locator('#wh-search').fill('zimmer 33.4.120');await page.waitForFunction(()=>searchCalls.at(-1).p_query==='zimmer 33.4.120');assert.equal(await page.evaluate(()=>searchCalls.at(-1).p_sort),'observatory_desc');
+ await page.locator('#wh-sort').selectOption('relevance');
  await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.resolve('outputs/warehouse-implemented-desktop.png'),fullPage:false});
  await page.locator('#wh-search').fill('183466');await page.waitForFunction(()=>document.querySelectorAll('.wh-item').length===1);
  await page.locator('.wh-details summary').click();assert((await page.locator('.wh-detail-grid').innerText()).includes('33.4.120'));

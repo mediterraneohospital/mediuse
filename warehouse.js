@@ -1,6 +1,6 @@
 /* Authenticated catalog search; cumulative purchases stay on the server. */
 window.MediUseWarehouse=(()=>{
- let client,root,results,query='',supplier='',offset=0,request=0,timer,facets=[],loading=false;
+ let client,root,results,query='',supplier='',sort='relevance',offset=0,request=0,timer,facets=[],loading=false;
  const normalize=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ς/g,'σ');
  const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
  const button=(text,fn,cls='wh-button')=>{const b=el('button',cls,text);b.type='button';b.onclick=fn;return b;};
@@ -13,24 +13,28 @@ window.MediUseWarehouse=(()=>{
   const chars=Array.from(text),normalized=chars.map(normalize);const normalizedText=normalized.join('');let pos=0;
   while(pos<chars.length){const term=terms.find(t=>normalizedText.startsWith(t,pos));if(term){node.append(el('mark','',chars.slice(pos,pos+term.length).join('')));pos+=term.length;}else{let end=pos+1;while(end<chars.length&&!terms.some(t=>normalizedText.startsWith(t,end)))end++;node.append(document.createTextNode(chars.slice(pos,end).join('')));pos=end;}}
  }
- function reset(){request++;clearTimeout(timer);query='';supplier='';offset=0;facets=[];document.getElementById('wh-search')?.closest('#add-section')?.replaceChildren();if(results?.classList.contains('wh-list'))results.replaceChildren();root=null;results=null;document.getElementById('wh-import-dialog')?.remove();}
+ function reset(){request++;clearTimeout(timer);query='';supplier='';sort='relevance';offset=0;facets=[];document.getElementById('wh-search')?.closest('#add-section')?.replaceChildren();if(results?.classList.contains('wh-list'))results.replaceChildren();root=null;results=null;document.getElementById('wh-import-dialog')?.remove();}
  function render(db){
   client=db;root=document.getElementById('add-section');results=document.getElementById('records');results.classList.add('wh-list');
   if(document.getElementById('wh-search')?.closest('#add-section')===root)return;
   root.replaceChildren();results.replaceChildren();offset=0;
   const box=el('div','wh-searchbox');box.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>';
-  const input=el('input');input.type='search';input.id='wh-search';input.maxLength=160;input.placeholder='REF, κωδικός, περιγραφή ή προμηθευτής…';input.setAttribute('aria-label','Αναζήτηση ειδών αποθήκης');input.autocomplete='off';input.value=query;
+  const input=el('input');input.type='search';input.id='wh-search';input.maxLength=160;input.placeholder='REF, κωδικός, παρατηρητήριο, περιγραφή…';input.setAttribute('aria-label','Αναζήτηση ειδών αποθήκης');input.autocomplete='off';input.value=query;
   input.oninput=()=>{query=input.value;offset=0;request++;clearTimeout(timer);timer=setTimeout(()=>search(),220);};
   input.onkeydown=e=>{if(e.key==='Enter'){clearTimeout(timer);search();}};
   box.append(input,button('Καθαρισμός',()=>{input.value='';query='';offset=0;search();input.focus();},'wh-clear'));root.append(box);
-  root.append(el('p','wh-help','Συνδύασε λέξεις και κωδικούς, π.χ. medtronic καθετήρας ή zimmer 183466.'));
+  root.append(el('p','wh-help','Συνδύασε λέξεις και κωδικούς, π.χ. medtronic καθετήρας ή zimmer 33.4.120.'));
   const filters=el('div','wh-filters');filters.id='wh-filters';root.append(filters);
   const chooser=el('details','wh-chooser');const summary=el('summary','','Επιλογή προμηθευτή');chooser.append(summary);
   const find=el('input','inp');find.type='search';find.placeholder='Βρες προμηθευτή…';find.setAttribute('aria-label','Αναζήτηση προμηθευτή');
   const select=el('select','sel');select.id='wh-suppliers';select.size=6;select.setAttribute('aria-label','Προμηθευτές');
   find.oninput=()=>supplierOptions(find.value);select.onchange=()=>{supplier=select.value;offset=0;chooser.open=false;search();};chooser.append(find,select);root.append(chooser);
   const foot=el('div','wh-tools');const date=el('span','wh-updated');date.id='wh-updated';foot.append(date,button('Ενημέρωση από Excel',()=>importExcel(),'wh-button'));root.append(foot);
-  const status=el('div','wh-status');status.id='wh-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');root.append(status);
+  const status=el('div','wh-status');status.id='wh-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');const resultBar=el('div','wh-resultbar');resultBar.append(status);
+  const sortLabel=el('label','wh-sort-label');sortLabel.append(el('span','','Ταξινόμηση'));
+  const sorting=el('select','sel wh-sort');sorting.id='wh-sort';
+  for(const [value,label] of [['relevance','Συνάφεια'],['alpha','Περιγραφή Α–Ω'],['purchase_asc','Τιμή αγοράς: χαμηλή → υψηλή'],['purchase_desc','Τιμή αγοράς: υψηλή → χαμηλή'],['observatory_asc','Τιμή παρατηρητηρίου: χαμηλή → υψηλή'],['observatory_desc','Τιμή παρατηρητηρίου: υψηλή → χαμηλή']]){const option=el('option','',label);option.value=value;sorting.append(option);}
+  sorting.value=sort;sorting.onchange=()=>{sort=sorting.value;offset=0;clearTimeout(timer);search();};sortLabel.append(sorting);resultBar.append(sortLabel);root.append(resultBar);
   search();
  }
  function supplierOptions(filter=''){
@@ -51,7 +55,7 @@ window.MediUseWarehouse=(()=>{
   document.getElementById('wh-more')?.remove();if(!append)target.replaceChildren();
   const tooShort=query.trim().length===1;
   try{
-   const {data,error}=await client.rpc('mediuse_catalog_search',{p_query:tooShort?'':query.trim(),p_supplier:supplier,p_offset:offset});
+   const {data,error}=await client.rpc('mediuse_catalog_search_v2',{p_query:tooShort?'':query.trim(),p_supplier:supplier,p_offset:offset,p_sort:sort});
    if(id!==request||!active()||target!==results)return;
    if(error)throw error;if(!data?.meta)throw Error('access_denied');
    facets=data.suppliers||[];drawFilters();document.getElementById('page-badge').textContent=number(data.meta.row_count)+' είδη';
@@ -66,7 +70,7 @@ window.MediUseWarehouse=(()=>{
  function card(item){
   const article=el('article','wh-item');const header=el('div','wh-item-header');const name=el('h2','wh-name');mark(name,item.description);const tag=el('span','wh-supplier',shortSupplier(item.supplier));tag.title=item.supplier||'';header.append(name,tag);article.append(header);
   if(item.relevance>=95)article.append(el('span','wh-exact','Ακριβής αντιστοίχιση κωδικού'));
-  const codes=el('div','wh-codes');for(const [label,value] of [['REF',item.ref],['Κωδικός',item.code]]){const line=el('span','',label+' ');const valueNode=el('b');mark(valueNode,value);line.append(valueNode);codes.append(line);}
+  const codes=el('div','wh-codes');for(const [label,value] of [['REF',item.ref],['Κωδικός',item.code],...(/^\d/.test(item.observatory_code||'')?[['Παρατ.',item.observatory_code]]:[])]){const line=el('span','',label+' ');const valueNode=el('b');mark(valueNode,value);line.append(valueNode);codes.append(line);}
   const copy=button('Αντιγραφή REF',async()=>{try{await navigator.clipboard.writeText(item.ref);copy.textContent='Αντιγράφηκε';setTimeout(()=>copy.textContent='Αντιγραφή REF',1500);}catch{const {body}=dialog('Αντιγραφή REF');const field=el('input','inp');field.value=item.ref;field.readOnly=true;body.append(field);field.focus();field.select();}},'wh-copy');codes.append(copy);article.append(codes);
   const prices=el('div','wh-prices');for(const [label,key] of [['Τελευταία αγορά','price_purchase'],['Τιμή πακέτου','price_package'],['Παρατηρητήριο','price_observatory']]){const cell=el('div');cell.append(el('span','wh-price-label',label),el('strong','',money(item[key])));prices.append(cell);}article.append(prices);
   const details=el('details','wh-details');details.append(el('summary','','Στοιχεία είδους'));const grid=el('div','wh-detail-grid');for(const [label,key] of [['Κωδικός παρατηρητηρίου','observatory_code'],['ΕΚΑΠΤΥ','ekapty'],['Συνήθης προμηθευτής','supplier']]){const cell=el('div');cell.append(el('span','wh-price-label',label),el('span','',item[key]||'—'));grid.append(cell);}details.append(grid);article.append(details);return article;
