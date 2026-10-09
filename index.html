@@ -244,6 +244,7 @@ input[type=date]{color-scheme:light}
 }
 </style>
 <link rel="stylesheet" href="modern.css?v=20261001-dark-pricelist">
+<link rel="stylesheet" href="warehouse.css?v=20261009">
 </head>
 <body>
 <section id="auth-loading" class="login-screen"><div class="login-card"><h1>MediUse</h1><p>Άνοιγμα εφαρμογής…</p></div></section><section hidden id="login-screen" class="login-screen">
@@ -446,6 +447,7 @@ function renderCatTabs(){
     {cat:'evar',done:false,label:'EVAR'},
     {cat:'clip',done:false,label:'Clip Abbott'},
     {cat:'pricelist',done:false,label:'Τιμοκατάλογοι'},
+    {cat:'warehouse',done:false,label:'Είδη Αποθήκης'},
   ];
   mainTabs.forEach(t=>{
     const b=document.createElement('button');
@@ -879,6 +881,19 @@ function updateSelectAllCb(){
 const addSectionEl=document.getElementById('add-section');
 
 function render(){
+  document.getElementById('alert-bar').hidden=state.cat==='warehouse';
+  document.getElementById('records').classList.toggle('wh-list',state.cat==='warehouse');
+  document.querySelector('.eyebrow').textContent=state.cat==='warehouse'?'ΚΑΤΑΛΟΓΟΣ ΕΙΔΩΝ':'ΔΙΑΧΕΙΡΙΣΗ ΕΠΕΜΒΑΣΕΩΝ';
+  if(state.cat==='warehouse'){
+    document.getElementById('page-title').textContent='Είδη Αποθήκης';
+    document.getElementById('page-subtitle').textContent='Βρες είδη και σύγκρινε τιμές';
+    renderCatTabs();
+    document.querySelector('.toolbar').style.display='none';
+    document.getElementById('bulk-bar').style.display='none';
+    document.querySelector('.stats-row').style.display='none';
+    MediUseWarehouse.render(db);return;
+  }
+
   const title=state.cat==='pricelist'?'Τιμοκατάλογοι':CATS[state.cat].label;
   document.getElementById('page-title').textContent=title;
   document.getElementById('page-subtitle').textContent=state.cat==='pricelist'?'Αναζήτηση υλικών, τιμών και πακέτων':(state.viewDone?'Αρχείο ολοκληρωμένων επεμβάσεων':'Καταγραφή και παρακολούθηση ενεργών επεμβάσεων');
@@ -915,7 +930,7 @@ async function plFetch(q){
     if(plState.supplier!=='all') data=data.filter(d=>d.supplier===plState.supplier);
     if(plState.category!=='all') data=data.filter(d=>d.category===plState.category);
     plCache=data;
-    renderPlResults(data);
+    if(state.cat==='pricelist')renderPlResults(data);
   }catch(e){console.error(e);}
 }
 
@@ -1331,7 +1346,8 @@ document.addEventListener('paste', function(e){
   }
 });
 </script>
-<script src="secure-ui.js?v=20261001-mobile2"></script>
+<script src="warehouse.js?v=20261009"></script>
+<script src="secure-ui.js?v=20261009-warehouse"></script>
 </body>
 </html>
 
