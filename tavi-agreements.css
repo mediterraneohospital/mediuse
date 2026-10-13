@@ -1,0 +1,9 @@
+.tavi-agreement-card{position:relative;min-width:0;display:flex;flex-direction:column}
+.tavi-agreement-card .tavi-card{width:100%;flex:1}
+.agreement-button{margin-top:5px;padding:7px 10px;min-height:36px;border:1px solid var(--pl-blue-border,#d9e2e9);border-radius:7px;background:var(--pl-surface,#fff);color:var(--pl-blue,#356b91);font:inherit;font-size:12px;cursor:pointer}
+.agreement-button:hover,.agreement-button:focus-visible{outline:2px solid #356b91;outline-offset:1px}
+.agreement-tooltip{position:absolute;top:100%;left:0;z-index:250;min-width:220px;width:min(340px,80vw);max-height:250px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid var(--pl-blue-border,#d9e2e9);border-radius:8px;background:var(--pl-surface,#fff);color:var(--pl-text,#23364b);box-shadow:0 6px 20px #0003;font-size:13px;pointer-events:none}
+.agreement-tooltip[hidden]{display:none}
+.agreement-text{white-space:pre-wrap;overflow-wrap:anywhere;max-height:55vh;overflow:auto;margin:14px 0}
+.agreement-input{display:block;resize:vertical;min-height:180px;margin:8px 0}
+html[data-theme="dark"] .agreement-button,html[data-theme="dark"] .agreement-tooltip{background:#172536;color:#e1ebf5;border-color:#405970}
