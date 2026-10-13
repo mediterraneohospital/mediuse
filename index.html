@@ -579,7 +579,8 @@ function renderAlertBar(){
       if(company)MediUseAgreements.attach(button,company);
     };
     card(null,rows.length);
-    const names=[...new Set(['Medtronic','Edwards','Flexmed','Abbott','Άλλο',...Object.keys(counts)])];
+    const names=[...new Set(['Medtronic','Flexmed','Abbott',...Object.keys(counts)])].filter(company=>company!=='Άλλο'&&company!=='Edwards');
+    names.push('Edwards');
     names.forEach(company=>card(company,counts[company]||0));
     bar.appendChild(grid);return;
   }
