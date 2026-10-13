@@ -13,14 +13,17 @@ window.MediUseAgreements=(()=>{
   button.textContent='Συμφωνία';button.setAttribute('aria-label','Εμπορική συμφωνία '+company);
   const tip=document.createElement('div');tip.className='agreement-tooltip';tip.id='agreement-tip-'+crypto.randomUUID();tip.setAttribute('role','tooltip');
   button.setAttribute('aria-describedby',tip.id);wrap.append(button,tip);
-  let active=false;
-  const preview=async()=>{active=true;tip.textContent='Φόρτωση…';tip.hidden=false;try{const row=await read(company);if(active)tip.textContent=row?.agreement||'Δεν έχει καταχωριστεί συμφωνία.';}catch{if(active)tip.textContent='Δεν ήταν δυνατή η φόρτωση. Πατήστε για επανάληψη.';}};
+  let active=false,suppressFocusPreview=false;
+  const preview=async()=>{if(document.querySelector('dialog[open]'))return;active=true;tip.textContent='Φόρτωση…';tip.hidden=false;try{const row=await read(company);if(active)tip.textContent=row?.agreement||'Δεν έχει καταχωριστεί συμφωνία.';}catch{if(active)tip.textContent='Δεν ήταν δυνατή η φόρτωση. Πατήστε για επανάληψη.';}};
   const hide=()=>{active=false;tip.hidden=true;};hide();
   button.onmouseenter=()=>{if(matchMedia('(hover:hover)').matches)preview();};button.onmouseleave=hide;
-  button.onfocus=preview;button.onblur=hide;button.onclick=()=>{hide();open(company);};
+  button.onfocus=()=>{if(!suppressFocusPreview)preview();};
+  button.onblur=()=>{hide();suppressFocusPreview=false;};
+  button.onclick=()=>{suppressFocusPreview=true;hide();open(company,()=>{suppressFocusPreview=true;hide();});};
  }
- async function open(company){
+ async function open(company,onClosed){
   const {d,body}=dialog('Εμπορική συμφωνία · '+company);body.textContent='Φόρτωση…';
+  d.addEventListener('close',onClosed,{once:true});
   const owner=session();let row;
   try{row=await read(company);}catch{body.textContent='Δεν ήταν δυνατή η φόρτωση. Κλείστε και δοκιμάστε ξανά.';return;}
   if(!d.open||session()!==owner)return;body.textContent='';
