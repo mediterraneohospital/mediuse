@@ -576,10 +576,11 @@ function renderAlertBar(){
       button.setAttribute('aria-pressed',String(company?state.taviFilter===company:!state.taviFilter));
       [['span',company||'Σύνολο εμφυτεύσεων'],['strong',String(count)],['small',company?'εμφυτεύσεις':'Όλες οι εταιρείες']].forEach(([tag,text])=>{const el=document.createElement(tag);el.textContent=text;button.appendChild(el);});
       button.onclick=()=>setTaviCompany(company);grid.appendChild(button);
+      if(company)MediUseAgreements.attach(button,company);
     };
     card(null,rows.length);
     const names=[...new Set(['Medtronic','Edwards','Flexmed','Abbott','Άλλο',...Object.keys(counts)])];
-    names.forEach(company=>{if(counts[company]||state.taviFilter===company)card(company,counts[company]||0);});
+    names.forEach(company=>card(company,counts[company]||0));
     bar.appendChild(grid);return;
   }
   if(state.cat==='boston'&&!state.viewDone){
@@ -1347,6 +1348,8 @@ document.addEventListener('paste', function(e){
 });
 </script>
 <script src="warehouse.js?v=20261009-import"></script>
+<link rel="stylesheet" href="tavi-agreements.css?v=20261013">
+<script src="tavi-agreements.js?v=20261013"></script>
 <script src="secure-ui.js?v=20261009-warehouse"></script>
 </body>
 </html>
