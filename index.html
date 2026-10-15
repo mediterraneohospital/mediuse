@@ -375,7 +375,7 @@ const CATS={
     {id:'amount',label:'Καθαρό Ποσό (€)',type:'number',placeholder:'0.00'},
     {id:'notes',label:'Παρατηρήσεις',type:'text'},
   ]},
-  evar:{label:'EVAR',hasAmount:true,fields:[
+  evar:{label:'EVAR-TEVAR',hasAmount:true,fields:[
     {id:'date',label:'Ημερομηνία',type:'date',required:true},
     {id:'nosileia',label:'Νοσηλεία',type:'text',placeholder:'Ν000000'},
     {id:'patient',label:'Ασθενής',type:'text',required:true},
@@ -444,7 +444,7 @@ function renderCatTabs(){
   const mainTabs=[
     {cat:'tavi',done:false,label:'TAVI'},
     {cat:'boston',done:false,label:'Boston ΗΦΕ'},
-    {cat:'evar',done:false,label:'EVAR- TEVAR Medtronic'},
+    {cat:'evar',done:false,label:'EVAR-TEVAR'},
     {cat:'clip',done:false,label:'Clip Abbott'},
     {cat:'pricelist',done:false,label:'Τιμοκατάλογοι'},
     {cat:'warehouse',done:false,label:'Είδη Αποθήκης'},
@@ -463,13 +463,13 @@ function renderCatTabs(){
   const doneTabs=[
     {cat:'tavi',label:'TAVI Ολοκλ.'},
     {cat:'boston',label:'Boston Ολοκλ.'},
-    {cat:'evar',label:'EVAR Ολοκλ.'},
+    {cat:'evar',label:'EVAR-TEVAR Ολοκλ.'},
     {cat:'clip',label:'Clip Ολοκλ.'},
   ];
   const wrap=document.createElement('div');wrap.className='done-dropdown';
   const btn=document.createElement('button');
   btn.className='done-dropdown-btn'+(state.viewDone?' active':'');
-  const doneLabel=state.viewDone?({'tavi':'TAVI','boston':'Boston ΗΦΕ','evar':'EVAR','clip':'Clip Abbott'}[state.cat]+' Ολοκλ. ▾'):'Ολοκληρωμένα ▾';
+  const doneLabel=state.viewDone?({'tavi':'TAVI','boston':'Boston ΗΦΕ','evar':'EVAR-TEVAR','clip':'Clip Abbott'}[state.cat]+' Ολοκλ. ▾'):'Ολοκληρωμένα ▾';
   btn.textContent=doneLabel;
   const menu=document.createElement('div');menu.className='done-dropdown-menu';
   doneTabs.forEach(t=>{
@@ -595,7 +595,7 @@ function renderAlertBar(){
     const total=(state.evar||[]).concat(state.evar_done||[]).filter(r=>r.date&&r.date>='2026-05-01'&&r.date<='2027-04-30').reduce((n,r)=>n+(parseFloat(r.amount)||0),0);
     const tiers=[{max:96000,rate:20},{max:144000,rate:25},{max:Infinity,rate:30}];
     const index=tiers.findIndex(t=>total<=t.max),tier=tiers[index],next=tiers[index+1];
-    show([['accent','Όγκος σύμβασης',money(total),'Ενεργές και ολοκληρωμένες επεμβάσεις'],['green','Τρέχουσα έκπτωση',tier.rate+'%','Εκτιμώμενη έκπτωση '+money(total*tier.rate/100)],[next?'amber':'green',next?'Έως την επόμενη κλίμακα':'Ανώτατη κλίμακα',next?money(tier.max-total):'30%',next?'Επόμενη έκπτωση '+next.rate+'%':'Έχει επιτευχθεί η ανώτατη έκπτωση']],'Medtronic EVAR · Σύμβαση 01/05/2026 – 30/04/2027');return;
+    show([['accent','Όγκος σύμβασης',money(total),'Ενεργές και ολοκληρωμένες επεμβάσεις'],['green','Τρέχουσα έκπτωση',tier.rate+'%','Εκτιμώμενη έκπτωση '+money(total*tier.rate/100)],[next?'amber':'green',next?'Έως την επόμενη κλίμακα':'Ανώτατη κλίμακα',next?money(tier.max-total):'30%',next?'Επόμενη έκπτωση '+next.rate+'%':'Έχει επιτευχθεί η ανώτατη έκπτωση']],'Medtronic EVAR-TEVAR · Σύμβαση 01/05/2026 – 30/04/2027');return;
   }
   if(state.cat==='clip'&&!state.viewDone){
     const total=(state.clip||[]).length;
@@ -624,7 +624,7 @@ function renderLegacyAlerts(){
       const discountAmt=total*tier.rate/100;
       const nextTier=TIERS[TIERS.indexOf(tier)+1];
       bar.className='alert-bar show';
-      let html='<strong style="font-size:12.96px;color:#8055a5;display:flex;align-items:center;gap:5px;margin-bottom:6px">'+ICONS.euro+'Σύμβαση Medtronic EVAR — Έκπτωση Επίτευξης Στόχου</strong>';
+      let html='<strong style="font-size:12.96px;color:#8055a5;display:flex;align-items:center;gap:5px;margin-bottom:6px">'+ICONS.euro+'Σύμβαση Medtronic EVAR-TEVAR — Έκπτωση Επίτευξης Στόχου</strong>';
       html+='<div class="alert-item"><div class="alert-dot" style="background:#8055a5"></div><span style="color:#8055a5">Όγκος πωλήσεων ('+fmtDate(CONTRACT_FROM)+' – '+fmtDate(CONTRACT_TO)+'): <strong>'+total.toLocaleString('el-GR',{minimumFractionDigits:2})+'€</strong>';
       html+=' | Τρέχουσα έκπτωση: <strong style="color:#198477">'+tier.rate+'%</strong> ('+discountAmt.toLocaleString('el-GR',{minimumFractionDigits:2})+'€)';
       if(nextTier){const remaining=tier.max-total;html+=' | Επόμενη κλίμακα ('+nextTier.rate+'%) σε: <strong>'+remaining.toLocaleString('el-GR',{minimumFractionDigits:2})+'€</strong> ακόμα';}
